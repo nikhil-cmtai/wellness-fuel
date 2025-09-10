@@ -1,9 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import Image from 'next/image'
 import { 
-  Plus, 
   Search, 
   Grid3X3, 
   List, 
@@ -11,8 +9,6 @@ import {
   Trash2, 
   Package,
   DollarSign,
-  TrendingUp,
-  Star,
   Loader2,
   ChevronLeft,
   ChevronRight,
@@ -177,7 +173,7 @@ const OrdersPage = () => {
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState<any>(null)
+  const [selectedOrder, setSelectedOrder] = useState<typeof dummyOrders[0] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
@@ -228,7 +224,7 @@ const OrdersPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setOrders(orders.filter(order => order.id !== selectedOrder.id))
+      setOrders(orders.filter(order => order.id !== selectedOrder!.id))
       setShowDeleteModal(false)
       setSelectedOrder(null)
     } finally {
@@ -236,17 +232,17 @@ const OrdersPage = () => {
     }
   }
 
-  const openViewModal = (order: any) => {
+  const openViewModal = (order: typeof dummyOrders[0]) => {
     setSelectedOrder(order)
     setShowViewModal(true)
   }
 
-  const openEditModal = (order: any) => {
+  const openEditModal = (order: typeof dummyOrders[0]) => {
     setSelectedOrder(order)
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (order: any) => {
+  const openDeleteModal = (order: typeof dummyOrders[0]) => {
     setSelectedOrder(order)
     setShowDeleteModal(true)
   }
@@ -417,7 +413,7 @@ const OrdersPage = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{order.orderNumber}</CardTitle>
-                    <Badge variant={getStatusColor(order.status) as any}>
+                    <Badge variant={getStatusColor(order.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                       {getStatusIcon(order.status)}
                       <span className="ml-1">{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
                     </Badge>
@@ -511,7 +507,7 @@ const OrdersPage = () => {
                     </TableCell>
                     <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(order.status) as any}>
+                      <Badge variant={getStatusColor(order.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {getStatusIcon(order.status)}
                         <span className="ml-1">{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
                       </Badge>
@@ -650,7 +646,7 @@ const OrdersPage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Status:</span>
-                        <Badge variant={getStatusColor(selectedOrder.status) as any}>
+                        <Badge variant={getStatusColor(selectedOrder.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                           {getStatusIcon(selectedOrder.status)}
                           <span className="ml-1">{selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}</span>
                         </Badge>
@@ -720,7 +716,7 @@ const OrdersPage = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {selectedOrder.items.map((item: any, index: number) => (
+                      {selectedOrder.items.map((item: typeof selectedOrder.items[0], index: number) => (
                         <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                           <div>
                             <p className="font-medium">{item.name}</p>
@@ -814,7 +810,7 @@ const OrdersPage = () => {
               </Button>
               <Button 
                 onClick={() => {
-                  handleUpdateOrderStatus(selectedOrder.id, selectedOrder.status)
+                  handleUpdateOrderStatus(selectedOrder!.id, selectedOrder!.status)
                   setShowEditModal(false)
                 }} 
                 disabled={isLoading}

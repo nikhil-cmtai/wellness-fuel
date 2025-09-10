@@ -190,7 +190,7 @@ const CategoriesPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<any>(null)
+  const [selectedCategory, setSelectedCategory] = useState<typeof dummyCategories[0] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
@@ -269,11 +269,11 @@ const CategoriesPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       setCategories(categories.map(category => 
-        category.id === selectedCategory.id 
+        category.id === selectedCategory!.id 
           ? { 
               ...category, 
               ...selectedCategory, 
-              parentCategory: selectedCategory.parentCategory === 'none' ? null : selectedCategory.parentCategory,
+              parentCategory: selectedCategory!.parentCategory === 'none' ? null : selectedCategory!.parentCategory,
               updatedAt: new Date().toISOString().split('T')[0] 
             }
           : category
@@ -291,7 +291,7 @@ const CategoriesPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setCategories(categories.filter(category => category.id !== selectedCategory.id))
+      setCategories(categories.filter(category => category.id !== selectedCategory!.id))
       setShowDeleteModal(false)
       setSelectedCategory(null)
     } finally {
@@ -299,7 +299,7 @@ const CategoriesPage = () => {
     }
   }
 
-  const openEditModal = (category: any) => {
+  const openEditModal = (category: typeof dummyCategories[0]) => {
     setSelectedCategory({
       ...category,
       parentCategory: category.parentCategory || 'none'
@@ -307,7 +307,7 @@ const CategoriesPage = () => {
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (category: any) => {
+  const openDeleteModal = (category: typeof dummyCategories[0]) => {
     setSelectedCategory(category)
     setShowDeleteModal(true)
   }
@@ -474,7 +474,7 @@ const CategoriesPage = () => {
                     className="object-cover"
                   />
                   <div className="absolute top-3 right-3">
-                    <Badge variant={getStatusColor(category.status) as any}>
+                    <Badge variant={getStatusColor(category.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                       {category.status.charAt(0).toUpperCase() + category.status.slice(1)}
                     </Badge>
                   </div>
@@ -574,7 +574,7 @@ const CategoriesPage = () => {
                     </TableCell>
                     <TableCell className="font-mono text-sm">{category.slug}</TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(category.status) as any}>
+                      <Badge variant={getStatusColor(category.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {category.status.charAt(0).toUpperCase() + category.status.slice(1)}
                       </Badge>
                     </TableCell>
@@ -923,7 +923,7 @@ const CategoriesPage = () => {
             <DialogHeader>
               <DialogTitle>Delete Category</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete category "{selectedCategory?.name}"? This action cannot be undone.
+                Are you sure you want to delete category &quot;{selectedCategory?.name}&quot;? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

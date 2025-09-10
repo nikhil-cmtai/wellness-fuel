@@ -30,6 +30,33 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 
+// Types
+interface BlogWithEditableTags {
+  id: number
+  title: string
+  slug: string
+  excerpt: string
+  content: string
+  featuredImage: string
+  author: string
+  category: string
+  tags: string | string[]
+  status: string
+  publishedAt: string | null
+  createdAt: string
+  updatedAt: string
+  readTime: string
+  views: number
+  likes: number
+  metaTitle: string
+  metaDescription: string
+  metaKeywords: string
+  canonicalUrl: string
+  ogTitle: string
+  ogDescription: string
+  ogImage: string
+}
+
 // Dummy data
 const dummyBlogs = [
   {
@@ -196,7 +223,7 @@ const BlogsPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedBlog, setSelectedBlog] = useState<any>(null)
+  const [selectedBlog, setSelectedBlog] = useState<BlogWithEditableTags | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
@@ -297,14 +324,14 @@ const BlogsPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       setBlogs(blogs.map(blog => 
-        blog.id === selectedBlog.id 
+        blog.id === selectedBlog!.id 
           ? { 
               ...blog, 
               ...selectedBlog, 
-              tags: typeof selectedBlog.tags === 'string' 
-                ? selectedBlog.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag)
-                : selectedBlog.tags,
-              publishedAt: selectedBlog.status === 'published' && !blog.publishedAt 
+              tags: typeof selectedBlog!.tags === 'string' 
+                ? (selectedBlog!.tags as string).split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag)
+                : selectedBlog!.tags as string[],
+              publishedAt: selectedBlog!.status === 'published' && !blog.publishedAt 
                 ? new Date().toISOString().split('T')[0] 
                 : blog.publishedAt,
               updatedAt: new Date().toISOString().split('T')[0] 
@@ -324,7 +351,7 @@ const BlogsPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setBlogs(blogs.filter(blog => blog.id !== selectedBlog.id))
+      setBlogs(blogs.filter(blog => blog.id !== selectedBlog!.id))
       setShowDeleteModal(false)
       setSelectedBlog(null)
     } finally {
@@ -332,15 +359,15 @@ const BlogsPage = () => {
     }
   }
 
-  const openEditModal = (blog: any) => {
+  const openEditModal = (blog: typeof dummyBlogs[0]) => {
     setSelectedBlog({
       ...blog,
-      tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : blog.tags
+      tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags as string)
     })
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (blog: any) => {
+  const openDeleteModal = (blog: typeof dummyBlogs[0]) => {
     setSelectedBlog(blog)
     setShowDeleteModal(true)
   }
@@ -518,7 +545,7 @@ const BlogsPage = () => {
                     className="object-cover"
                   />
                   <div className="absolute top-3 right-3">
-                    <Badge variant={getStatusColor(blog.status) as any}>
+                    <Badge variant={getStatusColor(blog.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                       {blog.status.charAt(0).toUpperCase() + blog.status.slice(1)}
                     </Badge>
                   </div>
@@ -638,7 +665,7 @@ const BlogsPage = () => {
                       <Badge variant="outline">{blog.category}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(blog.status) as any}>
+                      <Badge variant={getStatusColor(blog.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {blog.status.charAt(0).toUpperCase() + blog.status.slice(1)}
                       </Badge>
                     </TableCell>
@@ -1054,8 +1081,8 @@ const BlogsPage = () => {
                       id="edit-blog-tags"
                       type="text"
                       placeholder="tag1, tag2, tag3"
-                      value={selectedBlog.tags}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, tags: e.target.value})}
+                      value={Array.isArray(selectedBlog.tags) ? selectedBlog.tags.join(', ') : (selectedBlog.tags as string)}
+                      onChange={(e) => setSelectedBlog({...selectedBlog, tags: e.target.value as string})}
                     />
                   </div>
                   <div>
@@ -1188,7 +1215,7 @@ const BlogsPage = () => {
             <DialogHeader>
               <DialogTitle>Delete Blog Post</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete blog post "{selectedBlog?.title}"? This action cannot be undone.
+                Are you sure you want to delete blog post &quot;{selectedBlog?.title}&quot;? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

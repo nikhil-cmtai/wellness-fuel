@@ -10,7 +10,6 @@ import {
   Moon, 
   Bell, 
   Search,
-  User,
   Settings,
   LucideIcon,
   Monitor

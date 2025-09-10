@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react'
 import { 
-  Plus, 
   Search, 
   Grid3X3, 
   List, 
@@ -210,7 +209,7 @@ const LeadsPage = () => {
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedLead, setSelectedLead] = useState<any>(null)
+  const [selectedLead, setSelectedLead] = useState<typeof dummyLeads[0] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
@@ -262,7 +261,7 @@ const LeadsPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setLeads(leads.filter(lead => lead.id !== selectedLead.id))
+      setLeads(leads.filter(lead => lead.id !== selectedLead!.id))
       setShowDeleteModal(false)
       setSelectedLead(null)
     } finally {
@@ -270,17 +269,17 @@ const LeadsPage = () => {
     }
   }
 
-  const openViewModal = (lead: any) => {
+  const openViewModal = (lead: typeof dummyLeads[0]) => {
     setSelectedLead(lead)
     setShowViewModal(true)
   }
 
-  const openEditModal = (lead: any) => {
+  const openEditModal = (lead: typeof dummyLeads[0]) => {
     setSelectedLead(lead)
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (lead: any) => {
+  const openDeleteModal = (lead: typeof dummyLeads[0]) => {
     setSelectedLead(lead)
     setShowDeleteModal(true)
   }
@@ -483,11 +482,11 @@ const LeadsPage = () => {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{lead.name}</CardTitle>
                     <div className="flex gap-2">
-                      <Badge variant={getStatusColor(lead.status) as any}>
+                      <Badge variant={getStatusColor(lead.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {getStatusIcon(lead.status)}
                         <span className="ml-1">{lead.status.charAt(0).toUpperCase() + lead.status.slice(1).replace('-', ' ')}</span>
                       </Badge>
-                      <Badge variant={getPriorityColor(lead.priority) as any}>
+                      <Badge variant={getPriorityColor(lead.priority) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {lead.priority.charAt(0).toUpperCase() + lead.priority.slice(1)}
                       </Badge>
                     </div>
@@ -581,13 +580,13 @@ const LeadsPage = () => {
                     </TableCell>
                     <TableCell>{lead.source}</TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(lead.status) as any}>
+                      <Badge variant={getStatusColor(lead.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {getStatusIcon(lead.status)}
                         <span className="ml-1">{lead.status.charAt(0).toUpperCase() + lead.status.slice(1).replace('-', ' ')}</span>
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getPriorityColor(lead.priority) as any}>
+                      <Badge variant={getPriorityColor(lead.priority) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {lead.priority.charAt(0).toUpperCase() + lead.priority.slice(1)}
                       </Badge>
                     </TableCell>
@@ -741,14 +740,14 @@ const LeadsPage = () => {
                     <CardContent className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Status:</span>
-                        <Badge variant={getStatusColor(selectedLead.status) as any}>
+                        <Badge variant={getStatusColor(selectedLead.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                           {getStatusIcon(selectedLead.status)}
                           <span className="ml-1">{selectedLead.status.charAt(0).toUpperCase() + selectedLead.status.slice(1).replace('-', ' ')}</span>
                         </Badge>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Priority:</span>
-                        <Badge variant={getPriorityColor(selectedLead.priority) as any}>
+                        <Badge variant={getPriorityColor(selectedLead.priority) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                           {selectedLead.priority.charAt(0).toUpperCase() + selectedLead.priority.slice(1)}
                         </Badge>
                       </div>
@@ -873,7 +872,7 @@ const LeadsPage = () => {
               </Button>
               <Button 
                 onClick={() => {
-                  handleUpdateLeadStatus(selectedLead.id, selectedLead.status)
+                  handleUpdateLeadStatus(selectedLead!.id, selectedLead!.status)
                   setShowEditModal(false)
                 }} 
                 disabled={isLoading}

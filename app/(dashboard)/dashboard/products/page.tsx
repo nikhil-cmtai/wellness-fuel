@@ -642,7 +642,7 @@ const ProductsPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [selectedProduct, setSelectedProduct] = useState<typeof dummyProducts[0] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
@@ -731,7 +731,7 @@ const ProductsPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       setProducts(products.map(p => 
-        p.id === selectedProduct.id 
+        p.id === selectedProduct!.id 
           ? { 
               ...p, 
               ...newProduct, 
@@ -755,7 +755,7 @@ const ProductsPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setProducts(products.filter(p => p.id !== selectedProduct.id))
+      setProducts(products.filter(p => p.id !== selectedProduct!.id))
       setShowDeleteModal(false)
       setSelectedProduct(null)
     } finally {
@@ -763,7 +763,7 @@ const ProductsPage = () => {
     }
   }
 
-  const openEditModal = (product: any) => {
+  const openEditModal = (product: typeof dummyProducts[0]) => {
     setSelectedProduct(product)
     setNewProduct({
       name: product.name,
@@ -783,7 +783,7 @@ const ProductsPage = () => {
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (product: any) => {
+  const openDeleteModal = (product: typeof dummyProducts[0]) => {
     setSelectedProduct(product)
     setShowDeleteModal(true)
   }
@@ -1522,7 +1522,7 @@ const ProductsPage = () => {
           <DialogHeader>
             <DialogTitle>Delete Product</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{selectedProduct?.name}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
