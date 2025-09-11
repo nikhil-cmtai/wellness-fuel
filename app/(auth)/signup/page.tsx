@@ -17,7 +17,8 @@ import {
   ArrowLeft, 
   CheckCircle,
   UserCheck,
-  Calendar
+  Calendar,
+  Loader2
 } from "lucide-react";
 
 const SignupPage = () => {
@@ -40,30 +41,39 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
     
     // Validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
+      setIsLoading(false);
       return;
     }
     
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long");
+      setIsLoading(false);
       return;
     }
     
     if (!formData.userType) {
       setError("Please select a user type");
+      setIsLoading(false);
       return;
     }
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Simulate successful registration
     setSuccess(true);
@@ -152,8 +162,8 @@ const SignupPage = () => {
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   I am a
                 </Label>
-                <Select value={formData.userType} onValueChange={(value) => handleInputChange('userType', value)}>
-                  <SelectTrigger className="h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20">
+                <Select value={formData.userType} onValueChange={(value) => handleInputChange('userType', value)} disabled={isLoading}>
+                  <SelectTrigger className="h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -192,7 +202,8 @@ const SignupPage = () => {
                       value={formData.firstName}
                       onChange={e => handleInputChange('firstName', e.target.value)}
                       required
-                      className="pl-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20"
+                      disabled={isLoading}
+                      className="pl-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Enter first name"
                     />
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -230,7 +241,8 @@ const SignupPage = () => {
                     value={formData.email}
                     onChange={e => handleInputChange('email', e.target.value)}
                     required
-                    className="pl-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20"
+                    disabled={isLoading}
+                    className="pl-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="Enter your email"
                   />
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -346,7 +358,8 @@ const SignupPage = () => {
                       value={formData.password}
                       onChange={e => handleInputChange('password', e.target.value)}
                       required
-                      className="pl-10 pr-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20"
+                      disabled={isLoading}
+                      className="pl-10 pr-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Create password"
                     />
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -354,7 +367,8 @@ const SignupPage = () => {
                       type="button"
                       tabIndex={-1}
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors"
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
@@ -377,7 +391,8 @@ const SignupPage = () => {
                       value={formData.confirmPassword}
                       onChange={e => handleInputChange('confirmPassword', e.target.value)}
                       required
-                      className="pl-10 pr-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20"
+                      disabled={isLoading}
+                      className="pl-10 pr-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Confirm password"
                     />
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -385,7 +400,8 @@ const SignupPage = () => {
                       type="button"
                       tabIndex={-1}
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors"
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     >
                       {showConfirmPassword ? (
@@ -400,10 +416,20 @@ const SignupPage = () => {
 
               <Button 
                 type="submit" 
-                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                disabled={isLoading}
+                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <UserCheck className="w-4 h-4 mr-2" />
-                Create Account
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    <UserCheck className="w-4 h-4 mr-2" />
+                    Create Account
+                  </>
+                )}
               </Button>
             </form>
 

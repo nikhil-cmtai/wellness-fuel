@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Eye, EyeOff, Lock, UserPlus, KeyRound, ArrowRight } from "lucide-react";
+import { Mail, Eye, EyeOff, Lock, UserPlus, KeyRound, ArrowRight, Loader2 } from "lucide-react";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -13,6 +13,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const credentials = [
     { email: "admin@gmail.com", password: "admin123", role: "admin" },
@@ -21,8 +22,13 @@ const LoginPage = () => {
     { email: "user@gmail.com", password: "user123", role: "user" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Find the user with matching credentials
     const user = credentials.find(
@@ -46,9 +52,11 @@ const LoginPage = () => {
           break;
         default:
           setError("Unknown user role");
+          setIsLoading(false);
       }
     } else {
       setError("Invalid email or password");
+      setIsLoading(false);
     }
   };
 
@@ -91,7 +99,8 @@ const LoginPage = () => {
                     onChange={e => setEmail(e.target.value)}
                     autoComplete="username"
                     required
-                    className="pl-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20"
+                    disabled={isLoading}
+                    className="pl-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="Enter your email"
                   />
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -110,7 +119,8 @@ const LoginPage = () => {
                     onChange={e => setPassword(e.target.value)}
                     autoComplete="current-password"
                     required
-                    className="pl-10 pr-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20"
+                    disabled={isLoading}
+                    className="pl-10 pr-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="Enter your password"
                   />
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -118,7 +128,8 @@ const LoginPage = () => {
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors"
+                    disabled={isLoading}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -142,10 +153,20 @@ const LoginPage = () => {
 
               <Button 
                 type="submit" 
-                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                disabled={isLoading}
+                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <ArrowRight className="w-4 h-4 mr-2" />
-                Sign In
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  <>
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    Sign In
+                  </>
+                )}
               </Button>
             </form>
 
