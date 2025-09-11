@@ -465,7 +465,7 @@ const CategoriesPage = () => {
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {paginatedCategories.map(category => (
-              <Card key={category.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+              <Card key={category.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 <div className="relative h-48">
                   <Image
                     src={category.image}
@@ -484,8 +484,8 @@ const CategoriesPage = () => {
                     <CardTitle className="text-lg">{category.name}</CardTitle>
                     <CardDescription className="line-clamp-2">{category.description}</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-3 flex-1 flex flex-col justify-between">
-                    <div>
+                  <CardContent className="space-y-3 flex-1 flex flex-col">
+                    <div className="space-y-3 flex-1">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Slug:</span>
                         <span className="text-sm font-medium">{category.slug}</span>
@@ -501,7 +501,7 @@ const CategoriesPage = () => {
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-2 pt-2 mt-4">
+                    <div className="flex gap-2 pt-2 mt-auto">
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button

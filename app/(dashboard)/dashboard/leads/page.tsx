@@ -477,7 +477,7 @@ const LeadsPage = () => {
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedLeads.map(lead => (
-              <Card key={lead.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={lead.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{lead.name}</CardTitle>
@@ -493,24 +493,26 @@ const LeadsPage = () => {
                   </div>
                   <CardDescription>{lead.company} • {lead.position}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Source:</span>
-                    <span className="text-sm font-medium">{lead.source}</span>
+                <CardContent className="space-y-3 flex-1 flex flex-col">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Source:</span>
+                      <span className="text-sm font-medium">{lead.source}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Estimated Value:</span>
+                      <span className="text-lg font-bold text-foreground">₹{lead.estimatedValue.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Last Contact:</span>
+                      <span className="text-sm font-medium">{new Date(lead.lastContact).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Assigned To:</span>
+                      <span className="text-sm font-medium">{lead.assignedTo}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Estimated Value:</span>
-                    <span className="text-lg font-bold text-foreground">₹{lead.estimatedValue.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Last Contact:</span>
-                    <span className="text-sm font-medium">{new Date(lead.lastContact).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Assigned To:</span>
-                    <span className="text-sm font-medium">{lead.assignedTo}</span>
-                  </div>
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-2 pt-2 mt-auto">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button

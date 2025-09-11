@@ -409,7 +409,7 @@ const OrdersPage = () => {
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedOrders.map(order => (
-              <Card key={order.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={order.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{order.orderNumber}</CardTitle>
@@ -420,26 +420,28 @@ const OrdersPage = () => {
                   </div>
                   <CardDescription>{order.customerName}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Order Date:</span>
-                    <span className="text-sm font-medium">{new Date(order.orderDate).toLocaleDateString()}</span>
+                <CardContent className="space-y-3 flex-1 flex flex-col">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Order Date:</span>
+                      <span className="text-sm font-medium">{new Date(order.orderDate).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Total Amount:</span>
+                      <span className="text-lg font-bold text-foreground">₹{order.totalAmount}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Payment:</span>
+                      <Badge variant={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'refunded' ? 'default' : 'warning'}>
+                        {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Items:</span>
+                      <span className="text-sm font-medium">{order.items.length} items</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total Amount:</span>
-                    <span className="text-lg font-bold text-foreground">₹{order.totalAmount}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Payment:</span>
-                    <Badge variant={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'refunded' ? 'default' : 'warning'}>
-                      {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Items:</span>
-                    <span className="text-sm font-medium">{order.items.length} items</span>
-                  </div>
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-2 pt-2 mt-auto">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button

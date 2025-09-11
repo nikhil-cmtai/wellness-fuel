@@ -595,9 +595,9 @@ const BlogsPage = () => {
                       <TooltipTrigger asChild>
                         <Button
                           onClick={() => openDeleteModal(blog)}
-                          className="flex-1 gap-2"
+                          className="flex-1 gap-2 text-destructive border border-destructive hover:bg-destructive/10 hover:text-destructive-foreground"
                           size="sm"
-                          variant="destructive"
+                          variant="ghost"
                         >
                           <Trash2 className="w-4 h-4" />
                           Delete

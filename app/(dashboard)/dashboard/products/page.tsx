@@ -939,7 +939,7 @@ const ProductsPage = () => {
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {paginatedProducts.map(product => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
               <div className="relative">
                 <Image 
                   src={product.image} 
@@ -960,24 +960,26 @@ const ProductsPage = () => {
                   </Badge>
                 </div>
               </div>
-              <CardContent className="p-4">
-                <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
-                <CardDescription className="mb-2">{product.category}</CardDescription>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-foreground">₹{product.price}</span>
-                    {product.originalPrice > product.price && (
-                      <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
-                    )}
+              <CardContent className="p-4 flex-1 flex flex-col">
+                <div className="flex-1">
+                  <CardTitle className="text-lg mb-2">{product.name}</CardTitle>
+                  <CardDescription className="mb-2">{product.category}</CardDescription>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-foreground">₹{product.price}</span>
+                      {product.originalPrice > product.price && (
+                        <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-amber-500 fill-current" />
+                      <span className="text-sm text-muted-foreground">{product.rating}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-amber-500 fill-current" />
-                    <span className="text-sm text-muted-foreground">{product.rating}</span>
-                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">{product.shortDescription}</p>
+                  <p className="text-sm text-muted-foreground mb-4">Stock: {product.stock} • {product.weight}</p>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">{product.shortDescription}</p>
-                <p className="text-sm text-muted-foreground mb-4">Stock: {product.stock} • {product.weight}</p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-auto">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
