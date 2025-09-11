@@ -8,19 +8,13 @@ import {
   Users, 
   UserCheck, 
   UserPlus, 
-  ShoppingCart, 
-  Package, 
-  TrendingUp, 
   LogOut, 
   ChevronLeft, 
   ChevronRight,
   Menu,
-  Settings,
   BookOpen,
   FolderKanban,
-  ShoppingBag,
   BarChart2,
-  ThumbsUp,
   } from 'lucide-react'
 
 interface SidebarProps {
@@ -34,24 +28,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
 
   // All sidebar items now have unique icons
   const navigationItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Users', href: '/dashboard/users', icon: Users },
-    { name: 'Doctors', href: '/dashboard/doctors', icon: UserCheck },
-    { name: 'Influencers', href: '/dashboard/influencers', icon: UserPlus },
-    { name: 'Customers', href: '/dashboard/customers', icon: ShoppingBag },
-    { name: 'Blogs', href: '/dashboard/blogs', icon: BookOpen },
-    { name: 'Categories', href: '/dashboard/categories', icon: FolderKanban },
-    { name: 'Products', href: '/dashboard/products', icon: Package },
-    { name: 'Leads', href: '/dashboard/leads', icon: TrendingUp },
-    { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
-    { name: 'Reviews', href: '/dashboard/reviews', icon: ThumbsUp },
-    { name: 'Reports', href: '/dashboard/reports', icon: BarChart2 },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Dashboard', href: '/doctors', icon: LayoutDashboard },
+    { name: 'Patients', href: '/doctors/patients', icon: Users },
+    { name: 'Appointments', href: '/doctors/appointments', icon: UserCheck },
+    { name: 'Prescriptions', href: '/doctors/prescriptions', icon: UserPlus },
+    { name: 'Notes', href: '/doctors/notes', icon: BookOpen },
+    { name: 'Reports', href: '/doctors/reports', icon: BarChart2 },
+    { name: 'Settings', href: '/doctors/settings', icon: FolderKanban },
   ]
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard'
+    if (href === '/doctors') {
+      return pathname === '/doctors'
     }
     return pathname.startsWith(href)
   }

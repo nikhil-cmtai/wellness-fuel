@@ -286,7 +286,7 @@ const UsersPage = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -416,7 +416,7 @@ const UsersPage = () => {
 
         {/* Users Display */}
         {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
             {paginatedUsers.map(user => (
               <Card key={user.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 <CardHeader className="pb-3">
