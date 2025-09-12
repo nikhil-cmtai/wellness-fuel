@@ -238,22 +238,6 @@ const InfluencersDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Influencer Dashboard</h1>
           <p className="text-muted-foreground mt-2">Welcome back, @wellness_guru! Here&apos;s your influencer performance overview.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            onClick={() => router.push('/influencers/campaigns')}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            <Target className="w-4 h-4 mr-2" />
-            Create Campaign
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => router.push('/influencers/analytics')}
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            View Analytics
-          </Button>
-        </div>
       </div>
 
       {/* Stats Grid */}

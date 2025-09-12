@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Menu,
   BookOpen,
-  FolderKanban,
+  // FolderKanban,
   BarChart2,
   ThumbsUp,
   Settings,
@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   const navigationItems = [
     { name: 'Dashboard', href: '/influencers', icon: LayoutDashboard },
     { name: 'Referrals', href: '/influencers/referrals', icon: BookOpen },
-    { name: 'Performance', href: '/influencers/performance', icon: FolderKanban },
+    // { name: 'Performance', href: '/influencers/performance', icon: FolderKanban },
     { name: 'Notes', href: '/influencers/notes', icon: ThumbsUp },
     { name: 'Reports', href: '/influencers/reports', icon: BarChart2 },
     { name: 'Settings', href: '/influencers/settings', icon: Settings },

@@ -188,22 +188,6 @@ const DoctorsDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Doctor Dashboard</h1>
           <p className="text-muted-foreground mt-2">Welcome back, Dr. Sharma! Here&apos;s your medical practice overview.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            onClick={() => router.push('/doctors/appointments')}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Calendar className="w-4 h-4 mr-2" />
-            View All Appointments
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => router.push('/doctors/prescriptions')}
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Write Prescription
-          </Button>
-        </div>
       </div>
 
       {/* Stats Grid */}
