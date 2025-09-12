@@ -16,6 +16,7 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -797,17 +798,33 @@ const ProductsPage = () => {
           <h1 className="text-3xl font-bold text-foreground">Products</h1>
           <p className="text-muted-foreground">Manage your product inventory</p>
         </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={() => setShowAddModal(true)} className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add Product
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Add a new product to inventory</p>
-          </TooltipContent>
-        </Tooltip>
+        <div className="flex gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => setShowAddModal(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add Product
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Add a new product to inventory</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                onClick={() => window.location.href = '/dashboard/products/addProduct'} 
+                className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                <Sparkles className="w-4 h-4" />
+                AI Add Product
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Add product using AI image analysis</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
 
       {/* Stats Cards */}

@@ -1,4 +1,4 @@
-import Doctors from './doctors'
+import Doctors from './our-doctors'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
