@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { 
   LayoutDashboard, 
   Users, 
@@ -16,6 +16,7 @@ import {
   FolderKanban,
   BarChart2,
   } from 'lucide-react'
+import Image from 'next/image'
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -25,7 +26,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   const pathname = usePathname()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-
+  const router = useRouter()
+  
   // All sidebar items now have unique icons
   const navigationItems = [
     { name: 'Dashboard', href: '/doctors', icon: LayoutDashboard },
@@ -46,7 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
 
   const handleLogout = () => {
     // Add logout logic here
-    console.log('Logout clicked')
+    router.push('/logout')
   }
 
   return (
@@ -67,11 +69,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Header - Fixed */}
+        {/* Header - Fixed */}
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           {!isCollapsed && (
-            <h1 className="text-xl font-bold text-foreground truncate">
-              Wellness Fuel
-            </h1>
+            <div className="flex items-center justify-center flex-1">
+              <Image 
+                src="/logo.png" 
+                alt="HealthCare" 
+                width={100} 
+                height={40} 
+                className="object-contain" 
+              />
+            </div>
+          )}
+          {isCollapsed && (
+            <div className="flex items-center justify-center flex-1">
+              <Image 
+                src="/logo.png" 
+                alt="HealthCare" 
+                height={32} 
+                className="object-contain" 
+              />
+            </div>
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}

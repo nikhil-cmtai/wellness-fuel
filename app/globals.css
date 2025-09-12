@@ -194,3 +194,109 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Wellness Fuel Brand Colors */
+@layer base {
+  :root {
+    /* Primary Brand Colors - Green (from logo) */
+    --wellness-primary: 70 100% 60%;          /* Green #BED16B */
+    --wellness-primary-foreground: 0 0% 100%; /* White */
+    --wellness-primary-hover: 70 100% 55%;    /* Darker Green */
+    
+    /* Secondary Brand Colors - Orange (from logo) */
+    --wellness-secondary: 25 100% 60%;        /* Orange #EA8F39 */
+    --wellness-secondary-foreground: 0 0% 100%; /* White */
+    --wellness-secondary-hover: 25 100% 55%;   /* Darker Orange */
+    
+    /* Accent Colors - Lighter Green */
+    --wellness-accent: 70 100% 70%;           /* Light Green #D4E88A */
+    --wellness-accent-foreground: 0 0% 100%;   /* White */
+    --wellness-accent-hover: 70 100% 65%;      /* Darker Light Green */
+    
+    /* Success/Health Colors - Darker Green */
+    --wellness-success: 70 100% 45%;          /* Darker Green #9BB54A */
+    --wellness-success-foreground: 0 0% 100%;  /* White */
+    --wellness-success-hover: 70 100% 40%;     /* Even Darker Green */
+    
+    /* Warning Colors - Darker Orange */
+    --wellness-warning: 25 100% 50%;          /* Darker Orange #D67A2A */
+    --wellness-warning-foreground: 0 0% 100%;  /* White */
+    --wellness-warning-hover: 25 100% 45%;     /* Even Darker Orange */
+    
+    /* Background Gradients */
+    --wellness-bg-primary: 70 100% 15%;       /* Dark Green */
+    --wellness-bg-secondary: 25 100% 20%;     /* Dark Orange */
+    --wellness-bg-tertiary: 70 100% 10%;      /* Very Dark Green */
+    
+    /* Glass Morphism */
+    --wellness-glass-bg: 0 0% 100% / 0.1;     /* White with 10% opacity */
+    --wellness-glass-border: 0 0% 100% / 0.2; /* White with 20% opacity */
+    --wellness-glass-hover: 0 0% 100% / 0.2;  /* White with 20% opacity */
+    
+    /* Text Colors */
+    --wellness-text-primary: 0 0% 100%;       /* White */
+    --wellness-text-secondary: 0 0% 80%;      /* Light Gray */
+    --wellness-text-muted: 0 0% 60%;          /* Medium Gray */
+    
+    /* Shadow Colors */
+    --wellness-shadow-primary: 70 100% 60% / 0.25;    /* Green shadow */
+    --wellness-shadow-secondary: 25 100% 60% / 0.25;  /* Orange shadow */
+    --wellness-shadow-accent: 70 100% 70% / 0.25;     /* Light Green shadow */
+  }
+
+  .dark {
+    /* Dark mode adjustments */
+    --wellness-bg-primary: 70 100% 5%;        /* Very Dark Green */
+    --wellness-bg-secondary: 25 100% 8%;      /* Very Dark Orange */
+    --wellness-bg-tertiary: 70 100% 3%;       /* Very Dark Green */
+    
+    --wellness-glass-bg: 0 0% 0% / 0.2;       /* Black with 20% opacity */
+    --wellness-glass-border: 0 0% 100% / 0.1; /* White with 10% opacity */
+    --wellness-glass-hover: 0 0% 100% / 0.15; /* White with 15% opacity */
+  }
+}
+
+/* Utility Classes for Wellness Colors */
+@layer utilities {
+  .bg-wellness-primary { background-color: hsl(var(--wellness-primary)); }
+  .bg-wellness-secondary { background-color: hsl(var(--wellness-secondary)); }
+  .bg-wellness-accent { background-color: hsl(var(--wellness-accent)); }
+  .bg-wellness-success { background-color: hsl(var(--wellness-success)); }
+  .bg-wellness-warning { background-color: hsl(var(--wellness-warning)); }
+  
+  .text-wellness-primary { color: hsl(var(--wellness-primary)); }
+  .text-wellness-secondary { color: hsl(var(--wellness-secondary)); }
+  .text-wellness-accent { color: hsl(var(--wellness-accent)); }
+  .text-wellness-success { color: hsl(var(--wellness-success)); }
+  .text-wellness-warning { color: hsl(var(--wellness-warning)); }
+  
+  .border-wellness-primary { border-color: hsl(var(--wellness-primary)); }
+  .border-wellness-secondary { border-color: hsl(var(--wellness-secondary)); }
+  .border-wellness-accent { border-color: hsl(var(--wellness-accent)); }
+  
+  .bg-wellness-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--wellness-bg-primary)), 
+      hsl(var(--wellness-bg-secondary)), 
+      hsl(var(--wellness-bg-tertiary))
+    );
+  }
+  
+  .bg-wellness-glass {
+    background-color: hsl(var(--wellness-glass-bg));
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--wellness-glass-border));
+  }
+  
+  .bg-wellness-glass:hover {
+    background-color: hsl(var(--wellness-glass-hover));
+  }
+  
+  .text-wellness-primary-text { color: hsl(var(--wellness-text-primary)); }
+  .text-wellness-secondary-text { color: hsl(var(--wellness-text-secondary)); }
+  .text-wellness-muted-text { color: hsl(var(--wellness-text-muted)); }
+  
+  .shadow-wellness-primary { box-shadow: 0 10px 25px hsl(var(--wellness-shadow-primary)); }
+  .shadow-wellness-secondary { box-shadow: 0 10px 25px hsl(var(--wellness-shadow-secondary)); }
+  .shadow-wellness-accent { box-shadow: 0 10px 25px hsl(var(--wellness-shadow-accent)); }
+}

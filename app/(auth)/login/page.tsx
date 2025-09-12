@@ -36,6 +36,17 @@ const LoginPage = () => {
     );
 
     if (user) {
+      // Store user data in cookie
+      const userData = {
+        email: user.email,
+        role: user.role,
+        name: user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1),
+        loginTime: new Date().toISOString()
+      };
+
+      // Set cookie with user data
+      document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
+
       // Redirect based on user role
       switch (user.role) {
         case "admin":
@@ -198,11 +209,11 @@ const LoginPage = () => {
         <div className="text-center mt-8">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             By signing in, you agree to our{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+            <a href="/terms" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+            <a href="/privacy-policy" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
               Privacy Policy
             </a>
           </p>

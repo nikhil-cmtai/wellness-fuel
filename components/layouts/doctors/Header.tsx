@@ -12,10 +12,12 @@ import {
   Search,
   Settings,
   LucideIcon,
-  Monitor
+  Monitor,
+  LogOut
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { getUserFromCookie, logout } from '@/lib/auth'
 
 interface Breadcrumb {
   name: string
@@ -31,6 +33,7 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
   const pathname = usePathname()
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
+  const [user] = React.useState(getUserFromCookie())
 
   React.useEffect(() => {
     setMounted(true)
@@ -87,9 +90,9 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
       ${isCollapsed ? 'lg:left-16' : 'lg:left-64'}
       left-0
     `}>
-      <div className="flex items-center h-full px-2 sm:px-4 lg:px-6">
-        {/* Breadcrumbs - Centered on mobile, left-aligned on larger screens */}
-        <nav className="flex items-center justify-center sm:justify-start space-x-1 text-sm min-w-0 flex-1 sm:flex-none">
+      <div className="flex items-center justify-between h-full px-2 sm:px-4 lg:px-6">
+        {/* Breadcrumbs - Hidden on small screens, visible on md and up */}
+        <nav className="hidden md:flex items-center justify-start space-x-1 text-sm min-w-0">
           {breadcrumbs.map((breadcrumb, index) => (
             <React.Fragment key={breadcrumb.href}>
               {index > 0 && (
@@ -106,15 +109,17 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
                 `}
               >
                 {breadcrumb.icon && <breadcrumb.icon className="w-3 h-3 flex-shrink-0" />}
-                <span className="hidden sm:inline truncate">{breadcrumb.name}</span>
-                <span className="sm:hidden text-xs truncate max-w-16">{breadcrumb.name.slice(0, 6)}</span>
+                <span className="truncate">{breadcrumb.name}</span>
               </Link>
             </React.Fragment>
           ))}
         </nav>
 
+        {/* Empty div for small screens to maintain layout */}
+        <div className="flex-1 md:hidden"></div>
+
         {/* Right side actions */}
-        <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0 sm:ml-auto">
+        <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
           {/* Search - Hidden on mobile */}
           <div className="relative hidden lg:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -154,12 +159,25 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
           <div className="flex items-center space-x-1 sm:space-x-2 pl-1 sm:pl-2 border-l border-border">
             <Avatar className="w-6 h-6 sm:w-7 sm:h-7">
               <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback className="text-xs">CN</AvatarFallback>
+              <AvatarFallback className="text-xs">
+                {user?.name?.charAt(0) || 'U'}
+              </AvatarFallback>
             </Avatar>
             <div className="hidden lg:block">
-              <p className="text-sm font-medium text-foreground">Admin User</p>
-              <p className="text-xs text-muted-foreground">admin@wellnessfuel.com</p>
+              <p className="text-sm font-medium text-foreground">
+                {user?.name || 'User'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {user?.email || 'user@example.com'}
+              </p>
             </div>
+            <button
+              onClick={logout}
+              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

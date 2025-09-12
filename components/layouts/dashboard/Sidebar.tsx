@@ -2,17 +2,17 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { 
-  LayoutDashboard, 
-  Users, 
-  UserCheck, 
-  UserPlus, 
-  ShoppingCart, 
-  Package, 
-  TrendingUp, 
-  LogOut, 
-  ChevronLeft, 
+import { usePathname, useRouter } from 'next/navigation'
+import {
+  LayoutDashboard,
+  Users,
+  UserCheck,
+  UserPlus,
+  ShoppingCart,
+  Package,
+  TrendingUp,
+  LogOut,
+  ChevronLeft,
   ChevronRight,
   Menu,
   Settings,
@@ -21,7 +21,8 @@ import {
   ShoppingBag,
   BarChart2,
   ThumbsUp,
-  } from 'lucide-react'
+} from 'lucide-react'
+import Image from 'next/image'
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -31,7 +32,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   const pathname = usePathname()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-
+  const router = useRouter()
   // All sidebar items now have unique icons
   const navigationItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -58,14 +59,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
 
   const handleLogout = () => {
     // Add logout logic here
-    console.log('Logout clicked')
+    router.push('/logout')
   }
 
   return (
     <>
       {/* Mobile overlay */}
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
@@ -81,9 +82,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           {!isCollapsed && (
-            <h1 className="text-xl font-bold text-foreground truncate">
-              Wellness Fuel
-            </h1>
+            <div className="flex items-center justify-center flex-1">
+              <Image 
+                src="/logo.png" 
+                alt="HealthCare" 
+                width={100} 
+                height={40} 
+                className="object-contain" 
+              />
+            </div>
+          )}
+          {isCollapsed && (
+            <div className="flex items-center justify-center flex-1">
+              <Image 
+                src="/logo.png" 
+                alt="HealthCare" 
+                height={32} 
+                className="object-contain" 
+              />
+            </div>
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -103,15 +120,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
           {navigationItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.href)
-            
+
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={`
                   flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group relative
-                  ${active 
-                    ? 'bg-accent text-accent-foreground border-r-2 border-primary shadow-sm' 
+                  ${active
+                    ? 'bg-accent text-accent-foreground border-r-2 border-primary shadow-sm'
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   }
                   ${isCollapsed ? 'justify-center px-2' : ''}
