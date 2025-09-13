@@ -1,9 +1,17 @@
+'use client'
+
 import React from 'react'
 import Link from 'next/link'
 import { Home, ArrowLeft, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 export default function NotFound() {
+  const router = useRouter()
+  const goBack = () => {
+    router.back()
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
@@ -32,7 +40,7 @@ export default function NotFound() {
           
           <Button 
             variant="outline" 
-            onClick={() => window.history.back()}
+            onClick={goBack}
             className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 px-8 py-3 text-lg font-semibold rounded-full transition-all duration-300"
           >
             <ArrowLeft className="mr-2 w-5 h-5" />

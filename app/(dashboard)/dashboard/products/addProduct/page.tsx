@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { 
   Upload, 
@@ -637,4 +638,12 @@ const AddProduct = () => {
   )
 }
 
-export default AddProduct
+// Export as dynamic component to prevent prerendering issues
+export default dynamic(() => Promise.resolve(AddProduct), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="w-8 h-8 animate-spin" />
+    </div>
+  )
+})

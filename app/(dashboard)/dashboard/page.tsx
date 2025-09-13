@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { 
   Users, 
@@ -422,4 +423,12 @@ const DashboardPage = () => {
   )
 }
 
-export default DashboardPage
+// Export as dynamic component to prevent prerendering issues
+export default dynamic(() => Promise.resolve(DashboardPage), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+    </div>
+  )
+})

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { 
   Stethoscope, 
   Search, 
@@ -898,5 +899,13 @@ const DoctorsPage = () => {
   )
 }
 
-export default DoctorsPage
+// Export as dynamic component to prevent prerendering issues
+export default dynamic(() => Promise.resolve(DoctorsPage), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+    </div>
+  )
+})
    

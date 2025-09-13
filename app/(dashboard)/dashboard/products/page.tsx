@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { 
   Plus, 
@@ -1566,4 +1567,12 @@ const ProductsPage = () => {
   )
 }
 
-export default ProductsPage
+// Export as dynamic component to prevent prerendering issues
+export default dynamic(() => Promise.resolve(ProductsPage), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+    </div>
+  )
+})

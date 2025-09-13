@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { 
   Loader2, 
   Sparkles, 
@@ -672,4 +673,12 @@ const AddBlogs = () => {
   )
 }
 
-export default AddBlogs
+// Export as dynamic component to prevent prerendering issues
+export default dynamic(() => Promise.resolve(AddBlogs), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Loader2 className="w-8 h-8 animate-spin" />
+    </div>
+  )
+})
