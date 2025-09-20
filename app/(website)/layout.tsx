@@ -1,17 +1,19 @@
 import Header from "@/components/layouts/website/Header"
 import Footer from "@/components/layouts/website/Footer"
-
+import { Providers } from "@/app/providers"; // Adjust path if necessary
+// import { Toaster } from "@/components/ui/sonner"; // Import the Toaster
 
 export default function WebsiteLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <div>
+    <Providers>
       <Header />
-      {children}
+      <main>{children}</main>
       <Footer />
-    </div>
-  )
+      {/* <Toaster position="top-right" richColors closeButton /> */}
+    </Providers>
+  );
 }

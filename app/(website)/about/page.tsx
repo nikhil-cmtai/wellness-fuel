@@ -1,9 +1,16 @@
-import React from 'react'
+import About from "./about";
+import { Metadata } from "next";
+import HeroSection from "@/components/home/hero-section";
+export const metadata: Metadata = {
+  title: "Doctors | Wellness Fuel",
+  description: "Doctors | Wellness Fuel",
+};
 
-const page = () => {
+export default function DoctorsPage() {
   return (
-    <div>page</div>
-  )
+    <>
+      <HeroSection />
+      <About/>
+    </>
+  );
 }
-
-export default page
