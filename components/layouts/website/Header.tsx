@@ -11,8 +11,8 @@ import {
   Calendar,
   Menu,
   X,
-  Heart,      // <-- Naya Icon
-  ShoppingCart, // <-- Naya Icon
+  Heart,
+  ShoppingCart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -70,19 +70,19 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 shadow-lg sticky top-0 z-50">
+    <header className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24">
           {/* Logo Section with Fallback */}
           <Link href="/" className="flex items-center group">
               {!logoError ? (
                 <Image
                   src="/logo.png"
                   alt="Wellness Fuel"
-                  width={140}
+                  width={120}
                   height={40}
                   priority
-                  className="object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                   onError={handleLogoError}
                 />
               ) : (
@@ -106,7 +106,7 @@ const Header = () => {
               >
                 {item.label}
                 {isActive(item.href) && (
-                  <span className="absolute -bottom-2.5 left-1/2 transform -translate-x-1/2 text-[#ea8f39] text-2xl font-light leading-none">∞</span>
+                  <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-[#ea8f39] text-2xl font-light leading-none">∞</span>
                 )}
               </Link>
             ))}

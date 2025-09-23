@@ -1,6 +1,5 @@
 import Products from './products'
 import { Metadata } from 'next'
-import HeroSection from "@/components/home/hero-section";
 
 export const metadata: Metadata = {
   title: "Products | Wellness Fuel",
@@ -10,7 +9,6 @@ export const metadata: Metadata = {
 export default function ProductsPage() {
   return (
     <>
-      <HeroSection />
       <Products />
     </>
   );

@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { Phone, Mail, MapPin, Clock, MessageCircle, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import CommonHero from "@/components/common/common-hero";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -75,7 +76,15 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] py-16">
+      <CommonHero
+        title="Contact Us"
+        description="Get in touch with our team. We're here to help you with all your healthcare needs."
+        image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?q=80&w=800&auto=format&fit=crop"
+        breadcrumbs={[
+          { label: "Contact Us", href: "/contact" },
+        ]}
+      />
+      <div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
             Contact Us

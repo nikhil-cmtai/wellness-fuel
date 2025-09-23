@@ -10,6 +10,7 @@ import {
   Target,
 } from "lucide-react";
 import Link from "next/link";
+import CommonHero from "@/components/common/common-hero"; 
 
 // Define interfaces for TypeScript
 interface TeamMember {
@@ -105,6 +106,14 @@ const AboutPage: React.FC = () => {
   return (
     <div className="bg-background text-foreground">
       {/* Hero Section */}
+      <CommonHero
+        title="About Us"
+        breadcrumbs={[
+          { label: "About Us", href: "/about" },
+        ]}
+        description="We are a team of dedicated professionals who are passionate about helping people achieve their health goals."
+        image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?q=80&w=800&auto=format&fit=crop"
+      />
       <section className="relative pt-24 pb-16 text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900/80 dark:to-slate-900 opacity-60"></div>
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">

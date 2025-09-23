@@ -11,6 +11,7 @@ import {
   Award,
 } from "lucide-react";
 import Link from "next/link";
+import CommonHero from "@/components/common/common-hero";
 
 // Define interface for Doctor
 interface Doctor {
@@ -158,6 +159,14 @@ const OurDoctorsPage: React.FC = () => {
   return (
     <div className="bg-background text-foreground min-h-screen">
       {/* Hero Section */}
+      <CommonHero
+        title="Our Doctors"
+        description="Connect with certified healthcare professionals who are passionate about your wellness journey. Our doctors specialize in holistic and natural healing approaches."
+        image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?q=80&w=800&auto=format&fit=crop"
+        breadcrumbs={[
+          { label: "Our Doctors", href: "/our-doctors" },
+        ]}
+      />
       <section className="relative pt-24 pb-16 text-center overflow-hidden bg-slate-50 dark:bg-slate-900/50">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4">

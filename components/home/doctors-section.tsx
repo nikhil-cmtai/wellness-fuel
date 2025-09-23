@@ -2,17 +2,16 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
   Star,
   MapPin,
   Calendar,
   MessageCircle,
-  ArrowRight,
   Award,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from 'framer-motion';
 
 // Define interface for Doctor
 interface Doctor {
@@ -163,81 +162,228 @@ const DoctorsSection: React.FC = () => {
     ));
   };
 
-  const getAvailabilityStyle = (availability: string) => {
-    if (availability.includes("Today")) {
-      return "bg-green-100 text-green-800 border border-green-200";
-    } else if (availability.includes("Tomorrow")) {
-      return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-    } else {
-      return "bg-gray-100 text-gray-800 border border-gray-200";
-    }
-  };
-
+  
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 relative overflow-hidden">
+      {/* Enhanced Animated Blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Primary Green Blob - Top Right */}
+        <motion.div
+          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-[#bed16b]/8 to-[#a8c55a]/8 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+
+        {/* Secondary Orange Blob - Bottom Left */}
+        <motion.div
+          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-[#ea8f39]/8 to-[#d67d2a]/8 rounded-full blur-3xl"
+          animate={{
+            scale: [1.1, 1, 1.1],
+            rotate: [360, 180, 0],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        />
+
+        {/* Accent Green Blob - Top Left */}
+        <motion.div
+          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-[#a8c55a]/6 to-[#bed16b]/6 rounded-full blur-2xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            x: [0, 20, 0],
+            y: [0, -15, 0],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        />
+
+        {/* Primary Orange Blob - Bottom Right */}
+        <motion.div
+          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-[#d67d2a]/6 to-[#ea8f39]/6 rounded-full blur-2xl"
+          animate={{
+            scale: [1.1, 1, 1.1],
+            x: [0, -25, 0],
+            y: [0, 20, 0],
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 3
+          }}
+        />
+
+        {/* Center Accent Blob */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#bed16b]/4 to-[#ea8f39]/4 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.3, 1],
+            rotate: [0, -180, -360],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1.5
+          }}
+        />
+
+        {/* Small Floating Particles */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-3 h-3 bg-[#bed16b] rounded-full"
+          animate={{
+            y: [0, -20, 0],
+            opacity: [0.5, 1, 0.5],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        />
+
+        <motion.div
+          className="absolute top-3/4 right-1/4 w-2 h-2 bg-[#ea8f39] rounded-full"
+          animate={{
+            y: [0, -25, 0],
+            opacity: [0.3, 1, 0.3],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1.5
+          }}
+        />
+
+        <motion.div
+          className="absolute top-1/3 right-1/3 w-1 h-1 bg-[#a8c55a] rounded-full"
+          animate={{
+            y: [0, -15, 0],
+            opacity: [0.7, 1, 0.7],
+            scale: [1, 1.5, 1],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2.5
+          }}
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.h2 
+            className="text-4xl sm:text-5xl font-bold mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             <span className="text-slate-900 dark:text-white">Meet Our</span>
             <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent ml-4">
               Expert Doctors
             </span>
-          </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
+          </motion.h2>
+          <motion.p 
+            className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
             Our team of board-certified medical professionals is dedicated to
             providing you with the highest quality healthcare services and
             personalized treatment plans.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Doctors Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {doctors.map((doctor: Doctor) => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
+          {doctors.map((doctor: Doctor, index: number) => (
+            <motion.div
               key={doctor.id}
-              className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-slate-200 dark:border-slate-700"
+              className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
             >
               {/* Doctor Image & Availability */}
-              <div className="relative p-6 pb-4">
-                <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="relative p-4 pb-3">
+                <div className="relative w-24 h-24 mx-auto mb-3">
                   {!imageErrors[doctor.id] ? (
                     <Image
                       src={doctor.imageUrl}
                       alt={`Portrait of ${doctor.name}`}
                       fill
                       className="object-cover rounded-full border-4 border-white dark:border-slate-700 shadow-lg"
-                      sizes="128px"
+                      sizes="96px"
                       onError={() => handleImageError(doctor.id)}
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white dark:border-slate-700 shadow-lg">
+                    <div className="w-full h-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-slate-700 shadow-lg">
                       {doctor.fallbackInitials}
                     </div>
                   )}
-
-                  {/* Availability Badge */}
-                  <div
-                    className={`absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-semibold shadow-md ${getAvailabilityStyle(doctor.availability)}`}
-                  >
-                    {doctor.availability}
-                  </div>
                 </div>
 
                 {/* Doctor Basic Info */}
                 <div className="text-center">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                  <motion.h3 
+                    className="text-lg font-bold text-slate-900 dark:text-white mb-1"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                  >
                     {doctor.name}
-                  </h3>
-                  <p className="text-[#ea8f39] font-semibold text-lg mb-2">
+                  </motion.h3>
+                  <motion.p 
+                    className="text-[#ea8f39] font-semibold text-base mb-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.9 + index * 0.1 }}
+                  >
                     {doctor.specialty}
-                  </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  </motion.p>
+                  <motion.p 
+                    className="text-xs text-slate-600 dark:text-slate-400 mb-3"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 1 + index * 0.1 }}
+                  >
                     {doctor.education}
-                  </p>
+                  </motion.p>
 
                   {/* Rating */}
-                  <div className="flex items-center justify-center gap-2 mb-4">
+                  <motion.div 
+                    className="flex items-center justify-center gap-2 mb-3"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 1.1 + index * 0.1 }}
+                  >
                     <div className="flex gap-1">
                       {renderStars(doctor.rating)}
                     </div>
@@ -245,111 +391,100 @@ const DoctorsSection: React.FC = () => {
                       {doctor.rating}
                     </span>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
-                      ({doctor.patients} patients)
+                      ({doctor.patients})
                     </span>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
 
               {/* Doctor Details */}
-              <div className="px-6 pb-2">
+              <div className="px-4 pb-3">
                 {/* Stats Row */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Award className="w-4 h-4 text-[#bed16b]" />
+                <motion.div 
+                  className="grid grid-cols-2 gap-3 mb-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 1.2 + index * 0.1 }}
+                >
+                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <Award className="w-3 h-3 text-[#bed16b]" />
                     <span>{doctor.experience}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Users className="w-4 h-4 text-[#bed16b]" />
+                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <Users className="w-3 h-3 text-[#bed16b]" />
                     <span>{doctor.patients}</span>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Location */}
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  <MapPin className="w-4 h-4 text-[#bed16b]" />
+                <motion.div 
+                  className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 mb-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 1.3 + index * 0.1 }}
+                >
+                  <MapPin className="w-3 h-3 text-[#bed16b]" />
                   <span>{doctor.location}</span>
-                </div>
+                </motion.div>
 
                 {/* Languages */}
-                <div className="mb-4">
+                <motion.div 
+                  className="mb-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 1.4 + index * 0.1 }}
+                >
                   <div className="flex flex-wrap gap-1">
-                    {doctor.languages.map((lang, index) => (
-                      <span
-                        key={index}
+                    {doctor.languages.map((lang, langIndex) => (
+                      <motion.span
+                        key={langIndex}
                         className="px-2 py-1 text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full border"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.2, delay: 1.5 + index * 0.1 + langIndex * 0.05 }}
                       >
                         {lang}
-                      </span>
+                      </motion.span>
                     ))}
                   </div>
-                </div>
-
-                {/* Consultation Fee */}
-                <div className="flex items-center justify-between mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Consultation Fee:
-                  </span>
-                  <span className="text-lg font-bold text-[#ea8f39]">
-                    {doctor.consultationFee}
-                  </span>
-                </div>
+                </motion.div>
 
                 {/* About */}
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
+                <motion.p 
+                  className="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-2"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 1.6 + index * 0.1 }}
+                >
                   {doctor.about}
-                </p>
+                </motion.p>
               </div>
 
               {/* Action Buttons */}
-              <div className="p-6 pt-0">
-                <div className="flex gap-3">
-                  <Button className="flex-1 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white py-2 text-sm font-semibold rounded-full transition-all duration-300 transform hover:scale-105">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Appointment
+              <motion.div 
+                className="p-4 pt-0"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 1.7 + index * 0.1 }}
+              >
+                <div className="flex gap-2">
+                  <Button className="flex-1 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white py-2 text-md font-semibold rounded-full">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    Book
                   </Button>
                   <Button
                     variant="outline"
-                    className="px-4 py-2 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-all duration-300"
+                    className="px-3 py-2 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-full"
                     title="Send Message"
                   >
                     <MessageCircle className="w-4 h-4" />
                   </Button>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           ))}
         </div>
 
-        {/* Bottom CTA with Navigation */}
-        <div className="text-center">
-          <div className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-2xl p-8 text-white shadow-2xl">
-            <h3 className="text-2xl font-bold mb-4">
-              Can&apos;t Find the Right Doctor?
-            </h3>
-            <p className="text-white/90 mb-6 max-w-2xl mx-auto">
-              Our team can help you find the perfect specialist for your needs.
-              We have access to thousands of qualified doctors across all
-              specialties.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {/* Navigate to Our Doctors page */}
-              <Link href="/our-doctors">
-                <Button className="px-8 py-3 bg-white text-[#ea8f39] font-semibold rounded-full hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg w-full sm:w-auto">
-                  Find a Doctor
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-
-              {/* Navigate to Our Doctors page with specialty filter */}
-              <Link href="/our-doctors">
-                <Button className="px-8 py-3 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-[#ea8f39] transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
-                  View All Specialties
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

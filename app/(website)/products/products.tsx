@@ -6,7 +6,7 @@ import { ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/context/CartContext";
 import { useWishlist } from "@/lib/context/wishlistContext";
-import HeroSection from "@/components/home/hero-section";
+import CommonHero from "@/components/common/common-hero";
 
 const productsData = [
   {
@@ -71,7 +71,14 @@ const ProductsPage = () => {
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <HeroSection />
+      <CommonHero
+        title="Products"
+        description="We offer a wide range of products to help you achieve your health goals."
+        image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?q=80&w=800&auto=format&fit=crop"
+        breadcrumbs={[
+          { label: "Products", href: "/products" },
+        ]}
+      />
       <main className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
           {productsData.map((product) => (
