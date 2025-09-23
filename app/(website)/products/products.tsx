@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ShoppingCart, Heart, Search, Filter, Star } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/context/CartContext";
 import { useWishlist } from "@/lib/context/wishlistContext";

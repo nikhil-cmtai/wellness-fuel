@@ -4,10 +4,9 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { X, ShoppingCart, HeartCrack, ArrowRight } from "lucide-react";
+import { X, ShoppingCart, HeartCrack } from "lucide-react";
 import { useWishlist, WishlistItem } from "@/lib/context/wishlistContext"; // <-- WishlistItem ko yahan import karein
 import { useCart } from "@/lib/context/CartContext";
-import HeroSection from "@/components/home/hero-section";
 
 const WishlistPage = () => {
   const { wishlistItems, toggleWishlistItem } = useWishlist();
@@ -71,7 +70,7 @@ const WishlistPage = () => {
               Your Wishlist is Empty
             </h2>
             <p className="text-muted-foreground mt-2 mb-6">
-              Looks like you haven't added anything yet. Let's change that!
+              Looks like you haven&apos;t added anything yet. Let&apos;s change that!
             </p>
             <Link href="/products">
               <Button

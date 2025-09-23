@@ -8,10 +8,7 @@ import {
   MapPin,
   Clock,
   Phone,
-  Mail,
   Award,
-  Users,
-  Heart,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -329,7 +326,7 @@ const OurDoctorsPage: React.FC = () => {
       <section className="py-16 bg-slate-50 dark:bg-slate-900/50">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Can't Find the Right Doctor?
+            Can&apos;t Find the Right Doctor?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
             Our wellness experts can help you find the perfect healthcare

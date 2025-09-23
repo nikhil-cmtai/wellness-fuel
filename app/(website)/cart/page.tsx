@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Minus, ShoppingBag, ArrowRight, Tag } from "lucide-react";
+import { Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/context/CartContext";
 
 const CartPage = () => {

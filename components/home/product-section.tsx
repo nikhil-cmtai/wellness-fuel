@@ -295,7 +295,7 @@ const ProductSection = () => {
               </div>
 
               <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">
-                Can't Find What You Need?
+                Can&apos;t Find What You Need?
               </h3>
               <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto text-lg leading-relaxed">
                 Visit our dedicated products page to discover all our wellness
