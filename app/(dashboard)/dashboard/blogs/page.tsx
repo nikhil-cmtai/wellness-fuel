@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import { 
   Plus, 
@@ -30,6 +30,10 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
+import { fetchBlogsData, selectBlogsData, updateBlog, deleteBlog, createBlog, selectBlogsError, selectBlogsLoading, setBlogsData, Blog } from '@/lib/redux/features/blogsSlice'
+import Loader from '@/components/common/dashboard/Loader'
+import Error from '@/components/common/dashboard/Error'
 
 // Types
 interface BlogWithEditableTags {
@@ -58,165 +62,12 @@ interface BlogWithEditableTags {
   ogImage: string
 }
 
-// Dummy data
-const dummyBlogs = [
-  {
-    id: 1,
-    title: "10 Essential Vitamins for Optimal Health",
-    slug: "10-essential-vitamins-optimal-health",
-    excerpt: "Discover the most important vitamins your body needs for optimal health and wellness.",
-    content: "Vitamins are essential nutrients that our bodies need to function properly. In this comprehensive guide, we'll explore the 10 most important vitamins for optimal health...",
-    featuredImage: "https://images.unsplash.com/photo-1582719478173-df2d3d6a8d8c?w=800&h=400&fit=crop",
-    author: "Dr. Sarah Johnson",
-    category: "Nutrition",
-    tags: ["vitamins", "health", "nutrition", "wellness"],
-    status: "published",
-    publishedAt: "2024-03-15",
-    createdAt: "2024-03-10",
-    updatedAt: "2024-03-15",
-    readTime: "8 min read",
-    views: 1250,
-    likes: 89,
-    metaTitle: "10 Essential Vitamins for Optimal Health | Wellness Fuel",
-    metaDescription: "Discover the 10 most important vitamins for optimal health and wellness. Expert guide to essential nutrients your body needs daily.",
-    metaKeywords: "vitamins, health, nutrition, wellness, essential nutrients, vitamin guide, health tips",
-    canonicalUrl: "https://wellnessfuel.com/blog/10-essential-vitamins-optimal-health",
-    ogTitle: "10 Essential Vitamins for Optimal Health",
-    ogDescription: "Discover the 10 most important vitamins for optimal health and wellness.",
-    ogImage: "https://images.unsplash.com/photo-1582719478173-df2d3d6a8d8c?w=1200&h=630&fit=crop"
-  },
-  {
-    id: 2,
-    title: "The Complete Guide to Protein Powders",
-    slug: "complete-guide-protein-powders",
-    excerpt: "Everything you need to know about protein powders - types, benefits, and how to choose the right one.",
-    content: "Protein powders have become a staple in many fitness enthusiasts' diets. But with so many options available, choosing the right one can be overwhelming...",
-    featuredImage: "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=800&h=400&fit=crop",
-    author: "Mike Chen",
-    category: "Fitness",
-    tags: ["protein", "fitness", "muscle building", "supplements"],
-    status: "published",
-    publishedAt: "2024-03-12",
-    createdAt: "2024-03-08",
-    updatedAt: "2024-03-12",
-    readTime: "12 min read",
-    views: 2100,
-    likes: 156,
-    metaTitle: "Complete Guide to Protein Powders | Types, Benefits & Selection",
-    metaDescription: "Comprehensive guide to protein powders including types, benefits, and expert tips on choosing the right protein supplement for your goals.",
-    metaKeywords: "protein powder, whey protein, casein protein, plant protein, muscle building, fitness supplements",
-    canonicalUrl: "https://wellnessfuel.com/blog/complete-guide-protein-powders",
-    ogTitle: "The Complete Guide to Protein Powders",
-    ogDescription: "Everything you need to know about protein powders - types, benefits, and selection guide.",
-    ogImage: "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=1200&h=630&fit=crop"
-  },
-  {
-    id: 3,
-    title: "Natural Ways to Boost Your Immune System",
-    slug: "natural-ways-boost-immune-system",
-    excerpt: "Learn effective natural methods to strengthen your immune system and stay healthy year-round.",
-    content: "A strong immune system is your body's first line of defense against illness. Here are proven natural ways to boost your immunity...",
-    featuredImage: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop",
-    author: "Dr. Emily Rodriguez",
-    category: "Wellness",
-    tags: ["immune system", "health", "natural remedies", "wellness"],
-    status: "published",
-    publishedAt: "2024-03-10",
-    createdAt: "2024-03-05",
-    updatedAt: "2024-03-10",
-    readTime: "6 min read",
-    views: 1800,
-    likes: 134,
-    metaTitle: "Natural Ways to Boost Your Immune System | Health Tips",
-    metaDescription: "Discover effective natural methods to strengthen your immune system. Expert tips for staying healthy and boosting immunity naturally.",
-    metaKeywords: "immune system, natural immunity, health tips, wellness, immune boost, natural remedies",
-    canonicalUrl: "https://wellnessfuel.com/blog/natural-ways-boost-immune-system",
-    ogTitle: "Natural Ways to Boost Your Immune System",
-    ogDescription: "Learn effective natural methods to strengthen your immune system and stay healthy.",
-    ogImage: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=630&fit=crop"
-  },
-  {
-    id: 4,
-    title: "Understanding Omega-3 Fatty Acids",
-    slug: "understanding-omega-3-fatty-acids",
-    excerpt: "A deep dive into omega-3 fatty acids, their benefits, and the best sources for optimal health.",
-    content: "Omega-3 fatty acids are essential fats that play crucial roles in brain function, heart health, and inflammation reduction...",
-    featuredImage: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&h=400&fit=crop",
-    author: "Dr. James Wilson",
-    category: "Nutrition",
-    tags: ["omega-3", "fish oil", "heart health", "brain health"],
-    status: "draft",
-    publishedAt: null,
-    createdAt: "2024-03-18",
-    updatedAt: "2024-03-20",
-    readTime: "10 min read",
-    views: 0,
-    likes: 0,
-    metaTitle: "Understanding Omega-3 Fatty Acids | Benefits & Sources",
-    metaDescription: "Complete guide to omega-3 fatty acids including health benefits, best sources, and expert recommendations for optimal intake.",
-    metaKeywords: "omega-3, fish oil, heart health, brain health, essential fatty acids, nutrition",
-    canonicalUrl: "https://wellnessfuel.com/blog/understanding-omega-3-fatty-acids",
-    ogTitle: "Understanding Omega-3 Fatty Acids",
-    ogDescription: "A comprehensive guide to omega-3 fatty acids, their benefits, and best sources.",
-    ogImage: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&h=630&fit=crop"
-  },
-  {
-    id: 5,
-    title: "The Science of Sleep and Recovery",
-    slug: "science-sleep-recovery",
-    excerpt: "Explore the scientific connection between quality sleep and optimal recovery for athletes and fitness enthusiasts.",
-    content: "Sleep is not just rest - it's when your body performs critical recovery processes. Understanding the science can help optimize your results...",
-    featuredImage: "https://images.unsplash.com/photo-1518976024611-28bf5f4f9d9d?w=800&h=400&fit=crop",
-    author: "Dr. Lisa Park",
-    category: "Fitness",
-    tags: ["sleep", "recovery", "fitness", "performance"],
-    status: "published",
-    publishedAt: "2024-03-08",
-    createdAt: "2024-03-03",
-    updatedAt: "2024-03-08",
-    readTime: "9 min read",
-    views: 1650,
-    likes: 98,
-    metaTitle: "The Science of Sleep and Recovery | Athletic Performance",
-    metaDescription: "Discover the scientific connection between quality sleep and optimal recovery. Expert insights for athletes and fitness enthusiasts.",
-    metaKeywords: "sleep science, recovery, athletic performance, fitness, sleep optimization, sports science",
-    canonicalUrl: "https://wellnessfuel.com/blog/science-sleep-recovery",
-    ogTitle: "The Science of Sleep and Recovery",
-    ogDescription: "Explore the scientific connection between quality sleep and optimal recovery.",
-    ogImage: "https://images.unsplash.com/photo-1518976024611-28bf5f4f9d9d?w=1200&h=630&fit=crop"
-  },
-  {
-    id: 6,
-    title: "Ayurvedic Herbs for Modern Wellness",
-    slug: "ayurvedic-herbs-modern-wellness",
-    excerpt: "Discover how ancient Ayurvedic herbs can enhance your modern wellness routine.",
-    content: "Ayurveda, the ancient Indian system of medicine, offers powerful herbs that can complement modern wellness practices...",
-    featuredImage: "https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=800&h=400&fit=crop",
-    author: "Dr. Priya Sharma",
-    category: "Wellness",
-    tags: ["ayurveda", "herbs", "traditional medicine", "wellness"],
-    status: "published",
-    publishedAt: "2024-03-05",
-    createdAt: "2024-02-28",
-    updatedAt: "2024-03-05",
-    readTime: "11 min read",
-    views: 1450,
-    likes: 112,
-    metaTitle: "Ayurvedic Herbs for Modern Wellness | Traditional Medicine",
-    metaDescription: "Discover powerful Ayurvedic herbs that can enhance your modern wellness routine. Expert guide to traditional medicine benefits.",
-    metaKeywords: "ayurveda, ayurvedic herbs, traditional medicine, wellness, natural remedies, holistic health",
-    canonicalUrl: "https://wellnessfuel.com/blog/ayurvedic-herbs-modern-wellness",
-    ogTitle: "Ayurvedic Herbs for Modern Wellness",
-    ogDescription: "Discover how ancient Ayurvedic herbs can enhance your modern wellness routine.",
-    ogImage: "https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=1200&h=630&fit=crop"
-  }
-]
-
 const blogStatuses = ["All", "published", "draft", "archived"]
 const blogCategories = ["All", "Nutrition", "Fitness", "Wellness", "Supplements", "Lifestyle"]
 
 const BlogsPage = () => {
-  const [blogs, setBlogs] = useState(dummyBlogs)
+  const dispatch = useAppDispatch()
+  const blogs = useAppSelector(selectBlogsData)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('All')
@@ -225,9 +76,11 @@ const BlogsPage = () => {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedBlog, setSelectedBlog] = useState<BlogWithEditableTags | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const isLoading = useAppSelector(selectBlogsLoading)
+  const error = useAppSelector(selectBlogsError)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
+  const [isLocalLoading, setIsLocalLoading] = useState(false)
 
   // New blog state
   const [newBlog, setNewBlog] = useState({
@@ -250,13 +103,18 @@ const BlogsPage = () => {
     ogImage: ''
   })
 
+  useEffect(() => {
+    dispatch(fetchBlogsData())
+  }, [dispatch])
+
   // Filter blogs
   const filteredBlogs = useMemo(() => {
     return blogs.filter(blog => {
+      const blogTags = Array.isArray(blog.tags) ? blog.tags : [blog.tags]
       const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            blog.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           blog.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+                           blogTags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       const matchesStatus = selectedStatus === 'All' || blog.status === selectedStatus
       const matchesCategory = selectedCategory === 'All' || blog.category === selectedCategory
       
@@ -276,7 +134,7 @@ const BlogsPage = () => {
   }, [searchTerm, selectedStatus, selectedCategory])
 
   const handleAddBlog = async () => {
-    setIsLoading(true)
+    setIsLocalLoading(true)
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -292,7 +150,7 @@ const BlogsPage = () => {
         updatedAt: new Date().toISOString().split('T')[0]
       }
       
-      setBlogs([...blogs, blog])
+      dispatch(setBlogsData({ data: [...blogs, blog], total: blogs.length + 1 }))
       setShowAddModal(false)
       setNewBlog({
         title: '',
@@ -314,17 +172,17 @@ const BlogsPage = () => {
         ogImage: ''
       })
     } finally {
-      setIsLoading(false)
+      setIsLocalLoading(false)
     }
   }
 
   const handleEditBlog = async () => {
-    setIsLoading(true)
+    setIsLocalLoading(true)
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setBlogs(blogs.map(blog => 
+      const updatedBlogs = blogs.map(blog => 
         blog.id === selectedBlog!.id 
           ? { 
               ...blog, 
@@ -338,29 +196,31 @@ const BlogsPage = () => {
               updatedAt: new Date().toISOString().split('T')[0] 
             }
           : blog
-      ))
+      )
+      dispatch(setBlogsData({ data: updatedBlogs, total: updatedBlogs.length }))
       setShowEditModal(false)
       setSelectedBlog(null)
     } finally {
-      setIsLoading(false)
+      setIsLocalLoading(false)
     }
   }
 
   const handleDeleteBlog = async () => {
-    setIsLoading(true)
+    setIsLocalLoading(true)
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      setBlogs(blogs.filter(blog => blog.id !== selectedBlog!.id))
+      const filteredBlogs = blogs.filter(blog => blog.id !== selectedBlog!.id)
+      dispatch(setBlogsData({ data: filteredBlogs, total: filteredBlogs.length }))
       setShowDeleteModal(false)
       setSelectedBlog(null)
     } finally {
-      setIsLoading(false)
+      setIsLocalLoading(false)
     }
   }
 
-  const openEditModal = (blog: typeof dummyBlogs[0]) => {
+  const openEditModal = (blog: Blog) => {
     setSelectedBlog({
       ...blog,
       tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags as string)
@@ -368,7 +228,7 @@ const BlogsPage = () => {
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (blog: typeof dummyBlogs[0]) => {
+  const openDeleteModal = (blog: Blog) => {
     setSelectedBlog(blog)
     setShowDeleteModal(true)
   }
@@ -380,6 +240,13 @@ const BlogsPage = () => {
       case 'archived': return 'destructive'
       default: return 'secondary'
     }
+  }
+
+  if (isLoading) {
+    return <Loader />
+  }
+  if (error) {
+    return <Error />
   }
 
   return (
@@ -660,13 +527,13 @@ const BlogsPage = () => {
                           <p className="font-medium text-foreground line-clamp-1">{blog.title}</p>
                           <p className="text-sm text-muted-foreground line-clamp-1">{blog.excerpt}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            {blog.tags.slice(0, 2).map((tag: string) => (
+                            {(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).slice(0, 2).map((tag: string) => (
                               <Badge key={tag} variant="secondary" className="text-xs">
                                 {tag}
                               </Badge>
                             ))}
-                            {blog.tags.length > 2 && (
-                              <span className="text-xs text-muted-foreground">+{blog.tags.length - 2}</span>
+                            {(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).length > 2 && (
+                              <span className="text-xs text-muted-foreground">+{(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).length - 2}</span>
                             )}
                           </div>
                         </div>
@@ -983,11 +850,11 @@ const BlogsPage = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={isLoading}>
+              <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={isLocalLoading}>
                 Cancel
               </Button>
-              <Button onClick={handleAddBlog} disabled={isLoading}>
-                {isLoading ? (
+              <Button onClick={handleAddBlog} disabled={isLocalLoading}>
+                {isLocalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Adding...
@@ -1209,11 +1076,11 @@ const BlogsPage = () => {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={isLoading}>
+              <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={isLocalLoading}>
                 Cancel
               </Button>
-              <Button onClick={handleEditBlog} disabled={isLoading}>
-                {isLoading ? (
+              <Button onClick={handleEditBlog} disabled={isLocalLoading}>
+                {isLocalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Updating...
@@ -1236,15 +1103,15 @@ const BlogsPage = () => {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={isLoading}>
+              <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={isLocalLoading}>
                 Cancel
               </Button>
               <Button 
                 variant="destructive" 
                 onClick={handleDeleteBlog} 
-                disabled={isLoading}
+                disabled={isLocalLoading}
               >
-                {isLoading ? (
+                {isLocalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Deleting...

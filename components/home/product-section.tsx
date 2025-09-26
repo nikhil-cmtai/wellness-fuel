@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
+import Image from "next/image";
 
 const ProductSection = () => {
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>(
@@ -363,7 +364,7 @@ const ProductSection = () => {
               <div className="relative w-full h-64 overflow-hidden">
                 {!imageErrors[index] ? (
                   <>
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
