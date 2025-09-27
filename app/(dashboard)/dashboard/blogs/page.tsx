@@ -31,7 +31,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
-import { fetchBlogsData, selectBlogsData, updateBlog, deleteBlog, createBlog, selectBlogsError, selectBlogsLoading, setBlogsData, Blog } from '@/lib/redux/features/blogsSlice'
+import { fetchBlogsData, selectBlogsData, selectBlogsError, selectBlogsLoading, setBlogsData, Blog } from '@/lib/redux/features/blogsSlice'
 import Loader from '@/components/common/dashboard/Loader'
 import Error from '@/components/common/dashboard/Error'
 
@@ -109,6 +109,8 @@ const BlogsPage = () => {
 
   // Filter blogs
   const filteredBlogs = useMemo(() => {
+    if (!blogs || !Array.isArray(blogs)) return []
+    
     return blogs.filter(blog => {
       const blogTags = Array.isArray(blog.tags) ? blog.tags : [blog.tags]
       const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -140,7 +142,7 @@ const BlogsPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       const blog = {
-        id: blogs.length + 1,
+        id: (blogs?.length || 0) + 1,
         ...newBlog,
         tags: newBlog.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag),
         views: 0,
@@ -150,7 +152,7 @@ const BlogsPage = () => {
         updatedAt: new Date().toISOString().split('T')[0]
       }
       
-      dispatch(setBlogsData({ data: [...blogs, blog], total: blogs.length + 1 }))
+      dispatch(setBlogsData({ data: [...(blogs || []), blog], total: (blogs?.length || 0) + 1 }))
       setShowAddModal(false)
       setNewBlog({
         title: '',
@@ -182,7 +184,7 @@ const BlogsPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      const updatedBlogs = blogs.map(blog => 
+      const updatedBlogs = (blogs || []).map(blog => 
         blog.id === selectedBlog!.id 
           ? { 
               ...blog, 
@@ -211,7 +213,7 @@ const BlogsPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      const filteredBlogs = blogs.filter(blog => blog.id !== selectedBlog!.id)
+      const filteredBlogs = (blogs || []).filter(blog => blog.id !== selectedBlog!.id)
       dispatch(setBlogsData({ data: filteredBlogs, total: filteredBlogs.length }))
       setShowDeleteModal(false)
       setSelectedBlog(null)
@@ -295,7 +297,7 @@ const BlogsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Posts</p>
-                  <p className="text-2xl font-bold text-foreground">{blogs.length}</p>
+                  <p className="text-2xl font-bold text-foreground">{blogs?.length || 0}</p>
                 </div>
                 <FileText className="w-8 h-8 text-primary" />
               </div>
@@ -306,7 +308,7 @@ const BlogsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Published</p>
-                  <p className="text-2xl font-bold text-foreground">{blogs.filter(b => b.status === 'published').length}</p>
+                  <p className="text-2xl font-bold text-foreground">{(blogs || []).filter(b => b.status === 'published').length}</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-emerald-500" />
               </div>
@@ -317,7 +319,7 @@ const BlogsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Drafts</p>
-                  <p className="text-2xl font-bold text-foreground">{blogs.filter(b => b.status === 'draft').length}</p>
+                  <p className="text-2xl font-bold text-foreground">{(blogs || []).filter(b => b.status === 'draft').length}</p>
                 </div>
                 <Clock className="w-8 h-8 text-amber-500" />
               </div>
@@ -328,7 +330,7 @@ const BlogsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Views</p>
-                  <p className="text-2xl font-bold text-foreground">{blogs.reduce((sum, b) => sum + b.views, 0).toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-foreground">{(blogs || []).reduce((sum, b) => sum + b.views, 0).toLocaleString()}</p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-blue-600" />
               </div>

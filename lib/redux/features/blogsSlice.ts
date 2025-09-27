@@ -29,6 +29,34 @@ export interface Blog {
   ogImage: string;
 }
 
+// Define the API Blog type (from backend)
+interface ApiBlog {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  featuredImage: string;
+  author?: string;
+  category: string;
+  tags?: string[];
+  status: string;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  readTime?: string;
+  views?: number;
+  likes?: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  blogImages?: string[];
+}
+
 // Define the state structure
 interface BlogsState {
   data: Blog[];
@@ -113,6 +141,33 @@ export const {
   clearSelectedBlog,
 } = blogsSlice.actions;
 
+// Helper function to map API blog to our Blog interface
+const mapApiBlogToBlog = (apiBlog: ApiBlog): Blog => ({
+  id: parseInt(apiBlog._id, 16) || 0, // Convert hex string to number
+  title: apiBlog.title,
+  slug: apiBlog.slug,
+  excerpt: apiBlog.excerpt,
+  content: apiBlog.content,
+  featuredImage: apiBlog.featuredImage,
+  author: apiBlog.author || 'Admin',
+  category: apiBlog.category,
+  tags: apiBlog.tags || [],
+  status: apiBlog.status,
+  publishedAt: apiBlog.publishedAt,
+  createdAt: apiBlog.createdAt,
+  updatedAt: apiBlog.updatedAt,
+  readTime: apiBlog.readTime || '5 min read',
+  views: apiBlog.views || 0,
+  likes: apiBlog.likes || 0,
+  metaTitle: apiBlog.metaTitle || apiBlog.title,
+  metaDescription: apiBlog.metaDescription || apiBlog.excerpt,
+  metaKeywords: apiBlog.metaKeywords || '',
+  canonicalUrl: apiBlog.canonicalUrl || '',
+  ogTitle: apiBlog.ogTitle || apiBlog.title,
+  ogDescription: apiBlog.ogDescription || apiBlog.excerpt,
+  ogImage: apiBlog.ogImage || apiBlog.featuredImage,
+});
+
 // Error handler utility
 const handleApiError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
@@ -148,9 +203,12 @@ export const fetchBlogsData = () => async (dispatch: AppDispatch, getState: () =
     );
 
     if (response.data?.success) {
+      // Map API response to our Blog interface
+      const mappedBlogs = response.data.data.blogs.map((blog: ApiBlog) => mapApiBlogToBlog(blog));
+
       dispatch(setBlogsData({
-        data: response.data.data.data,
-        total: response.data.data.total,
+        data: mappedBlogs,
+        total: response.data.data.pagination.totalBlogs,
       }));
     } else {
       throw new Error(response.data?.message || "Failed to fetch blogs");
@@ -166,7 +224,6 @@ export const fetchBlogsData = () => async (dispatch: AppDispatch, getState: () =
 export const fetchActiveBlogs = () => async (dispatch: AppDispatch, getState: () => { blogs: BlogsState }) => {
   dispatch(setBlogsLoading());
   try {
-
     const { filters, pagination } = getState().blogs;
     const queryParams = new URLSearchParams();
     
@@ -184,12 +241,15 @@ export const fetchActiveBlogs = () => async (dispatch: AppDispatch, getState: ()
 
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/getActiveBlogs?${queryParams}`);
     if (response.data?.success) {
+      // Map API response to our Blog interface
+      const mappedBlogs = response.data.data.blogs.map((blog: ApiBlog) => mapApiBlogToBlog(blog));
+
       dispatch(setBlogsData({
-          data: response.data.data.data,
-          total: response.data.data.total,
-        }));
-      } else {
-        throw new Error(response.data?.message || "Failed to fetch blogs");
+        data: mappedBlogs,
+        total: response.data.data.pagination.totalBlogs,
+      }));
+    } else {
+      throw new Error(response.data?.message || "Failed to fetch blogs");
     }
   } catch (error: unknown) {
     const errorMessage = handleApiError(error);
@@ -207,7 +267,33 @@ export const fetchBlogById = (blogId: string) => async (dispatch: AppDispatch) =
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/getBlogById/${blogId}`
     );
     if (response.data?.success) {
-      dispatch(setSelectedBlog(response.data.data));
+      const blog = response.data.data;
+      const mappedBlog = {
+        id: blog._id,
+        title: blog.title,
+        slug: blog.slug,
+        excerpt: blog.excerpt,
+        content: blog.content,
+        featuredImage: blog.featuredImage,
+        author: blog.author || 'Admin',
+        category: blog.category,
+        tags: blog.tags || [],
+        status: blog.status,
+        publishedAt: blog.publishedAt,
+        createdAt: blog.createdAt,
+        updatedAt: blog.updatedAt,
+        readTime: blog.readTime || '5 min read',
+        views: blog.views || 0,
+        likes: blog.likes || 0,
+        metaTitle: blog.metaTitle || blog.title,
+        metaDescription: blog.metaDescription || blog.excerpt,
+        metaKeywords: blog.metaKeywords || '',
+        canonicalUrl: blog.canonicalUrl || '',
+        ogTitle: blog.ogTitle || blog.title,
+        ogDescription: blog.ogDescription || blog.excerpt,
+        ogImage: blog.ogImage || blog.featuredImage,
+      };
+      dispatch(setSelectedBlog(mappedBlog));
       return true;
     } else {
       throw new Error(response.data?.message || "Failed to fetch blog");
@@ -227,7 +313,33 @@ export const fetchBlogBySlug = (slug: string) => async (dispatch: AppDispatch) =
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/getBlogBySlug/${slug}`
     );
     if (response.data?.success) {
-      dispatch(setSelectedBlog(response.data.data));
+      const blog = response.data.data;
+      const mappedBlog = {
+        id: blog._id,
+        title: blog.title,
+        slug: blog.slug,
+        excerpt: blog.excerpt,
+        content: blog.content,
+        featuredImage: blog.featuredImage,
+        author: blog.author || 'Admin',
+        category: blog.category,
+        tags: blog.tags || [],
+        status: blog.status,
+        publishedAt: blog.publishedAt,
+        createdAt: blog.createdAt,
+        updatedAt: blog.updatedAt,
+        readTime: blog.readTime || '5 min read',
+        views: blog.views || 0,
+        likes: blog.likes || 0,
+        metaTitle: blog.metaTitle || blog.title,
+        metaDescription: blog.metaDescription || blog.excerpt,
+        metaKeywords: blog.metaKeywords || '',
+        canonicalUrl: blog.canonicalUrl || '',
+        ogTitle: blog.ogTitle || blog.title,
+        ogDescription: blog.ogDescription || blog.excerpt,
+        ogImage: blog.ogImage || blog.featuredImage,
+      };
+      dispatch(setSelectedBlog(mappedBlog));
       return true;
     } else {
       throw new Error(response.data?.message || "Failed to fetch blog");
@@ -246,7 +358,13 @@ export const fetchLatestBlogs = () => async (dispatch: AppDispatch) => {
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/getLatestBlogs`
     );
     if (response.data?.success) {
-      dispatch(setBlogsData(response.data));
+      // Map API response to our Blog interface
+      const mappedBlogs = response.data.data.blogs.map((blog: ApiBlog) => mapApiBlogToBlog(blog));
+
+      dispatch(setBlogsData({
+        data: mappedBlogs,
+        total: response.data.data.pagination.totalBlogs,
+      }));
     } else {
       throw new Error(response.data?.message || "Failed to fetch latest blogs");
     }

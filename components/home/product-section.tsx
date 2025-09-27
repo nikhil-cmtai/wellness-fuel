@@ -367,6 +367,8 @@ const ProductSection = () => {
                     <Image
                       src={product.image}
                       alt={product.title}
+                      width={600}
+                      height={400}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       onError={() => handleImageError(index)}
                       loading="lazy"

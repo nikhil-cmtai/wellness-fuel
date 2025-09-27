@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { getUserFromCookie, logout } from '@/lib/auth'
+import { getUserFromCookie, logout, User } from '@/lib/auth'
 
 interface Breadcrumb {
   name: string
@@ -33,11 +33,13 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
   const pathname = usePathname()
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
-  const [user] = React.useState(getUserFromCookie())
+  const [user, setUser] = React.useState<User | null>(null)
 
   React.useEffect(() => {
     setMounted(true)
+    setUser(getUserFromCookie())
   }, [])
+
 
   const toggleTheme = () => {
     if (theme === 'light') {
@@ -160,15 +162,15 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
             <Avatar className="w-6 h-6 sm:w-7 sm:h-7">
               <AvatarImage src="https://github.com/shadcn.png" />
               <AvatarFallback className="text-xs">
-                {user?.name?.charAt(0) || 'U'}
+                {mounted ? (user?.name?.charAt(0) || 'U') : 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="hidden lg:block">
               <p className="text-sm font-medium text-foreground">
-                {user?.name || 'User'}
+                {mounted ? (user?.name || 'User') : 'User'}
               </p>
               <p className="text-xs text-muted-foreground">
-                {user?.email || 'user@example.com'}
+                {mounted ? (user?.email || 'user@example.com') : 'user@example.com'}
               </p>
             </div>
             <button
