@@ -144,7 +144,7 @@ export const fetchBlogsData = () => async (dispatch: AppDispatch, getState: () =
     }
 
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/getAllBlogs?${queryParams}`
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/?${queryParams}`
     );
 
     if (response.data?.success) {
