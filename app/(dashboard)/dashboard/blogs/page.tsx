@@ -243,10 +243,11 @@ const BlogsPage = () => {
   }
 
   if (isLoading) {
-    return <Loader />
+    return <Loader variant="skeleton" message="Loading blogs..." />
+    
   }
   if (error) {
-    return <Error />
+    return <Error title="Error loading blogs" message="Failed to load blogs" />
   }
 
   return (
