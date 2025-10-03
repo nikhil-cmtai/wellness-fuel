@@ -59,7 +59,7 @@ type Customer = {
   name: string
   email: string
   phone: string
-  avatar: string
+  imageUrl: string
   status: string
   customerType: string
   joinDate: string
@@ -99,6 +99,7 @@ const CustomersPage = () => {
     name: '',
     email: '',
     phone: '',
+    imageUrl: '',
     customerType: '',
     occupation: '',
     age: '',
@@ -112,6 +113,7 @@ const CustomersPage = () => {
     name: '',
     email: '',
     phone: '',
+    imageUrl: '',
     customerType: '',
     occupation: '',
     age: '',
@@ -133,6 +135,7 @@ const CustomersPage = () => {
         name: `${selectedCustomer.firstName} ${selectedCustomer.lastName}`,
         email: selectedCustomer.email || '',
         phone: selectedCustomer.phone || '',
+        imageUrl: selectedCustomer.imageUrl || '',
         customerType: selectedCustomer.customerType || 'Regular',
         occupation: selectedCustomer.occupation || '',
         age: selectedCustomer.age?.toString() || '',
@@ -149,7 +152,7 @@ const CustomersPage = () => {
     name: `${user.firstName} ${user.lastName}`,
     email: user.email,
     phone: user.phone,
-    avatar: '',
+    imageUrl: '',
     status: user.status?.toLowerCase() || 'inactive',
     customerType: user.customerType || 'Regular',
     joinDate: user.createdAt,
@@ -251,6 +254,7 @@ const CustomersPage = () => {
         name: '',
         email: '',
         phone: '',
+        imageUrl: '',
         customerType: '',
         occupation: '',
         age: '',
@@ -275,6 +279,7 @@ const CustomersPage = () => {
           lastName: editForm.name.split(' ').slice(1).join(' ') || '',
           email: editForm.email,
           phone: editForm.phone,
+          imageUrl: editForm.imageUrl,
           customerType: editForm.customerType,
           occupation: editForm.occupation,
           age: Number(editForm.age),
@@ -524,7 +529,7 @@ const CustomersPage = () => {
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <Avatar className="w-10 h-10">
-                                <AvatarImage src={customer.avatar} />
+                                <AvatarImage src={customer.imageUrl} />
                                 <AvatarFallback>
                                   {customer.name.split(' ').map(n => n[0]).join('')}
                                 </AvatarFallback>
@@ -606,7 +611,7 @@ const CustomersPage = () => {
                     <CardContent className="p-6 flex-1 flex flex-col">
                       <div className="flex items-center gap-4 mb-4">
                         <Avatar className="w-12 h-12">
-                          <AvatarImage src={customer.avatar} />
+                          <AvatarImage src={customer.imageUrl} />
                           <AvatarFallback>
                             {customer.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
@@ -846,7 +851,7 @@ const CustomersPage = () => {
                 <div className="flex flex-col items-center space-y-4 py-4">
                   <Label className="text-lg font-medium">Profile Picture</Label>
                   <Avatar className="w-24 h-24">
-                    <AvatarImage src="/placeholder-customer.svg" />
+                    <AvatarImage src={selectedCustomer?.imageUrl || '/placeholder-customer.svg'} />
                     <AvatarFallback className="text-xl">CST</AvatarFallback>
                   </Avatar>
                   <div className="flex gap-3">
@@ -928,7 +933,7 @@ const CustomersPage = () => {
                     <div className="flex flex-col items-center space-y-4 py-4">
                       <Label className="text-lg font-medium">Profile Picture</Label>
                       <Avatar className="w-24 h-24">
-                        <AvatarImage src={selectedCustomer.avatar || '/placeholder-customer.svg'} />
+                        <AvatarImage src={selectedCustomer?.imageUrl || '/placeholder-customer.svg'} />
                         <AvatarFallback className="text-xl">
                           {selectedCustomer.firstName[0]}{selectedCustomer.lastName[0]}
                         </AvatarFallback>

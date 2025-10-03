@@ -16,7 +16,7 @@ export interface User {
   verified: boolean;
   address?: string;
   bio?: string;
-  avatar?: string;
+  imageUrl?: string;
   
   // Doctor specific fields
   hospital?: string;
@@ -65,7 +65,7 @@ interface ApiUser {
   verified: boolean;
   address?: string;
   bio?: string;
-  
+  imageUrl?: string;
   // Doctor specific fields
   hospital?: string;
   experience?: number;
@@ -209,7 +209,7 @@ const mapApiUserToUser = (apiUser: ApiUser): User => ({
   verified: apiUser.verified,
   address: apiUser.address,
   bio: apiUser.bio,
-  
+  imageUrl: apiUser.imageUrl,
   // Doctor specific fields
   hospital: apiUser.hospital,
   experience: apiUser.experience,

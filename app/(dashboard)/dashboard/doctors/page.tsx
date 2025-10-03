@@ -66,7 +66,7 @@ type Doctor = {
   name: string
   email: string
   phone: string
-  avatar: string
+  imageUrl: string
   status: string
   specialization: string
   experience: number
@@ -112,7 +112,7 @@ const DoctorsPage = () => {
     name: `${user.firstName} ${user.lastName}`,
     email: user.email,
     phone: user.phone,
-    avatar: '',
+    imageUrl: '',
     status: user.status.toLowerCase(),
     specialization: user.specialization || 'General Practice',
     experience: user.experience || 0,
@@ -451,7 +451,7 @@ const DoctorsPage = () => {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="w-10 h-10">
-                              <AvatarImage src={doctor.avatar} />
+                              <AvatarImage src={doctor.imageUrl} />
                               <AvatarFallback>
                                 {doctor.name.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
@@ -541,7 +541,7 @@ const DoctorsPage = () => {
                   <CardContent className="p-6 flex-1 flex flex-col">
                     <div className="flex items-center gap-4 mb-4">
                       <Avatar className="w-12 h-12">
-                        <AvatarImage src={doctor.avatar} />
+                        <AvatarImage src={doctor.imageUrl} />
                         <AvatarFallback>
                           {doctor.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
@@ -744,7 +744,7 @@ const DoctorsPage = () => {
                 <div className="flex flex-col items-center space-y-4 py-4">
                   <Label className="text-lg font-medium">Profile Picture</Label>
                   <Avatar className="w-24 h-24">
-                    <AvatarImage src={selectedDoctor.avatar || '/placeholder-doctor.svg'} />
+                    <AvatarImage src={selectedDoctor.imageUrl || '/placeholder-doctor.svg'} />
                     <AvatarFallback className="text-xl">
                       {selectedDoctor.firstName[0]}{selectedDoctor.lastName[0]}
                     </AvatarFallback>

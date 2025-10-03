@@ -61,7 +61,7 @@ type Influencer = {
   name: string
   email: string
   phone: string
-  avatar: string
+  imageUrl: string
   status: string
   platform: string
   followers: number
@@ -106,7 +106,7 @@ const InfluencersPage = () => {
     name: `${user.firstName} ${user.lastName}`,
     email: user.email,
     phone: user.phone,
-    avatar: '',
+    imageUrl: '',
     status: user.status.toLowerCase(),
     platform: user.platform || 'Instagram',
     followers: user.followers || 0,
@@ -460,7 +460,7 @@ const InfluencersPage = () => {
                             <TableCell>
                               <div className="flex items-center gap-3">
                                 <Avatar className="w-10 h-10">
-                                  <AvatarImage src={influencer.avatar} />
+                                  <AvatarImage src={influencer.imageUrl} />
                                   <AvatarFallback>
                                     {influencer.name.split(' ').map(n => n[0]).join('')}
                                   </AvatarFallback>
@@ -539,7 +539,7 @@ const InfluencersPage = () => {
                       <CardContent className="p-6 flex-1 flex flex-col">
                         <div className="flex items-center gap-4 mb-4">
                           <Avatar className="w-12 h-12">
-                            <AvatarImage src={influencer.avatar} />
+                            <AvatarImage src={influencer.imageUrl} />
                             <AvatarFallback>
                               {influencer.name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
@@ -725,7 +725,7 @@ const InfluencersPage = () => {
                     <div className="flex flex-col items-center space-y-4 py-4">
                       <Label className="text-lg font-medium">Profile Picture</Label>
                       <Avatar className="w-24 h-24">
-                        <AvatarImage src={selectedInfluencer.avatar || '/placeholder-influencer.svg'} />
+                        <AvatarImage src={selectedInfluencer.imageUrl || '/placeholder-influencer.svg'} />
                         <AvatarFallback className="text-xl">
                           {selectedInfluencer.firstName[0]}{selectedInfluencer.lastName[0]}
                         </AvatarFallback>

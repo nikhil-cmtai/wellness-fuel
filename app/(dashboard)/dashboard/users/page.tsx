@@ -75,14 +75,14 @@ const UsersPage = () => {
     lastName: '',
     email: '',
     phone: '',
-    avatar: '',
+    imageUrl: '',
     role: 'Customer' as 'Admin' | 'Doctor' | 'Influencer' | 'Customer',
     status: 'Active' as 'Active' | 'Inactive'
   })
 
 
   const getUserImage = (user: UserType) => {
-    return user.avatar || '/placeholder-user.svg'
+    return user.imageUrl || '/placeholder-user.svg'
   }
 
   // Avatar upload functions
@@ -97,7 +97,7 @@ const UsersPage = () => {
       reader.onload = () => {
         setSelectedUser({
           ...selectedUser,
-          avatar: reader.result as string
+          imageUrl: reader.result as string
         })
       }
       reader.readAsDataURL(file)
@@ -109,7 +109,7 @@ const UsersPage = () => {
     if (selectedUser) {
       setSelectedUser({
         ...selectedUser,
-        avatar: undefined
+        imageUrl: undefined
       })
     }
   }
@@ -126,7 +126,7 @@ const UsersPage = () => {
       reader.onload = () => {
         setNewUser({
           ...newUser,
-          avatar: reader.result as string
+          imageUrl: reader.result as string
         })
       }
       reader.readAsDataURL(file)
@@ -136,7 +136,7 @@ const UsersPage = () => {
   const removeNewUserAvatar = () => {
     setNewUser({
       ...newUser,
-      avatar: ''
+      imageUrl: ''
     })
   }
 
@@ -855,7 +855,7 @@ const UsersPage = () => {
                   <Label htmlFor="avatar" className="text-lg font-medium">Profile Picture</Label>
                   <Avatar className="w-24 h-24">
                     <AvatarImage 
-                      src={selectedUser.avatar || '/placeholder-user.svg'} 
+                      src={selectedUser.imageUrl || '/placeholder-user.svg'} 
                       alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
                     />
                     <AvatarFallback className="text-xl">{selectedUser.firstName[0]}{selectedUser.lastName[0]}</AvatarFallback>
@@ -1031,7 +1031,7 @@ const UsersPage = () => {
                 <Label htmlFor="newAvatar" className="text-lg font-medium">Profile Picture</Label>
                 <Avatar className="w-24 h-24">
                   <AvatarImage 
-                    src={newUser.avatar || '/placeholder-user.svg'} 
+                    src={newUser.imageUrl || '/placeholder-user.svg'} 
                     alt={`${newUser.firstName} ${newUser.lastName}`}
                   />
                   <AvatarFallback className="text-xl">
