@@ -37,7 +37,7 @@ import Error from '@/components/common/dashboard/Error'
 
 // Types
 interface BlogWithEditableTags {
-  id: number
+  _id: string
   title: string
   slug: string
   excerpt: string
@@ -142,8 +142,7 @@ const BlogsPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       const blog = {
-        id: (blogs?.length || 0) + 1,
-        ...newBlog,
+        ...newBlog as Blog,
         tags: newBlog.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag),
         views: 0,
         likes: 0,
@@ -152,7 +151,7 @@ const BlogsPage = () => {
         updatedAt: new Date().toISOString().split('T')[0]
       }
       
-      dispatch(setBlogsData({ data: [...(blogs || []), blog], total: (blogs?.length || 0) + 1 }))
+      dispatch(setBlogsData({ data: [...(blogs || []), blog as BlogWithEditableTags], total: (blogs?.length || 0) + 1 }))
       setShowAddModal(false)
       setNewBlog({
         title: '',
@@ -185,7 +184,7 @@ const BlogsPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       const updatedBlogs = (blogs || []).map(blog => 
-        blog.id === selectedBlog!.id 
+        blog._id === selectedBlog!._id 
           ? { 
               ...blog, 
               ...selectedBlog, 
@@ -213,7 +212,7 @@ const BlogsPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      const filteredBlogs = (blogs || []).filter(blog => blog.id !== selectedBlog!.id)
+      const filteredBlogs = (blogs || []).filter(blog => blog._id !== selectedBlog!._id)
       dispatch(setBlogsData({ data: filteredBlogs, total: filteredBlogs.length }))
       setShowDeleteModal(false)
       setSelectedBlog(null)
@@ -222,7 +221,7 @@ const BlogsPage = () => {
     }
   }
 
-  const openEditModal = (blog: Blog) => {
+  const openEditModal = (blog: BlogWithEditableTags) => {
     setSelectedBlog({
       ...blog,
       tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags as string)
@@ -230,7 +229,7 @@ const BlogsPage = () => {
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (blog: Blog) => {
+  const openDeleteModal = (blog: BlogWithEditableTags) => {
     setSelectedBlog(blog)
     setShowDeleteModal(true)
   }
@@ -423,7 +422,7 @@ const BlogsPage = () => {
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {paginatedBlogs.map(blog => (
-              <Card key={blog.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={blog._id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative h-48">
                   <Image
                     src={blog.featuredImage}
@@ -466,7 +465,7 @@ const BlogsPage = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          onClick={() => openEditModal(blog)}
+                          onClick={() => openEditModal(blog as BlogWithEditableTags)}
                           className="flex-1 gap-2"
                           size="sm"
                         >
@@ -481,7 +480,7 @@ const BlogsPage = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          onClick={() => openDeleteModal(blog)}
+                          onClick={() => openDeleteModal(blog as BlogWithEditableTags)}
                           className="flex-1 gap-2 text-destructive border border-destructive hover:bg-destructive/10 hover:text-destructive-foreground"
                           size="sm"
                           variant="ghost"
@@ -515,7 +514,7 @@ const BlogsPage = () => {
               </TableHeader>
               <TableBody>
                 {paginatedBlogs.map(blog => (
-                  <TableRow key={blog.id}>
+                  <TableRow key={blog._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="relative w-16 h-12 rounded-lg overflow-hidden">
@@ -565,7 +564,7 @@ const BlogsPage = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
-                              onClick={() => openEditModal(blog)}
+                              onClick={() => openEditModal(blog as BlogWithEditableTags)}
                               variant="ghost"
                               size="icon"
                             >
@@ -579,7 +578,7 @@ const BlogsPage = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
-                              onClick={() => openDeleteModal(blog)}
+                              onClick={() => openDeleteModal(blog as BlogWithEditableTags)}
                               variant="ghost"
                               size="icon"
                               className="text-destructive hover:bg-destructive/10"

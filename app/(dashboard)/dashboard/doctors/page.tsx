@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { 
   Stethoscope, 
@@ -42,6 +42,22 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks'
+import {
+  fetchUsersData,
+  setFilters,
+  setPagination,
+  selectUsersData,
+  selectUsersLoading,
+  selectUsersError,
+  selectUsersFilters,
+  selectUsersPagination,
+  updateUser,
+  deleteUser,
+  User as UserType
+} from '@/lib/redux/features/userSlice'
+import Loader from '@/components/common/dashboard/Loader'
+import Error from '@/components/common/dashboard/Error'
 
 // Doctor type definition
 type Doctor = {
@@ -65,143 +81,52 @@ type Doctor = {
   tags: string[]
 }
 
-// Dummy doctor data
-const doctors = [
-  {
-    id: 1,
-    name: 'Dr. Priya Sharma',
-    email: 'priya.sharma@wellnessfuel.com',
-    phone: '+91 98765 43210',
-    avatar: '',
-    status: 'active',
-    specialization: 'Cardiology',
-    experience: 8,
-    rating: 4.9,
-    totalPatients: 1250,
-    consultationFee: 1500,
-    joinDate: '2023-06-15',
-    location: 'Mumbai, Maharashtra',
-    qualifications: 'MBBS, MD Cardiology',
-    hospital: 'Apollo Hospital',
-    availability: 'Mon-Fri 9AM-6PM',
-    languages: ['English', 'Hindi', 'Marathi'],
-    tags: ['Senior Doctor', 'Cardiology Expert']
-  },
-  {
-    id: 2,
-    name: 'Dr. Rajesh Kumar',
-    email: 'rajesh.kumar@wellnessfuel.com',
-    phone: '+91 87654 32109',
-    avatar: '',
-    status: 'active',
-    specialization: 'Neurology',
-    experience: 12,
-    rating: 4.8,
-    totalPatients: 980,
-    consultationFee: 2000,
-    joinDate: '2023-08-20',
-    location: 'Delhi, NCR',
-    qualifications: 'MBBS, MD Neurology, DM Neurology',
-    hospital: 'Fortis Hospital',
-    availability: 'Mon-Sat 10AM-7PM',
-    languages: ['English', 'Hindi'],
-    tags: ['Neurology Specialist', 'Senior Consultant']
-  },
-  {
-    id: 3,
-    name: 'Dr. Sneha Patel',
-    email: 'sneha.patel@wellnessfuel.com',
-    phone: '+91 76543 21098',
-    avatar: '',
-    status: 'inactive',
-    specialization: 'Pediatrics',
-    experience: 5,
-    rating: 4.7,
-    totalPatients: 650,
-    consultationFee: 1200,
-    joinDate: '2023-10-05',
-    location: 'Bangalore, Karnataka',
-    qualifications: 'MBBS, MD Pediatrics',
-    hospital: 'Manipal Hospital',
-    availability: 'Mon-Fri 8AM-5PM',
-    languages: ['English', 'Hindi', 'Kannada'],
-    tags: ['Pediatrician', 'Child Specialist']
-  },
-  {
-    id: 4,
-    name: 'Dr. Amit Singh',
-    email: 'amit.singh@wellnessfuel.com',
-    phone: '+91 65432 10987',
-    avatar: '',
-    status: 'active',
-    specialization: 'Orthopedics',
-    experience: 15,
-    rating: 4.9,
-    totalPatients: 1800,
-    consultationFee: 1800,
-    joinDate: '2023-03-10',
-    location: 'Pune, Maharashtra',
-    qualifications: 'MBBS, MS Orthopedics',
-    hospital: 'Sahyadri Hospital',
-    availability: 'Mon-Sat 9AM-6PM',
-    languages: ['English', 'Hindi', 'Marathi'],
-    tags: ['Orthopedic Surgeon', 'Senior Doctor']
-  },
-  {
-    id: 5,
-    name: 'Dr. Kavya Reddy',
-    email: 'kavya.reddy@wellnessfuel.com',
-    phone: '+91 54321 09876',
-    avatar: '',
-    status: 'active',
-    specialization: 'Dermatology',
-    experience: 6,
-    rating: 4.6,
-    totalPatients: 720,
-    consultationFee: 1300,
-    joinDate: '2023-09-15',
-    location: 'Hyderabad, Telangana',
-    qualifications: 'MBBS, MD Dermatology',
-    hospital: 'Continental Hospital',
-    availability: 'Mon-Fri 10AM-6PM',
-    languages: ['English', 'Hindi', 'Telugu'],
-    tags: ['Dermatologist', 'Skin Specialist']
-  },
-  {
-    id: 6,
-    name: 'Dr. Vikram Joshi',
-    email: 'vikram.joshi@wellnessfuel.com',
-    phone: '+91 43210 98765',
-    avatar: '',
-    status: 'pending',
-    specialization: 'Ophthalmology',
-    experience: 4,
-    rating: 4.4,
-    totalPatients: 420,
-    consultationFee: 1100,
-    joinDate: '2023-11-01',
-    location: 'Ahmedabad, Gujarat',
-    qualifications: 'MBBS, MS Ophthalmology',
-    hospital: 'Zydus Hospital',
-    availability: 'Mon-Fri 9AM-5PM',
-    languages: ['English', 'Hindi', 'Gujarati'],
-    tags: ['Eye Specialist', 'New Doctor']
-  }
-]
 
 const DoctorsPage = () => {
+  const dispatch = useAppDispatch()
+  const users = useAppSelector(selectUsersData)
+  const isLoading = useAppSelector(selectUsersLoading)
+  const error = useAppSelector(selectUsersError)
+  const pagination = useAppSelector(selectUsersPagination)
+
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table')
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [specializationFilter, setSpecializationFilter] = useState('all')
   const [sortBy, setSortBy] = useState('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10)
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
+  const [selectedDoctor, setSelectedDoctor] = useState<UserType | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [modalLoading, setModalLoading] = useState(false)
+
+  // Fetch doctors data on component mount
+  useEffect(() => {
+    dispatch(setFilters({ role: 'Doctor' }))
+    dispatch(fetchUsersData())
+  }, [dispatch])
+
+  // Convert users to doctors format and filter
+  const doctors: Doctor[] = users.filter(user => user.role === 'Doctor').map(user => ({
+    id: parseInt(user._id.slice(-8), 16) || Math.random(),
+    name: `${user.firstName} ${user.lastName}`,
+    email: user.email,
+    phone: user.phone,
+    avatar: '',
+    status: user.status.toLowerCase(),
+    specialization: user.specialization || 'General Practice',
+    experience: user.experience || 0,
+    rating: 4.5, // Default rating since not in API
+    totalPatients: 0, // Default since not in API
+    consultationFee: user.consultationFee || 1000,
+    joinDate: user.createdAt,
+    location: user.location || 'Not specified',
+    qualifications: user.qualifications || 'MBBS',
+    hospital: user.hospital || 'Not specified',
+    availability: user.availability || 'Mon-Fri 9AM-5PM',
+    languages: user.language || ['English'],
+    tags: user.specialization ? [user.specialization] : []
+  }))
 
   // Filter and sort doctors
   const filteredDoctors = doctors
@@ -230,9 +155,15 @@ const DoctorsPage = () => {
       }
     })
 
-  const totalPages = Math.ceil(filteredDoctors.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedDoctors = filteredDoctors.slice(startIndex, startIndex + itemsPerPage)
+  const totalPages = Math.ceil(pagination.total / pagination.limit)
+  const startIndex = (pagination.page - 1) * pagination.limit
+  const paginatedDoctors = filteredDoctors.slice(startIndex, startIndex + pagination.limit)
+
+  // Handle pagination changes
+  const handlePageChange = (newPage: number) => {
+    dispatch(setPagination({ page: newPage }))
+    dispatch(fetchUsersData())
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -256,42 +187,53 @@ const DoctorsPage = () => {
   }
 
   const handleEditDoctor = (doctor: Doctor) => {
-    setSelectedDoctor(doctor)
-    setIsEditModalOpen(true)
+    // Find the corresponding user from Redux state
+    const user = users.find(u => u.role === 'Doctor' && `${u.firstName} ${u.lastName}` === doctor.name)
+    if (user) {
+      setSelectedDoctor(user)
+      setIsEditModalOpen(true)
+    }
   }
 
   const handleDeleteDoctor = async (doctorId: number) => {
-    setIsLoading(true)
+    setModalLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log(`Deleting doctor ${doctorId}`)
+      const user = users.find(u => u.role === 'Doctor' && parseInt(u._id.slice(-8), 16) === doctorId)
+      if (user) {
+        const success = await dispatch(deleteUser(user._id)) as unknown as boolean
+        if (success) {
+          dispatch(fetchUsersData())
+        }
+      }
     } finally {
-      setIsLoading(false)
+      setModalLoading(false)
     }
   }
 
   const handleAddDoctor = async (doctorData: Partial<Doctor>) => {
-    setIsLoading(true)
+    setModalLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Add logic to create doctor via API
       console.log('Adding new doctor:', doctorData)
       setIsAddModalOpen(false)
+      dispatch(fetchUsersData())
     } finally {
-      setIsLoading(false)
+      setModalLoading(false)
     }
   }
 
   const handleUpdateDoctor = async (doctorData: Partial<Doctor>) => {
-    setIsLoading(true)
+    setModalLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log('Updating doctor:', doctorData)
-      setIsEditModalOpen(false)
+      if (selectedDoctor) {
+        const success = await dispatch(updateUser(selectedDoctor._id, selectedDoctor)) as unknown as boolean
+        if (success) {
+          setIsEditModalOpen(false)
+          dispatch(fetchUsersData())
+        }
+      }
     } finally {
-      setIsLoading(false)
+      setModalLoading(false)
     }
   }
 
@@ -480,6 +422,13 @@ const DoctorsPage = () => {
           </CardContent>
         </Card>
 
+        {isLoading && (
+            <Loader />
+        )}
+        {error && (
+          <Error />
+        )}
+
         {/* Doctors Table */}
         {viewMode === 'table' ? (
           <Card>
@@ -662,25 +611,25 @@ const DoctorsPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredDoctors.length)} of {filteredDoctors.length} doctors
+              Showing {startIndex + 1} to {Math.min(startIndex + pagination.limit, filteredDoctors.length)} of {filteredDoctors.length} doctors
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
+                onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
+                disabled={pagination.page === 1}
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               <span className="text-sm">
-                Page {currentPage} of {totalPages}
+                Page {pagination.page} of {totalPages}
               </span>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(Math.min(pagination.page + 1, totalPages))}
+                disabled={pagination.page === totalPages}
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
@@ -787,7 +736,7 @@ const DoctorsPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="editName">Full Name</Label>
-                      <Input id="editName" defaultValue={selectedDoctor.name} />
+                      <Input id="editName" defaultValue={`${selectedDoctor.firstName} ${selectedDoctor.lastName}`} />
                     </div>
                     <div>
                       <Label htmlFor="editEmail">Email</Label>

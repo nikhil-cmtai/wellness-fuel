@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import Image from 'next/image'
 import { 
   Search, 
   Grid3X3, 
@@ -9,13 +10,11 @@ import {
   Trash2, 
   UserPlus,
   User,
-  Star,
   Eye,
   Loader2,
   ChevronLeft,
   ChevronRight,
   CheckCircle,
-  XCircle,
   Clock,
   Crown,
   Stethoscope,
@@ -32,240 +31,151 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { AvatarFallback } from '@/components/ui/avatar'
+import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks'
+import {
+  fetchUsersData,
+  setFilters,
+  setPagination,
+  selectUsersData,
+  selectUsersLoading,
+  selectUsersError,
+  selectUsersFilters,
+  selectUsersPagination,
+  createUser,
+  updateUser,
+  deleteUser,
+  User as UserType
+} from '@/lib/redux/features/userSlice'
 
-// Dummy user data
-const dummyUsers = [
-  {
-    id: 1,
-    firstName: "Rajesh",
-    lastName: "Kumar",
-    email: "rajesh.kumar@wellnessfuel.com",
-    phone: "+91 98765 43210",
-    role: "admin",
-    status: "active",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    address: "123 Wellness Street, Health District, Mumbai, Maharashtra 400001",
-    dateOfBirth: "1985-06-15",
-    joinDate: "2020-01-15",
-    lastLogin: "2024-03-15T10:30:00Z",
-    bio: "Founder and CEO of Wellness Fuel. Passionate about health and wellness.",
-    verified: true,
-    totalOrders: 0,
-    totalSpent: 0,
-    rating: 0,
-    followers: 0
-  },
-  {
-    id: 2,
-    firstName: "Dr. Priya",
-    lastName: "Sharma",
-    email: "dr.priya@wellnessfuel.com",
-    phone: "+91 98765 43211",
-    role: "doctor",
-    status: "active",
-    avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
-    address: "456 Medical Center, Health Plaza, Delhi, Delhi 110001",
-    dateOfBirth: "1980-03-22",
-    joinDate: "2021-02-10",
-    lastLogin: "2024-03-14T14:20:00Z",
-    bio: "Certified nutritionist and wellness expert with 15+ years of experience.",
-    verified: true,
-    totalOrders: 12,
-    totalSpent: 25000,
-    rating: 4.8,
-    followers: 1250
-  },
-  {
-    id: 3,
-    firstName: "Amit",
-    lastName: "Patel",
-    email: "amit.patel@email.com",
-    phone: "+91 98765 43212",
-    role: "customer",
-    status: "active",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    address: "789 Fitness Lane, Sports Complex, Bangalore, Karnataka 560001",
-    dateOfBirth: "1990-11-08",
-    joinDate: "2022-05-20",
-    lastLogin: "2024-03-15T09:15:00Z",
-    bio: "Fitness enthusiast and health-conscious individual.",
-    verified: true,
-    totalOrders: 25,
-    totalSpent: 45000,
-    rating: 4.5,
-    followers: 0
-  },
-  {
-    id: 4,
-    firstName: "Sneha",
-    lastName: "Reddy",
-    email: "sneha.reddy@email.com",
-    phone: "+91 98765 43213",
-    role: "influencer",
-    status: "active",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-    address: "321 Wellness Avenue, Health Hub, Chennai, Tamil Nadu 600001",
-    dateOfBirth: "1992-08-14",
-    joinDate: "2021-08-15",
-    lastLogin: "2024-03-15T16:45:00Z",
-    bio: "Wellness influencer and content creator. Sharing healthy lifestyle tips.",
-    verified: true,
-    totalOrders: 8,
-    totalSpent: 15000,
-    rating: 4.9,
-    followers: 50000
-  },
-  {
-    id: 5,
-    firstName: "Vikram",
-    lastName: "Singh",
-    email: "vikram.singh@email.com",
-    phone: "+91 98765 43214",
-    role: "customer",
-    status: "inactive",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    address: "654 Health Street, Wellness Center, Pune, Maharashtra 411001",
-    dateOfBirth: "1988-12-03",
-    joinDate: "2022-01-10",
-    lastLogin: "2024-02-28T11:30:00Z",
-    bio: "Health-conscious individual focused on natural wellness.",
-    verified: false,
-    totalOrders: 15,
-    totalSpent: 28000,
-    rating: 4.2,
-    followers: 0
-  },
-  {
-    id: 6,
-    firstName: "Dr. Anita",
-    lastName: "Desai",
-    email: "dr.anita@wellnessfuel.com",
-    phone: "+91 98765 43215",
-    role: "doctor",
-    status: "active",
-    avatar: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=150&h=150&fit=crop&crop=face",
-    address: "987 Medical Plaza, Health District, Hyderabad, Telangana 500001",
-    dateOfBirth: "1975-04-18",
-    joinDate: "2020-11-05",
-    lastLogin: "2024-03-14T13:20:00Z",
-    bio: "Senior nutritionist and wellness consultant with expertise in holistic health.",
-    verified: true,
-    totalOrders: 18,
-    totalSpent: 32000,
-    rating: 4.7,
-    followers: 2100
-  }
-]
 
-const userRoles = ["All", "admin", "doctor", "influencer", "customer"]
-const userStatuses = ["All", "active", "inactive", "suspended"]
+const userRoles = ["All", "Admin", "Doctor", "Influencer", "Customer"]
+const userStatuses = ["All", "Active", "Inactive"]
 
 const UsersPage = () => {
-  const [users, setUsers] = useState(dummyUsers)
+  const dispatch = useAppDispatch()
+  const users = useAppSelector(selectUsersData)
+  const isLoading = useAppSelector(selectUsersLoading)
+  const error = useAppSelector(selectUsersError)
+  const filters = useAppSelector(selectUsersFilters)
+  const pagination = useAppSelector(selectUsersPagination)
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedRole, setSelectedRole] = useState('All')
-  const [selectedStatus, setSelectedStatus] = useState('All')
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<typeof dummyUsers[0] | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 12
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null)
+  const [modalLoading, setModalLoading] = useState(false)
+  const [imageErrors, setImageErrors] = useState<{ [key: string]: boolean }>({})
 
-  // Filter users
-  const filteredUsers = useMemo(() => {
-    return users.filter(user => {
-      const matchesSearch = user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           user.phone.includes(searchTerm)
-      const matchesRole = selectedRole === 'All' || user.role === selectedRole
-      const matchesStatus = selectedStatus === 'All' || user.status === selectedStatus
-      
-      return matchesSearch && matchesRole && matchesStatus
-    })
-  }, [users, searchTerm, selectedRole, selectedStatus])
+  const handleImageError = (userId: string) => {
+    setImageErrors(prev => ({ ...prev, [userId]: true }))
+  }
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
+  const getUserImage = (user: UserType) => {
+    const hasError = imageErrors[user._id]
+    if (hasError) {
+      return '/placeholder-product.svg'
+    }
+    return '/placeholder-product.svg' // No avatar field in User interface
+  }
 
-  // Reset to first page when filters change
-  React.useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm, selectedRole, selectedStatus])
+  // Fetch data on component mount
+  useEffect(() => {
+    dispatch(fetchUsersData())
+  }, [dispatch])
+
+  // Pagination logic using Redux pagination
+  const totalPages = Math.ceil(pagination.total / pagination.limit)
+  const startIndex = (pagination.page - 1) * pagination.limit
+  const endIndex = startIndex + pagination.limit
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin': return <Crown className="w-4 h-4" />
-      case 'doctor': return <Stethoscope className="w-4 h-4" />
-      case 'influencer': return <Megaphone className="w-4 h-4" />
-      case 'customer': return <ShoppingBag className="w-4 h-4" />
+      case 'Admin': return <Crown className="w-4 h-4" />
+      case 'Doctor': return <Stethoscope className="w-4 h-4" />
+      case 'Influencer': return <Megaphone className="w-4 h-4" />
+      case 'Customer': return <ShoppingBag className="w-4 h-4" />
       default: return <User className="w-4 h-4" />
     }
   }
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'outline'
-      case 'doctor': return 'default'
-      case 'influencer': return 'secondary'
-      case 'customer': return 'outline'
+      case 'Admin': return 'outline'
+      case 'Doctor': return 'default'
+      case 'Influencer': return 'secondary'
+      case 'Customer': return 'outline'
       default: return 'secondary'
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return <CheckCircle className="w-4 h-4" />
-      case 'inactive': return <Clock className="w-4 h-4" />
-      case 'suspended': return <XCircle className="w-4 h-4" />
+      case 'Active': return <CheckCircle className="w-4 h-4" />
+      case 'Inactive': return <Clock className="w-4 h-4" />
       default: return <Clock className="w-4 h-4" />
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'success'
-      case 'inactive': return 'warning'
-      case 'suspended': return 'destructive'
+      case 'Active': return 'default'
+      case 'Inactive': return 'secondary'
       default: return 'secondary'
     }
   }
 
+  // Handle filter changes
+  const handleSearchChange = (value: string) => {
+    dispatch(setFilters({ search: value }))
+    dispatch(setPagination({ page: 1 }))
+  }
+
+  const handleRoleChange = (value: string) => {
+    dispatch(setFilters({ role: value === 'All' ? '' : value }))
+    dispatch(setPagination({ page: 1 }))
+  }
+
+  const handleStatusChange = (value: string) => {
+    dispatch(setFilters({ status: value === 'All' ? '' : value }))
+    dispatch(setPagination({ page: 1 }))
+  }
+
+  const handlePageChange = (page: number) => {
+    dispatch(setPagination({ page }))
+  }
+
   const handleDeleteUser = async () => {
-    if (!selectedUser || selectedUser.role === 'admin') return
+    if (!selectedUser || selectedUser.role === 'Admin') return
     
-    setIsLoading(true)
+    setModalLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setUsers(users.filter(user => user.id !== selectedUser.id))
-      setShowDeleteModal(false)
-      setSelectedUser(null)
+      const success = await dispatch(deleteUser(selectedUser._id)) as unknown as boolean
+      if (success) {
+        setShowDeleteModal(false)
+        setSelectedUser(null)
+        dispatch(fetchUsersData())
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error)
     } finally {
-      setIsLoading(false)
+      setModalLoading(false)
     }
   }
 
-  const openViewModal = (user: typeof dummyUsers[0]) => {
+  const openViewModal = (user: UserType) => {
     setSelectedUser(user)
     setShowViewModal(true)
   }
 
-  const openEditModal = (user: typeof dummyUsers[0]) => {
+  const openEditModal = (user: UserType) => {
     setSelectedUser(user)
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (user: typeof dummyUsers[0]) => {
+  const openDeleteModal = (user: UserType) => {
     setSelectedUser(user)
     setShowDeleteModal(true)
   }
@@ -292,7 +202,7 @@ const UsersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Users</p>
-                  <p className="text-2xl font-bold text-foreground">{users.length}</p>
+                  <p className="text-2xl font-bold text-foreground">{pagination.total}</p>
                 </div>
                 <User className="w-8 h-8 text-primary" />
               </div>
@@ -303,7 +213,7 @@ const UsersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Users</p>
-                  <p className="text-2xl font-bold text-foreground">{users.filter(u => u.status === 'active').length}</p>
+                  <p className="text-2xl font-bold text-foreground">{(users || []).filter(u => u.status === 'Active').length}</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-emerald-500" />
               </div>
@@ -314,7 +224,7 @@ const UsersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Doctors</p>
-                  <p className="text-2xl font-bold text-foreground">{users.filter(u => u.role === 'doctor').length}</p>
+                  <p className="text-2xl font-bold text-foreground">{(users || []).filter(u => u.role === 'Doctor').length}</p>
                 </div>
                 <Stethoscope className="w-8 h-8 text-blue-500" />
               </div>
@@ -325,7 +235,7 @@ const UsersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Influencers</p>
-                  <p className="text-2xl font-bold text-foreground">{users.filter(u => u.role === 'influencer').length}</p>
+                  <p className="text-2xl font-bold text-foreground">{(users || []).filter(u => u.role === 'Influencer').length}</p>
                 </div>
                 <Megaphone className="w-8 h-8 text-purple-500" />
               </div>
@@ -343,14 +253,14 @@ const UsersPage = () => {
                 <Input
                   type="text"
                   placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
                 />
               </div>
 
               {/* Role Filter */}
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <Select value={filters.role || 'All'} onValueChange={handleRoleChange}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -364,7 +274,7 @@ const UsersPage = () => {
               </Select>
 
               {/* Status Filter */}
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <Select value={filters.status || 'All'} onValueChange={handleStatusChange}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -414,18 +324,55 @@ const UsersPage = () => {
           </CardContent>
         </Card>
 
+        {/* Loading State */}
+        {isLoading && (
+          <Card>
+            <CardContent className="p-12">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <p className="text-muted-foreground">Loading users...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Card>
+            <CardContent className="p-12">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <p className="text-destructive">Error: {error}</p>
+                <Button onClick={() => dispatch(fetchUsersData())}>
+                  Retry
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Users Display */}
-        {viewMode === 'grid' ? (
+        {!isLoading && !error && (
+          <>
+            {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-            {paginatedUsers.map(user => (
-              <Card key={user.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+            {users.map(user => (
+              <Card key={user._id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
-                        <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-                      </Avatar>
+                      <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                        {getUserImage(user) ? (
+                          <Image
+                            src={getUserImage(user)}
+                            alt={`${user.firstName} ${user.lastName}`}
+                            fill
+                            className="object-cover"
+                            onError={() => handleImageError(user._id)}
+                          />
+                        ) : (
+                          <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+                        )}
+                      </div>
                       <div>
                         <CardTitle className="text-lg">{user.firstName} {user.lastName}</CardTitle>
                         <CardDescription className="text-sm">{user.email}</CardDescription>
@@ -457,27 +404,24 @@ const UsersPage = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Join Date:</span>
-                      <span className="text-sm font-medium">{new Date(user.joinDate).toLocaleDateString()}</span>
+                      <span className="text-sm font-medium">{new Date(user.createdAt).toLocaleDateString()}</span>
                     </div>
-                    {user.role === 'customer' && (
+                    {user.role === 'Customer' && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Orders:</span>
-                        <span className="text-sm font-medium">{user.totalOrders}</span>
-                      </div>
+                        <span className="text-sm text-muted-foreground">Phone:</span>
+                        <span className="text-sm font-medium">{user.phone}</span>
+                        </div>
                     )}
-                    {user.role === 'influencer' && (
+                    {user.role === 'Influencer' && (
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Followers:</span>
-                        <span className="text-sm font-medium">{user.followers.toLocaleString()}</span>
+                        <span className="text-sm font-medium">{user.followers?.toLocaleString() || 0}</span>
                       </div>
                     )}
-                    {user.role === 'doctor' && (
+                    {user.role === 'Doctor' && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Rating:</span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-amber-500 fill-current" />
-                          <span className="text-sm font-medium">{user.rating}</span>
-                        </div>
+                        <span className="text-sm text-muted-foreground">Experience:</span>
+                        <span className="text-sm font-medium">{user.experience || 0} years</span>
                       </div>
                     )}
                   </div>
@@ -532,20 +476,30 @@ const UsersPage = () => {
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {paginatedUsers.map(user => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
-                          <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-foreground">{user.firstName} {user.lastName}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
-                      </div>
+                  <TableBody>
+                    {users.map(user => (
+                      <TableRow key={user._id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                              {getUserImage(user) ? (
+                                <Image
+                                  src={getUserImage(user)}
+                                  alt={`${user.firstName} ${user.lastName}`}
+                                  width={40}
+                                  height={40}
+                                  className="object-cover"
+                                  onError={() => handleImageError(user._id)}
+                                />
+                              ) : (
+                                <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">{user.firstName} {user.lastName}</p>
+                              <p className="text-sm text-muted-foreground">{user.email}</p>
+                            </div>
+                          </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant={getRoleColor(user.role) as 'default' | 'secondary' | 'destructive' | 'outline'}>
@@ -560,8 +514,8 @@ const UsersPage = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{user.phone}</TableCell>
-                    <TableCell>{new Date(user.joinDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(user.lastLogin).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(user.updatedAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Tooltip>
@@ -592,7 +546,7 @@ const UsersPage = () => {
                             <p>Edit user</p>
                           </TooltipContent>
                         </Tooltip>
-                        {user.role !== 'admin' && (
+                        {user.role !== 'Admin' && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
@@ -616,6 +570,8 @@ const UsersPage = () => {
               </TableBody>
             </Table>
           </Card>
+            )}
+          </>
         )}
 
         {/* Pagination */}
@@ -624,14 +580,14 @@ const UsersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length} users
+                  Showing {startIndex + 1} to {Math.min(endIndex, pagination.total)} of {pagination.total} users
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
+                    disabled={pagination.page === 1}
                   >
                     <ChevronLeft className="w-4 h-4" />
                     Previous
@@ -640,9 +596,9 @@ const UsersPage = () => {
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                       <Button
                         key={page}
-                        variant={currentPage === page ? "default" : "outline"}
+                        variant={pagination.page === page ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setCurrentPage(page)}
+                        onClick={() => handlePageChange(page)}
                         className="w-8 h-8 p-0"
                       >
                         {page}
@@ -652,8 +608,8 @@ const UsersPage = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(Math.min(pagination.page + 1, totalPages))}
+                    disabled={pagination.page === totalPages}
                   >
                     Next
                     <ChevronRight className="w-4 h-4" />
@@ -696,7 +652,7 @@ const UsersPage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Date of Birth:</span>
-                        <span className="font-medium">{new Date(selectedUser.dateOfBirth).toLocaleDateString()}</span>
+                        <span className="font-medium">{selectedUser.dateOfBirth ? new Date(selectedUser.dateOfBirth).toLocaleDateString() : 'Not provided'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Address:</span>
@@ -732,11 +688,11 @@ const UsersPage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Join Date:</span>
-                        <span className="font-medium">{new Date(selectedUser.joinDate).toLocaleDateString()}</span>
+                        <span className="font-medium">{new Date(selectedUser.createdAt).toLocaleDateString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Last Login:</span>
-                        <span className="font-medium">{new Date(selectedUser.lastLogin).toLocaleDateString()}</span>
+                        <span className="text-muted-foreground">Last Updated:</span>
+                        <span className="font-medium">{new Date(selectedUser.updatedAt).toLocaleDateString()}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -753,7 +709,7 @@ const UsersPage = () => {
                 </Card>
 
                 {/* Role-specific Information */}
-                {selectedUser.role === 'customer' && (
+                {selectedUser.role === 'Customer' && (
                   <Card>
                     <CardHeader>
                       <CardTitle>Customer Statistics</CardTitle>
@@ -761,19 +717,19 @@ const UsersPage = () => {
                     <CardContent>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">{selectedUser.totalOrders}</p>
-                          <p className="text-sm text-muted-foreground">Total Orders</p>
+                          <p className="text-2xl font-bold text-foreground">Contact Info</p>
+                          <p className="text-sm text-muted-foreground">{selectedUser.phone}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">₹{selectedUser.totalSpent.toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">Total Spent</p>
+                          <p className="text-2xl font-bold text-foreground">Status</p>
+                          <p className="text-sm text-muted-foreground">{selectedUser.isActive ? 'Active' : 'Inactive'}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 )}
 
-                {selectedUser.role === 'influencer' && (
+                {selectedUser.role === 'Influencer' && (
                   <Card>
                     <CardHeader>
                       <CardTitle>Influencer Statistics</CardTitle>
@@ -781,23 +737,23 @@ const UsersPage = () => {
                     <CardContent>
                       <div className="grid grid-cols-3 gap-4">
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">{selectedUser.followers.toLocaleString()}</p>
+                          <p className="text-2xl font-bold text-foreground">{selectedUser.followers?.toLocaleString() || 0}</p>
                           <p className="text-sm text-muted-foreground">Followers</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">{selectedUser.totalOrders}</p>
-                          <p className="text-sm text-muted-foreground">Orders</p>
+                          <p className="text-2xl font-bold text-foreground">{selectedUser.platform || 'Unknown'}</p>
+                          <p className="text-sm text-muted-foreground">Platform</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">{selectedUser.rating}</p>
-                          <p className="text-sm text-muted-foreground">Rating</p>
+                          <p className="text-2xl font-bold text-foreground">{selectedUser.commissionRate || 0}%</p>
+                          <p className="text-sm text-muted-foreground">Commission Rate</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 )}
 
-                {selectedUser.role === 'doctor' && (
+                {selectedUser.role === 'Doctor' && (
                   <Card>
                     <CardHeader>
                       <CardTitle>Doctor Statistics</CardTitle>
@@ -805,16 +761,16 @@ const UsersPage = () => {
                     <CardContent>
                       <div className="grid grid-cols-3 gap-4">
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">{selectedUser.rating}</p>
-                          <p className="text-sm text-muted-foreground">Rating</p>
+                          <p className="text-2xl font-bold text-foreground">{selectedUser.experience || 0}</p>
+                          <p className="text-sm text-muted-foreground">Years Experience</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">{selectedUser.followers}</p>
-                          <p className="text-sm text-muted-foreground">Followers</p>
+                          <p className="text-2xl font-bold text-foreground">{selectedUser.hospital || 'Not specified'}</p>
+                          <p className="text-sm text-muted-foreground">Hospital</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">{selectedUser.totalOrders}</p>
-                          <p className="text-sm text-muted-foreground">Consultations</p>
+                          <p className="text-2xl font-bold text-foreground">{selectedUser.consultationFee || 0}</p>
+                          <p className="text-sm text-muted-foreground">Consultation Fee</p>
                         </div>
                       </div>
                     </CardContent>
@@ -879,16 +835,16 @@ const UsersPage = () => {
                     <Label htmlFor="role">Role</Label>
                     <Select 
                       value={selectedUser.role} 
-                      onValueChange={(value) => setSelectedUser({...selectedUser, role: value})}
+                      onValueChange={(value: "Admin" | "Doctor" | "Influencer" | "Customer") => setSelectedUser({...selectedUser, role: value})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="doctor">Doctor</SelectItem>
-                        <SelectItem value="influencer">Influencer</SelectItem>
-                        <SelectItem value="customer">Customer</SelectItem>
+                        <SelectItem value="Admin">Admin</SelectItem>
+                        <SelectItem value="Doctor">Doctor</SelectItem>
+                        <SelectItem value="Influencer">Influencer</SelectItem>
+                        <SelectItem value="Customer">Customer</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -896,15 +852,14 @@ const UsersPage = () => {
                     <Label htmlFor="status">Status</Label>
                     <Select 
                       value={selectedUser.status} 
-                      onValueChange={(value) => setSelectedUser({...selectedUser, status: value})}
+                      onValueChange={(value: "Active" | "Inactive") => setSelectedUser({...selectedUser, status: value})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -954,20 +909,20 @@ const UsersPage = () => {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={isLoading}>
+              <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={modalLoading}>
                 Cancel
               </Button>
               <Button 
                 onClick={() => {
-                  // Update user in the list
-                  setUsers(users.map(user => 
-                    user.id === selectedUser!.id ? selectedUser! : user
-                  ))
+                  // Update user using Redux
+                  setModalLoading(true)
+                  dispatch(updateUser(selectedUser!._id, selectedUser!))
                   setShowEditModal(false)
+                  setModalLoading(false)
                 }} 
-                disabled={isLoading}
+                disabled={modalLoading}
               >
-                {isLoading ? (
+                {modalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Updating...
@@ -1085,17 +1040,20 @@ const UsersPage = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={isLoading}>
+              <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={modalLoading}>
                 Cancel
               </Button>
               <Button 
                 onClick={() => {
                   // Add new user logic here
+                  setModalLoading(true)
+                  // TODO: Implement createUser logic with form data
                   setShowAddModal(false)
+                  setModalLoading(false)
                 }} 
-                disabled={isLoading}
+                disabled={modalLoading}
               >
-                {isLoading ? (
+                {modalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Creating...
@@ -1115,7 +1073,7 @@ const UsersPage = () => {
               <DialogTitle>Delete User</DialogTitle>
               <DialogDescription>
                 Are you sure you want to delete {selectedUser?.firstName} {selectedUser?.lastName}? This action cannot be undone.
-                {selectedUser?.role === 'admin' && (
+                {selectedUser?.role === 'Admin' && (
                   <span className="block mt-2 text-destructive font-medium">
                     Admin users cannot be deleted.
                   </span>
@@ -1129,9 +1087,9 @@ const UsersPage = () => {
               <Button 
                 variant="destructive" 
                 onClick={handleDeleteUser} 
-                disabled={isLoading || selectedUser?.role === 'admin'}
+                disabled={isLoading || selectedUser?.role === 'Admin'}
               >
-                {isLoading ? (
+                {modalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Deleting...

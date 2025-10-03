@@ -4,7 +4,7 @@ import axios from "axios";
 
 // Define the Blog type
 export interface Blog {
-  id: number;
+  _id: string;
   title: string;
   slug: string;
   excerpt: string;
@@ -143,7 +143,7 @@ export const {
 
 // Helper function to map API blog to our Blog interface
 const mapApiBlogToBlog = (apiBlog: ApiBlog): Blog => ({
-  id: parseInt(apiBlog._id, 16) || 0, // Convert hex string to number
+  _id: apiBlog._id,
   title: apiBlog.title,
   slug: apiBlog.slug,
   excerpt: apiBlog.excerpt,
@@ -269,7 +269,7 @@ export const fetchBlogById = (blogId: string) => async (dispatch: AppDispatch) =
     if (response.data?.success) {
       const blog = response.data.data;
       const mappedBlog = {
-        id: blog._id,
+        _id: blog._id,
         title: blog.title,
         slug: blog.slug,
         excerpt: blog.excerpt,
@@ -315,7 +315,7 @@ export const fetchBlogBySlug = (slug: string) => async (dispatch: AppDispatch) =
     if (response.data?.success) {
       const blog = response.data.data;
       const mappedBlog = {
-        id: blog._id,
+        _id: blog._id,
         title: blog.title,
         slug: blog.slug,
         excerpt: blog.excerpt,

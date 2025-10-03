@@ -1,11 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { 
   Megaphone, 
   Search, 
   Eye, 
   MapPin, 
+  Calendar, 
   Users, 
   Star, 
   UserPlus, 
@@ -16,14 +18,12 @@ import {
   Edit,
   Trash2,
   TrendingUp,
-  DollarSign,
-  Share2,
+  CheckCircle,
+  Award,
   Instagram,
   Youtube,
   Twitter,
   Facebook,
-  Percent,
-  BarChart3,
   Grid3X3,
   List
 } from 'lucide-react'
@@ -39,6 +39,20 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks'
+import {
+  fetchUsersData,
+  setFilters,
+  setPagination,
+  selectUsersData,
+  selectUsersLoading,
+  selectUsersError,
+  selectUsersFilters,
+  selectUsersPagination,
+  updateUser,
+  deleteUser,
+  User as UserType
+} from '@/lib/redux/features/userSlice'
 
 // Influencer type definition
 type Influencer = {
@@ -50,188 +64,61 @@ type Influencer = {
   status: string
   platform: string
   followers: number
-  engagement: number
   category: string
+  commissionRate: number
   joinDate: string
   location: string
-  referralCode: string
-  totalReferrals: number
-  totalIncome: number
-  commissionRate: number
-  lastPayment: string
-  socialLinks: {
-    instagram?: string
-    youtube?: string
-    twitter?: string
-    facebook?: string
-    tiktok?: string
-  }
+  socialMediaLinks: string
+  availability: string
+  languages: string[]
   tags: string[]
+  note: string
 }
 
-// Dummy influencer data
-const influencers = [
-  {
-    id: 1,
-    name: 'Priya Wellness',
-    email: 'priya.wellness@email.com',
-    phone: '+91 98765 43210',
-    avatar: '',
-    status: 'active',
-    platform: 'Instagram',
-    followers: 125000,
-    engagement: 4.2,
-    category: 'Health & Fitness',
-    joinDate: '2023-06-15',
-    location: 'Mumbai, Maharashtra',
-    referralCode: 'PRIYA20',
-    totalReferrals: 245,
-    totalIncome: 125000,
-    commissionRate: 15,
-    lastPayment: '2024-01-15',
-    socialLinks: {
-      instagram: 'https://instagram.com/priyawellness',
-      youtube: 'https://youtube.com/priyawellness',
-      twitter: 'https://twitter.com/priyawellness'
-    },
-    tags: ['Top Performer', 'Health Expert']
-  },
-  {
-    id: 2,
-    name: 'Rajesh Fitness',
-    email: 'rajesh.fitness@email.com',
-    phone: '+91 87654 32109',
-    avatar: '',
-    status: 'active',
-    platform: 'YouTube',
-    followers: 89000,
-    engagement: 3.8,
-    category: 'Fitness',
-    joinDate: '2023-08-20',
-    location: 'Delhi, NCR',
-    referralCode: 'RAJESH15',
-    totalReferrals: 180,
-    totalIncome: 89000,
-    commissionRate: 12,
-    lastPayment: '2024-01-10',
-    socialLinks: {
-      youtube: 'https://youtube.com/rajeshfitness',
-      instagram: 'https://instagram.com/rajeshfitness'
-    },
-    tags: ['Fitness Guru', 'Regular Performer']
-  },
-  {
-    id: 3,
-    name: 'Sneha Nutrition',
-    email: 'sneha.nutrition@email.com',
-    phone: '+91 76543 21098',
-    avatar: '',
-    status: 'inactive',
-    platform: 'TikTok',
-    followers: 156000,
-    engagement: 5.1,
-    category: 'Nutrition',
-    joinDate: '2023-10-05',
-    location: 'Bangalore, Karnataka',
-    referralCode: 'SNEHA25',
-    totalReferrals: 95,
-    totalIncome: 45000,
-    commissionRate: 20,
-    lastPayment: '2023-12-20',
-    socialLinks: {
-      tiktok: 'https://tiktok.com/@snehanutrition',
-      instagram: 'https://instagram.com/snehanutrition'
-    },
-    tags: ['Nutrition Expert', 'New Influencer']
-  },
-  {
-    id: 4,
-    name: 'Amit Wellness',
-    email: 'amit.wellness@email.com',
-    phone: '+91 65432 10987',
-    avatar: '',
-    status: 'active',
-    platform: 'Instagram',
-    followers: 210000,
-    engagement: 4.8,
-    category: 'Wellness',
-    joinDate: '2023-03-10',
-    location: 'Pune, Maharashtra',
-    referralCode: 'AMIT30',
-    totalReferrals: 320,
-    totalIncome: 180000,
-    commissionRate: 18,
-    lastPayment: '2024-01-18',
-    socialLinks: {
-      instagram: 'https://instagram.com/amitwellness',
-      youtube: 'https://youtube.com/amitwellness',
-      facebook: 'https://facebook.com/amitwellness'
-    },
-    tags: ['Top Performer', 'Wellness Expert']
-  },
-  {
-    id: 5,
-    name: 'Kavya Health',
-    email: 'kavya.health@email.com',
-    phone: '+91 54321 09876',
-    avatar: '',
-    status: 'active',
-    platform: 'YouTube',
-    followers: 67000,
-    engagement: 3.5,
-    category: 'Health',
-    joinDate: '2023-09-15',
-    location: 'Hyderabad, Telangana',
-    referralCode: 'KAVYA12',
-    totalReferrals: 120,
-    totalIncome: 55000,
-    commissionRate: 10,
-    lastPayment: '2024-01-12',
-    socialLinks: {
-      youtube: 'https://youtube.com/kavyahealth',
-      instagram: 'https://instagram.com/kavyahealth'
-    },
-    tags: ['Health Expert', 'Regular Performer']
-  },
-  {
-    id: 6,
-    name: 'Vikram Supplements',
-    email: 'vikram.supplements@email.com',
-    phone: '+91 43210 98765',
-    avatar: '',
-    status: 'pending',
-    platform: 'Instagram',
-    followers: 45000,
-    engagement: 2.8,
-    category: 'Supplements',
-    joinDate: '2023-11-01',
-    location: 'Ahmedabad, Gujarat',
-    referralCode: 'VIKRAM8',
-    totalReferrals: 35,
-    totalIncome: 12000,
-    commissionRate: 8,
-    lastPayment: '2023-11-15',
-    socialLinks: {
-      instagram: 'https://instagram.com/vikramsupplements'
-    },
-    tags: ['New Influencer', 'Supplements']
-  }
-]
-
 const InfluencersPage = () => {
+  const dispatch = useAppDispatch()
+  const users = useAppSelector(selectUsersData)
+  const isLoading = useAppSelector(selectUsersLoading)
+  const error = useAppSelector(selectUsersError)
+  const pagination = useAppSelector(selectUsersPagination)
+
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table')
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [platformFilter, setPlatformFilter] = useState('all')
-  const [categoryFilter, setCategoryFilter] = useState('all')
   const [sortBy, setSortBy] = useState('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10)
-  const [selectedInfluencer, setSelectedInfluencer] = useState<Influencer | null>(null)
+  const [selectedInfluencer, setSelectedInfluencer] = useState<UserType | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [modalLoading, setModalLoading] = useState(false)
+
+  // Fetch influencers data on component mount
+  useEffect(() => {
+    dispatch(setFilters({ role: 'Influencer' }))
+    dispatch(fetchUsersData())
+  }, [dispatch])
+
+  // Convert users to influencers format and filter
+  const influencers: Influencer[] = users.filter(user => user.role === 'Influencer').map(user => ({
+    id: parseInt(user._id.slice(-8), 16) || Math.random(),
+    name: `${user.firstName} ${user.lastName}`,
+    email: user.email,
+    phone: user.phone,
+    avatar: '',
+    status: user.status.toLowerCase(),
+    platform: user.platform || 'Instagram',
+    followers: user.followers || 0,
+    category: user.category || 'Health & Wellness',
+    commissionRate: user.commissionRate || 10,
+    joinDate: user.createdAt,
+    location: user.address || 'Not specified',
+    socialMediaLinks: user.socialMediaLinks || '',
+    availability: user.availability || 'Mon-Fri 9AM-5PM',
+    languages: user.language || ['English'],
+    tags: user.category ? [user.category] : [],
+    note: user.note || ''
+  }))
 
   // Filter and sort influencers
   const filteredInfluencers = influencers
@@ -239,11 +126,10 @@ const InfluencersPage = () => {
       const matchesSearch = influencer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            influencer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            influencer.phone.includes(searchTerm) ||
-                           influencer.referralCode.toLowerCase().includes(searchTerm.toLowerCase())
+                           influencer.platform.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesStatus = statusFilter === 'all' || influencer.status === statusFilter
       const matchesPlatform = platformFilter === 'all' || influencer.platform === platformFilter
-      const matchesCategory = categoryFilter === 'all' || influencer.category === categoryFilter
-      return matchesSearch && matchesStatus && matchesPlatform && matchesCategory
+      return matchesSearch && matchesStatus && matchesPlatform
     })
     .sort((a, b) => {
       let aValue = a[sortBy as keyof typeof a]
@@ -261,9 +147,15 @@ const InfluencersPage = () => {
       }
     })
 
-  const totalPages = Math.ceil(filteredInfluencers.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedInfluencers = filteredInfluencers.slice(startIndex, startIndex + itemsPerPage)
+  const totalPages = Math.ceil(pagination.total / pagination.limit)
+  const startIndex = (pagination.page - 1) * pagination.limit
+  const paginatedInfluencers = filteredInfluencers.slice(startIndex, startIndex + pagination.limit)
+
+  // Handle pagination changes
+  const handlePageChange = (newPage: number) => {
+    dispatch(setPagination({ page: newPage }))
+    dispatch(fetchUsersData())
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -284,68 +176,53 @@ const InfluencersPage = () => {
     }
   }
 
-  const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'health & fitness': return 'default'
-      case 'fitness': return 'secondary'
-      case 'nutrition': return 'outline'
-      case 'wellness': return 'default'
-      case 'health': return 'secondary'
-      case 'supplements': return 'outline'
-      default: return 'outline'
+  const handleEditInfluencer = (influencer: Influencer) => {
+    const user = users.find(u => u.role === 'Influencer' && `${u.firstName} ${u.lastName}` === influencer.name)
+    if (user) {
+      setSelectedInfluencer(user)
+      setIsEditModalOpen(true)
     }
   }
 
-  const handleEditInfluencer = (influencer: Influencer) => {
-    setSelectedInfluencer(influencer)
-    setIsEditModalOpen(true)
-  }
-
   const handleDeleteInfluencer = async (influencerId: number) => {
-    setIsLoading(true)
+    setModalLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log(`Deleting influencer ${influencerId}`)
+      const user = users.find(u => u.role === 'Influencer' && parseInt(u._id.slice(-8), 16) === influencerId)
+      if (user) {
+        const success = await dispatch(deleteUser(user._id)) as unknown as boolean
+        if (success) {
+          dispatch(fetchUsersData())
+        }
+      }
     } finally {
-      setIsLoading(false)
+      setModalLoading(false)
     }
   }
 
   const handleAddInfluencer = async (influencerData: Partial<Influencer>) => {
-    setIsLoading(true)
+    setModalLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
       console.log('Adding new influencer:', influencerData)
       setIsAddModalOpen(false)
+      dispatch(fetchUsersData())
     } finally {
-      setIsLoading(false)
+      setModalLoading(false)
     }
   }
 
   const handleUpdateInfluencer = async (influencerData: Partial<Influencer>) => {
-    setIsLoading(true)
+    setModalLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log('Updating influencer:', influencerData)
-      setIsEditModalOpen(false)
+      if (selectedInfluencer) {
+        const success = await dispatch(updateUser(selectedInfluencer._id, selectedInfluencer)) as unknown as boolean
+        if (success) {
+          setIsEditModalOpen(false)
+          dispatch(fetchUsersData())
+        }
+      }
     } finally {
-      setIsLoading(false)
+      setModalLoading(false)
     }
-  }
-
-  const getTotalIncome = () => {
-    return influencers.reduce((sum, influencer) => sum + influencer.totalIncome, 0)
-  }
-
-  const getTotalReferrals = () => {
-    return influencers.reduce((sum, influencer) => sum + influencer.totalReferrals, 0)
-  }
-
-  const getAverageCommission = () => {
-    return (influencers.reduce((sum, influencer) => sum + influencer.commissionRate, 0) / influencers.length).toFixed(1)
   }
 
   return (
@@ -355,7 +232,7 @@ const InfluencersPage = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Influencers</h1>
-            <p className="text-muted-foreground">Manage your influencer network and track performance</p>
+            <p className="text-muted-foreground">Manage your social media influencers and partners</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
@@ -379,7 +256,7 @@ const InfluencersPage = () => {
                   <p className="text-2xl font-bold text-foreground">{influencers.length}</p>
                   <p className="text-sm text-emerald-600 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" />
-                    +15% from last month
+                    +12% from last month
                   </p>
                 </div>
                 <Megaphone className="w-8 h-8 text-emerald-500" />
@@ -390,14 +267,14 @@ const InfluencersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Referrals</p>
-                  <p className="text-2xl font-bold text-foreground">{getTotalReferrals()}</p>
+                  <p className="text-sm text-muted-foreground">Active Influencers</p>
+                  <p className="text-2xl font-bold text-foreground">{influencers.filter(i => i.status === 'active').length}</p>
                   <p className="text-sm text-blue-600 flex items-center gap-1">
-                    <Share2 className="w-3 h-3" />
-                    {Math.round(getTotalReferrals() / influencers.length)} avg per influencer
+                    <CheckCircle className="w-3 h-3" />
+                    {Math.round((influencers.filter(i => i.status === 'active').length / influencers.length) * 100) || 0}% of total
                   </p>
                 </div>
-                <Share2 className="w-8 h-8 text-blue-500" />
+                <CheckCircle className="w-8 h-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
@@ -405,14 +282,14 @@ const InfluencersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Income</p>
-                  <p className="text-2xl font-bold text-foreground">₹{getTotalIncome().toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground">Platforms</p>
+                  <p className="text-2xl font-bold text-foreground">{new Set(influencers.map(i => i.platform)).size}</p>
                   <p className="text-sm text-purple-600 flex items-center gap-1">
-                    <DollarSign className="w-3 h-3" />
-                    Generated by influencers
+                    <Award className="w-3 h-3" />
+                    Social platforms
                   </p>
                 </div>
-                <DollarSign className="w-8 h-8 text-purple-500" />
+                <Award className="w-8 h-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
@@ -421,13 +298,13 @@ const InfluencersPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Avg. Commission</p>
-                  <p className="text-2xl font-bold text-foreground">{getAverageCommission()}%</p>
+                  <p className="text-2xl font-bold text-foreground">{influencers.length > 0 ? (influencers.reduce((sum, i) => sum + i.commissionRate, 0) / influencers.length).toFixed(1) : '0'}%</p>
                   <p className="text-sm text-orange-600 flex items-center gap-1">
-                    <Percent className="w-3 h-3" />
+                    <Star className="w-3 h-3" />
                     Commission rate
                   </p>
                 </div>
-                <Percent className="w-8 h-8 text-orange-500" />
+                <Star className="w-8 h-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
@@ -441,7 +318,7 @@ const InfluencersPage = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
-                    placeholder="Search influencers by name, email, phone, or referral code..."
+                    placeholder="Search influencers by name, email, phone, or platform..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -467,24 +344,9 @@ const InfluencersPage = () => {
                   <SelectContent>
                     <SelectItem value="all">All Platforms</SelectItem>
                     <SelectItem value="Instagram">Instagram</SelectItem>
-                    <SelectItem value="YouTube">YouTube</SelectItem>
-                    <SelectItem value="TikTok">TikTok</SelectItem>
+                    <SelectItem value="Youtube">YouTube</SelectItem>
                     <SelectItem value="Twitter">Twitter</SelectItem>
                     <SelectItem value="Facebook">Facebook</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="Health & Fitness">Health & Fitness</SelectItem>
-                    <SelectItem value="Fitness">Fitness</SelectItem>
-                    <SelectItem value="Nutrition">Nutrition</SelectItem>
-                    <SelectItem value="Wellness">Wellness</SelectItem>
-                    <SelectItem value="Health">Health</SelectItem>
-                    <SelectItem value="Supplements">Supplements</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -493,10 +355,9 @@ const InfluencersPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="platform">Platform</SelectItem>
                     <SelectItem value="followers">Followers</SelectItem>
-                    <SelectItem value="totalReferrals">Referrals</SelectItem>
-                    <SelectItem value="totalIncome">Income</SelectItem>
-                    <SelectItem value="engagement">Engagement</SelectItem>
+                    <SelectItem value="category">Category</SelectItem>
                     <SelectItem value="commissionRate">Commission</SelectItem>
                   </SelectContent>
                 </Select>
@@ -546,473 +407,409 @@ const InfluencersPage = () => {
           </CardContent>
         </Card>
 
-        {/* Influencers Table */}
-        {viewMode === 'table' ? (
+        {/* Loading State */}
+        {isLoading && (
           <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Influencer</TableHead>
-                    <TableHead>Platform</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Followers</TableHead>
-                    <TableHead>Referrals</TableHead>
-                    <TableHead>Income</TableHead>
-                    <TableHead>Commission</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedInfluencers.map((influencer) => {
-                    const PlatformIcon = getPlatformIcon(influencer.platform)
-                    return (
-                      <TableRow key={influencer.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="w-10 h-10">
-                              <AvatarImage src={influencer.avatar} />
-                              <AvatarFallback>
-                                {influencer.name.split(' ').map(n => n[0]).join('')}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{influencer.name}</p>
-                              <p className="text-sm text-muted-foreground">{influencer.referralCode}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <PlatformIcon className="w-4 h-4 text-muted-foreground" />
-                            <span>{influencer.platform}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={getStatusColor(influencer.status)}>
-                            {influencer.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4 text-muted-foreground" />
-                            {influencer.followers.toLocaleString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Share2 className="w-4 h-4 text-muted-foreground" />
-                            {influencer.totalReferrals}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4 text-muted-foreground" />
-                            ₹{influencer.totalIncome.toLocaleString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Percent className="w-4 h-4 text-muted-foreground" />
-                            {influencer.commissionRate}%
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm" onClick={() => handleEditInfluencer(influencer)}>
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>View Details</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm" onClick={() => handleEditInfluencer(influencer)}>
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Edit Influencer</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm" onClick={() => handleDeleteInfluencer(influencer.id)}>
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Delete Influencer</TooltipContent>
-                            </Tooltip>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
+            <CardContent className="p-12">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <p className="text-muted-foreground">Loading influencers...</p>
+              </div>
             </CardContent>
           </Card>
-        ) : (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedInfluencers.map((influencer) => {
-              const PlatformIcon = getPlatformIcon(influencer.platform)
-              return (
-                <Card key={influencer.id} className="flex flex-col h-full">
-                  <CardContent className="p-6 flex-1 flex flex-col">
-                    <div className="flex items-center gap-4 mb-4">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src={influencer.avatar} />
-                        <AvatarFallback>
-                          {influencer.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{influencer.name}</h3>
-                        <p className="text-sm text-muted-foreground">{influencer.referralCode}</p>
-                      </div>
-                      <Badge variant={getStatusColor(influencer.status)} className="text-xs">
-                        {influencer.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm">
-                        <PlatformIcon className="w-4 h-4 text-muted-foreground" />
-                        {influencer.platform} • {influencer.followers.toLocaleString()} followers
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Badge variant={getCategoryColor(influencer.category)} className="text-xs">
-                          {influencer.category}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        {influencer.engagement}% engagement
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        {influencer.location}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center">
-                        <p className="text-2xl font-bold">{influencer.totalReferrals}</p>
-                        <p className="text-xs text-muted-foreground">Referrals</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold">₹{influencer.totalIncome.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">Income</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-auto">
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditInfluencer(influencer)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View
-                        </Button>
-                        <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditInfluencer(influencer)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
         )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredInfluencers.length)} of {filteredInfluencers.length} influencers
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-sm">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+        {/* Error State */}
+        {error && (
+          <Card>
+            <CardContent className="p-12">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <p className="text-destructive">Error: {error}</p>
+                <Button onClick={() => dispatch(fetchUsersData())}>
+                  Retry
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Add Influencer Modal */}
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add New Influencer</DialogTitle>
-              <DialogDescription>
-                Register a new influencer with their social media details
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="addName">Full Name</Label>
-                <Input id="addName" placeholder="Influencer Name" />
-              </div>
-              <div>
-                <Label htmlFor="addEmail">Email</Label>
-                <Input id="addEmail" type="email" placeholder="influencer@email.com" />
-              </div>
-              <div>
-                <Label htmlFor="addPhone">Phone</Label>
-                <Input id="addPhone" placeholder="+91 98765 43210" />
-              </div>
-              <div>
-                <Label htmlFor="addPlatform">Platform</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select platform" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Instagram">Instagram</SelectItem>
-                    <SelectItem value="YouTube">YouTube</SelectItem>
-                    <SelectItem value="TikTok">TikTok</SelectItem>
-                    <SelectItem value="Twitter">Twitter</SelectItem>
-                    <SelectItem value="Facebook">Facebook</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="addFollowers">Followers</Label>
-                <Input id="addFollowers" type="number" placeholder="100000" />
-              </div>
-              <div>
-                <Label htmlFor="addCategory">Category</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Health & Fitness">Health & Fitness</SelectItem>
-                    <SelectItem value="Fitness">Fitness</SelectItem>
-                    <SelectItem value="Nutrition">Nutrition</SelectItem>
-                    <SelectItem value="Wellness">Wellness</SelectItem>
-                    <SelectItem value="Health">Health</SelectItem>
-                    <SelectItem value="Supplements">Supplements</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="addCommission">Commission Rate (%)</Label>
-                <Input id="addCommission" type="number" placeholder="15" />
-              </div>
-              <div>
-                <Label htmlFor="addLocation">Location</Label>
-                <Input id="addLocation" placeholder="City, State" />
-              </div>
-              <div className="md:col-span-2">
-                <Label htmlFor="addSocialLinks">Social Media Links</Label>
-                <Textarea id="addSocialLinks" placeholder="https://instagram.com/username" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => handleAddInfluencer({})} disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  'Add Influencer'
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Edit Influencer Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Influencer Details</DialogTitle>
-              <DialogDescription>
-                View and edit influencer information and performance
-              </DialogDescription>
-            </DialogHeader>
-            {selectedInfluencer && (
-              <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="performance">Performance</TabsTrigger>
-                  <TabsTrigger value="referrals">Referrals</TabsTrigger>
-                  <TabsTrigger value="notes">Notes</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="details" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="editName">Full Name</Label>
-                      <Input id="editName" defaultValue={selectedInfluencer.name} />
-                    </div>
-                    <div>
-                      <Label htmlFor="editEmail">Email</Label>
-                      <Input id="editEmail" type="email" defaultValue={selectedInfluencer.email} />
-                    </div>
-                    <div>
-                      <Label htmlFor="editPhone">Phone</Label>
-                      <Input id="editPhone" defaultValue={selectedInfluencer.phone} />
-                    </div>
-                    <div>
-                      <Label htmlFor="editPlatform">Platform</Label>
-                      <Select defaultValue={selectedInfluencer.platform}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Instagram">Instagram</SelectItem>
-                          <SelectItem value="YouTube">YouTube</SelectItem>
-                          <SelectItem value="TikTok">TikTok</SelectItem>
-                          <SelectItem value="Twitter">Twitter</SelectItem>
-                          <SelectItem value="Facebook">Facebook</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="editFollowers">Followers</Label>
-                      <Input id="editFollowers" type="number" defaultValue={selectedInfluencer.followers} />
-                    </div>
-                    <div>
-                      <Label htmlFor="editEngagement">Engagement (%)</Label>
-                      <Input id="editEngagement" type="number" defaultValue={selectedInfluencer.engagement} />
-                    </div>
-                    <div>
-                      <Label htmlFor="editCategory">Category</Label>
-                      <Select defaultValue={selectedInfluencer.category}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Health & Fitness">Health & Fitness</SelectItem>
-                          <SelectItem value="Fitness">Fitness</SelectItem>
-                          <SelectItem value="Nutrition">Nutrition</SelectItem>
-                          <SelectItem value="Wellness">Wellness</SelectItem>
-                          <SelectItem value="Health">Health</SelectItem>
-                          <SelectItem value="Supplements">Supplements</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="editCommission">Commission Rate (%)</Label>
-                      <Input id="editCommission" type="number" defaultValue={selectedInfluencer.commissionRate} />
-                    </div>
-                    <div>
-                      <Label htmlFor="editLocation">Location</Label>
-                      <Input id="editLocation" defaultValue={selectedInfluencer.location} />
-                    </div>
-                    <div>
-                      <Label htmlFor="editStatus">Status</Label>
-                      <Select defaultValue={selectedInfluencer.status}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="editReferralCode">Referral Code</Label>
-                    <Input id="editReferralCode" defaultValue={selectedInfluencer.referralCode} />
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="performance" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold">{selectedInfluencer.totalReferrals}</p>
-                          <p className="text-sm text-muted-foreground">Total Referrals</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold">₹{selectedInfluencer.totalIncome.toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">Total Income</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold">{selectedInfluencer.commissionRate}%</p>
-                          <p className="text-sm text-muted-foreground">Commission Rate</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  <div className="text-center py-8">
-                    <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Performance Analytics</h3>
-                    <p className="text-muted-foreground">Detailed performance charts will be displayed here</p>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="referrals" className="space-y-4">
-                  <div className="text-center py-8">
-                    <Share2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Referral History</h3>
-                    <p className="text-muted-foreground">Referral details and tracking will be displayed here</p>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="notes" className="space-y-4">
-                  <div>
-                    <Label htmlFor="editNotes">Notes</Label>
-                    <Textarea id="editNotes" placeholder="Add notes about this influencer" />
-                  </div>
-                </TabsContent>
-              </Tabs>
+        {/* Influencers Display */}
+        {!isLoading && !error && (
+          <>
+            {viewMode === 'table' && (
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Influencer</TableHead>
+                        <TableHead>Platform</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Followers</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Commission</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedInfluencers.map((influencer) => {
+                        const PlatformIcon = getPlatformIcon(influencer.platform)
+                        return (
+                          <TableRow key={influencer.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="w-10 h-10">
+                                  <AvatarImage src={influencer.avatar} />
+                                  <AvatarFallback>
+                                    {influencer.name.split(' ').map(n => n[0]).join('')}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">{influencer.name}</p>
+                                  <p className="text-sm text-muted-foreground">{influencer.location}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <PlatformIcon className="w-4 h-4 text-muted-foreground" />
+                                <span>{influencer.platform}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusColor(influencer.status)}>
+                                {influencer.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Users className="w-4 h-4 text-muted-foreground" />
+                                {influencer.followers.toLocaleString()}
+                              </div>
+                            </TableCell>
+                            <TableCell>{influencer.category}</TableCell>
+                            <TableCell>
+                              <span className="font-medium">{influencer.commissionRate}%</span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditInfluencer(influencer)}>
+                                      <Eye className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>View Details</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditInfluencer(influencer)}>
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Edit Influencer</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="sm" onClick={() => handleDeleteInfluencer(influencer.id)}>
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Delete Influencer</TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => handleUpdateInfluencer(selectedInfluencer || {})} disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  'Update Influencer'
+
+            {/* Grid View */}
+            {viewMode === 'grid' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedInfluencers.map((influencer) => {
+                  const PlatformIcon = getPlatformIcon(influencer.platform)
+                  return (
+                    <Card key={influencer.id} className="flex flex-col h-full">
+                      <CardContent className="p-6 flex-1 flex flex-col">
+                        <div className="flex items-center gap-4 mb-4">
+                          <Avatar className="w-12 h-12">
+                            <AvatarImage src={influencer.avatar} />
+                            <AvatarFallback>
+                              {influencer.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{influencer.name}</h3>
+                            <p className="text-sm text-muted-foreground">{influencer.location}</p>
+                          </div>
+                          <Badge variant={getStatusColor(influencer.status)} className="text-xs">
+                            {influencer.status}
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2 text-sm">
+                            <PlatformIcon className="w-4 h-4 text-muted-foreground" />
+                            {influencer.platform}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Users className="w-4 h-4 text-muted-foreground" />
+                            {influencer.followers.toLocaleString()} followers
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <MapPin className="w-4 h-4 text-muted-foreground" />
+                            {influencer.location}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Star className="w-4 h-4 text-orange-500" />
+                            {influencer.commissionRate}% commission
+                          </div>
+                        </div>
+
+                        <div className="mt-auto">
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditInfluencer(influencer)}>
+                              <Eye className="w-4 h-4 mr-2" />
+                              View
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditInfluencer(influencer)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Showing {startIndex + 1} to {Math.min(startIndex + pagination.limit, filteredInfluencers.length)} of {filteredInfluencers.length} influencers
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
+                    disabled={pagination.page === 1}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <span className="text-sm">
+                    Page {pagination.page} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(Math.min(pagination.page + 1, totalPages))}
+                    disabled={pagination.page === totalPages}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Add Influencer Modal */}
+            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Influencer</DialogTitle>
+                  <DialogDescription>
+                    Register a new social media influencer
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="addName">Full Name</Label>
+                    <Input id="addName" placeholder="Influencer Name" />
+                  </div>
+                  <div>
+                    <Label htmlFor="addEmail">Email</Label>
+                    <Input id="addEmail" type="email" placeholder="influencer@email.com" />
+                  </div>
+                  <div>
+                    <Label htmlFor="addPhone">Phone</Label>
+                    <Input id="addPhone" placeholder="+91 98765 43210" />
+                  </div>
+                  <div>
+                    <Label htmlFor="addPlatform">Platform</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select platform" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Instagram">Instagram</SelectItem>
+                        <SelectItem value="Youtube">YouTube</SelectItem>
+                        <SelectItem value="Twitter">Twitter</SelectItem>
+                        <SelectItem value="Facebook">Facebook</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="addFollowers">Followers</Label>
+                    <Input id="addFollowers" type="number" placeholder="100000" />
+                  </div>
+                  <div>
+                    <Label htmlFor="addCommission">Commission Rate (%)</Label>
+                    <Input id="addCommission" type="number" placeholder="10" />
+                  </div>
+                  <div>
+                    <Label htmlFor="addCategory">Category</Label>
+                    <Input id="addCategory" placeholder="Health & Wellness" />
+                  </div>
+                  <div>
+                    <Label htmlFor="addSocialLinks">Social Media Links</Label>
+                    <Input id="addSocialLinks" placeholder="https://instagram.com/username" />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => handleAddInfluencer({})} disabled={modalLoading}>
+                    {modalLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Adding...
+                      </>
+                    ) : (
+                      'Add Influencer'
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* Edit Influencer Modal */}
+            <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+              <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                  <DialogTitle>Influencer Details</DialogTitle>
+                  <DialogDescription>
+                    View and edit influencer information
+                  </DialogDescription>
+                </DialogHeader>
+                {selectedInfluencer && (
+                  <Tabs defaultValue="details" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4">
+                      <TabsTrigger value="details">Details</TabsTrigger>
+                      <TabsTrigger value="performance">Performance</TabsTrigger>
+                      <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+                      <TabsTrigger value="notes">Notes</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="details" className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="editName">Full Name</Label>
+                          <Input id="editName" defaultValue={`${selectedInfluencer.firstName} ${selectedInfluencer.lastName}`} />
+                        </div>
+                        <div>
+                          <Label htmlFor="editEmail">Email</Label>
+                          <Input id="editEmail" type="email" defaultValue={selectedInfluencer.email} />
+                        </div>
+                        <div>
+                          <Label htmlFor="editPhone">Phone</Label>
+                          <Input id="editPhone" defaultValue={selectedInfluencer.phone} />
+                        </div>
+                        <div>
+                          <Label htmlFor="editPlatform">Platform</Label>
+                          <Select defaultValue={selectedInfluencer.platform}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Instagram">Instagram</SelectItem>
+                              <SelectItem value="Youtube">YouTube</SelectItem>
+                              <SelectItem value="Twitter">Twitter</SelectItem>
+                              <SelectItem value="Facebook">Facebook</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="editFollowers">Followers</Label>
+                          <Input id="editFollowers" type="number" defaultValue={selectedInfluencer.followers} />
+                        </div>
+                        <div>
+                          <Label htmlFor="editCommission">Commission Rate</Label>
+                          <Input id="editCommission" type="number" defaultValue={selectedInfluencer.commissionRate} />
+                        </div>
+                        <div>
+                          <Label htmlFor="editCategory">Category</Label>
+                          <Input id="editCategory" defaultValue={selectedInfluencer.category} />
+                        </div>
+                        <div>
+                          <Label htmlFor="editLinks">Social Media Links</Label>
+                          <Input id="editLinks" defaultValue={selectedInfluencer.socialMediaLinks} />
+                        </div>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="performance" className="space-y-4">
+                      <div className="text-center py-8">
+                        <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Performance Analytics</h3>
+                        <p className="text-muted-foreground">Performance metrics and analytics will be displayed here</p>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="campaigns" className="space-y-4">
+                      <div className="text-center py-8">
+                        <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Campaign History</h3>
+                        <p className="text-muted-foreground">Campaign history and collaborations will be displayed here</p>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="notes" className="space-y-4">
+                      <div>
+                        <Label htmlFor="editNotes">Notes</Label>
+                        <Textarea id="editNotes" placeholder="Add notes about this influencer" />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => handleUpdateInfluencer(selectedInfluencer || {})} disabled={modalLoading}>
+                    {modalLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      'Update Influencer'
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
       </div>
     </TooltipProvider>
   )
 }
 
-export default InfluencersPage
+// Export as dynamic component to prevent prerendering issues
+export default dynamic(() => Promise.resolve(InfluencersPage), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+    </div>
+  )
+})
