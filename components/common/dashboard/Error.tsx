@@ -43,7 +43,7 @@ const Error: React.FC<ErrorProps> = ({
   }
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center p-4">
+    <div className="bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         <Card className="p-8 shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
           <div className="text-center space-y-6">

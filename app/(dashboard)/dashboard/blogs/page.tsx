@@ -19,6 +19,8 @@ import {
   CheckCircle,
   Clock,
   Sparkles,
+  Upload,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,7 +33,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
-import { fetchBlogsData, selectBlogsData, selectBlogsError, selectBlogsLoading, setBlogsData, Blog } from '@/lib/redux/features/blogsSlice'
+import { fetchBlogsData, selectBlogsData, selectBlogsError, selectBlogsLoading, setBlogsData } from '@/lib/redux/features/blogsSlice'
 import Loader from '@/components/common/dashboard/Loader'
 import Error from '@/components/common/dashboard/Error'
 
@@ -60,6 +62,7 @@ interface BlogWithEditableTags {
   ogTitle: string
   ogDescription: string
   ogImage: string
+  blogImages?: Array<{id: string, url: string, alt: string, caption?: string}>
 }
 
 const blogStatuses = ["All", "published", "draft", "archived"]
@@ -100,8 +103,12 @@ const BlogsPage = () => {
     canonicalUrl: '',
     ogTitle: '',
     ogDescription: '',
-    ogImage: ''
+    ogImage: '',
+    blogImages: [] as Array<{id: string, url: string, alt: string, caption?: string}>
   })
+
+  // Image URL input state
+  const [urlInput, setUrlInput] = useState('')
 
   useEffect(() => {
     dispatch(fetchBlogsData())
@@ -142,16 +149,32 @@ const BlogsPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       const blog = {
-        ...newBlog as Blog,
+        _id: `blog_${Date.now()}`,
+        title: newBlog.title,
+        slug: newBlog.slug,
+        excerpt: newBlog.excerpt,
+        content: newBlog.content,
+        featuredImage: newBlog.featuredImage,
+        author: newBlog.author,
+        category: newBlog.category,
         tags: newBlog.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag),
+        status: newBlog.status,
         views: 0,
         likes: 0,
+        readTime: newBlog.readTime,
+        metaTitle: newBlog.metaTitle,
+        metaDescription: newBlog.metaDescription,
+        metaKeywords: newBlog.metaKeywords,
+        canonicalUrl: newBlog.canonicalUrl,
+        ogTitle: newBlog.ogTitle,
+        ogDescription: newBlog.ogDescription,
+        ogImage: newBlog.ogImage,
         publishedAt: newBlog.status === 'published' ? new Date().toISOString().split('T')[0] : null,
         createdAt: new Date().toISOString().split('T')[0],
         updatedAt: new Date().toISOString().split('T')[0]
       }
       
-      dispatch(setBlogsData({ data: [...(blogs || []), blog as BlogWithEditableTags], total: (blogs?.length || 0) + 1 }))
+      dispatch(setBlogsData({ data: [...(blogs || []), blog as unknown as BlogWithEditableTags], total: (blogs?.length || 0) + 1 }))
       setShowAddModal(false)
       setNewBlog({
         title: '',
@@ -170,8 +193,10 @@ const BlogsPage = () => {
         canonicalUrl: '',
         ogTitle: '',
         ogDescription: '',
-        ogImage: ''
+        ogImage: '',
+        blogImages: []
       })
+      setUrlInput('')
     } finally {
       setIsLocalLoading(false)
     }
@@ -234,6 +259,131 @@ const BlogsPage = () => {
     setShowDeleteModal(true)
   }
 
+  // Image management functions
+  const addImageFromFile = () => {
+    if (newBlog.blogImages.length >= 5) {
+      alert('You can add a maximum of 5 images')
+      return
+    }
+    
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.multiple = true
+    input.onchange = (e) => {
+      const files = Array.from((e.target as HTMLInputElement).files || [])
+      const availableSlots = 5 - newBlog.blogImages.length
+      const newFiles = files.slice(0, availableSlots)
+      
+      newFiles.forEach((file) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const newImage = {
+            id: `img_${Date.now()}_${Math.random()}`,
+            url: reader.result as string,
+            alt: file.name,
+            caption: ''
+          }
+          setNewBlog(prev => ({
+            ...prev,
+            blogImages: [...prev.blogImages, newImage]
+          }))
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+    input.click()
+  }
+
+  const addImageFromUrl = () => {
+    if (newBlog.blogImages.length >= 5) {
+      alert('You can add a maximum of 5 images')
+      return
+    }
+    
+    if (urlInput.trim()) {
+      const newImage = {
+        id: `img_${Date.now()}`,
+        url: urlInput.trim(),
+        alt: '',
+        caption: ''
+      }
+      setNewBlog(prev => ({
+        ...prev,
+        blogImages: [...prev.blogImages, newImage]
+      }))
+      setUrlInput('')
+    }
+  }
+
+  const removeImage = (imageId: string) => {
+    setNewBlog(prev => ({
+      ...prev,
+      blogImages: prev.blogImages.filter(img => img.id !== imageId)
+    }))
+  }
+
+  const updateImage = (imageId: string, field: string, value: string) => {
+    setNewBlog(prev => ({
+      ...prev,
+      blogImages: prev.blogImages.map(img => 
+        img.id === imageId ? { ...img, [field]: value } : img
+      )
+    }))
+  }
+
+  // Edit modal image functions
+  const addImageToEdit = () => {
+    if (!selectedBlog || (selectedBlog.blogImages?.length || 0) >= 5) {
+      alert('You can add a maximum of 5 images')
+      return
+    }
+    
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.multiple = true
+    input.onchange = (e) => {
+      const files = Array.from((e.target as HTMLInputElement).files || [])
+      const availableSlots = 5 - (selectedBlog.blogImages?.length || 0)
+      const newFiles = files.slice(0, availableSlots)
+      
+      newFiles.forEach((file) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const newImage = {
+            id: `img_${Date.now()}_${Math.random()}`,
+            url: reader.result as string,
+            alt: file.name,
+            caption: ''
+          }
+          setSelectedBlog(prev => prev ? {
+            ...prev,
+            blogImages: [...(prev.blogImages || []), newImage]
+          } : prev)
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+    input.click()
+  }
+
+  const removeImageFromEdit = (imageId: string) => {
+    setSelectedBlog(prev => prev ? {
+      ...prev,
+      blogImages: (prev.blogImages || []).filter(img => img.id !== imageId)
+    } : prev)
+  }
+
+  const updateImageInEdit = (imageId: string, field: string, value: string) => {
+    setSelectedBlog(prev => prev ? {
+      ...prev,
+      blogImages: (prev.blogImages || []).map(img => 
+        img.id === imageId ? { ...img, [field]: value } : img
+      )
+    } : prev)
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return 'success'
@@ -241,14 +391,6 @@ const BlogsPage = () => {
       case 'archived': return 'destructive'
       default: return 'secondary'
     }
-  }
-
-  if (isLoading) {
-    return <Loader variant="skeleton" message="Loading blogs..." />
-    
-  }
-  if (error) {
-    return <Error title="Error loading blogs" message="Failed to load blogs" />
   }
 
   return (
@@ -417,6 +559,9 @@ const BlogsPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {isLoading && <Loader variant="skeleton" message="Loading blogs..." />}
+        {error && <Error title="Error loading blogs" message="Failed to load blogs" />}
 
         {/* Blogs Display */}
         {viewMode === 'grid' ? (
@@ -769,6 +914,78 @@ const BlogsPage = () => {
                     onChange={(e) => setNewBlog({...newBlog, readTime: e.target.value})}
                   />
                 </div>
+                
+                {/* Blog Images */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label>Blog Images {newBlog.blogImages.length}/5</Label>
+                    <div className="flex gap-2">
+                      {newBlog.blogImages.length < 5 && (
+                        <Button onClick={addImageFromFile} size="sm" variant="outline">
+                          <Upload className="w-4 h-4 mr-1" />
+                          Upload Files
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* URL Input */}
+                  {newBlog.blogImages.length < 5 && (
+                    <div className="flex gap-2 mb-3">
+                      <Input
+                        placeholder="Image URL"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                      />
+                      <Button onClick={addImageFromUrl} size="sm" variant="outline">
+                        Add URL
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {/* Image List */}
+                  {newBlog.blogImages.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {newBlog.blogImages.map((image, index) => (
+                        <div key={image.id} className="border rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Image {index + 1}</span>
+                            <Button
+                              onClick={() => removeImage(image.id)}
+                              size="sm"
+                              variant="destructive"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          
+                          {/* Image Preview */}
+                          <div className="relative w-full h-20 overflow-hidden rounded-lg border">
+                            <Image
+                              src={image.url}
+                              alt={image.alt || `Blog image ${index + 1}`}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          
+                          <Input
+                            placeholder="Alt text"
+                            value={image.alt}
+                            onChange={(e) => updateImage(image.id, 'alt', e.target.value)}
+                            className="text-sm"
+                          />
+                          <Input
+                            placeholder="Caption (optional)"
+                            value={image.caption || ''}
+                            onChange={(e) => updateImage(image.id, 'caption', e.target.value)}
+                            className="text-sm"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* SEO Settings */}
@@ -993,6 +1210,64 @@ const BlogsPage = () => {
                       value={selectedBlog.readTime}
                       onChange={(e) => setSelectedBlog({...selectedBlog, readTime: e.target.value})}
                     />
+                  </div>
+
+                  {/* Blog Images */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>Blog Images {(selectedBlog.blogImages?.length || 0)}/5</Label>
+                      <div className="flex gap-2">
+                        {(selectedBlog.blogImages?.length || 0) < 5 && (
+                          <Button onClick={addImageToEdit} size="sm" variant="outline">
+                            <Upload className="w-4 h-4 mr-1" />
+                            Upload More
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Image List */}
+                    {(selectedBlog.blogImages?.length || 0) > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {selectedBlog.blogImages?.map((image, index) => (
+                          <div key={image.id} className="border rounded-lg p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">Image {index + 1}</span>
+                              <Button
+                                onClick={() => removeImageFromEdit(image.id)}
+                                size="sm"
+                                variant="destructive"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            
+                            {/* Image Preview */}
+                            <div className="relative w-full h-20 overflow-hidden rounded-lg border">
+                              <Image
+                                src={image.url}
+                                alt={image.alt || `Blog image ${index + 1}`}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            
+                            <Input
+                              placeholder="Alt text"
+                              value={image.alt}
+                              onChange={(e) => updateImageInEdit(image.id, 'alt', e.target.value)}
+                              className="text-sm"
+                            />
+                            <Input
+                              placeholder="Caption (optional)"
+                              value={image.caption ? image.caption : ''}
+                              onChange={(e) => updateImageInEdit(image.id, 'caption', e.target.value)}
+                              className="text-sm"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 

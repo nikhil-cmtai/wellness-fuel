@@ -402,6 +402,27 @@ export const createBlog = (newBlog: FormData) => async (dispatch: AppDispatch) =
   }
 };
 
+export const generateBlogs = (message: string) => async (dispatch: AppDispatch) => {
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/blogGenerate`, {
+      message: message,
+    });
+    if (response.data?.success) {
+      // Return the generated blog data in proper Redux fulfilled format
+      return {
+        type: 'blogs/generateBlogs/fulfilled',
+        payload: response.data.reply, // Use .reply instead of .data based on your API response
+      };
+    } else {
+      throw new Error(response.data?.message || "Failed to generate blogs");
+    }
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error);
+    dispatch(setBlogsError(errorMessage));
+    throw error;
+  }
+}
+
 // update blog status
 export const updateBlogStatus = (blogId: string) => async (dispatch: AppDispatch) => {
   try {

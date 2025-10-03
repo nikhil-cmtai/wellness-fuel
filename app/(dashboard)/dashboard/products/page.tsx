@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { 
@@ -17,6 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Upload,
+  X
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,6 +46,17 @@ import {
   Product
 } from '@/lib/redux/features/productSlice'
 
+interface ProductImage {
+  id: string
+  url: string
+  alt: string
+  caption?: string
+}
+
+interface ProductWithImages extends Product {
+  productImages?: ProductImage[]
+}
+
 const categories = ["All", "Supplements", "Vitamins", "Beverages", "Wellness"]
 const statuses = ["All", "active", "out_of_stock", "inactive"]
 
@@ -59,9 +72,11 @@ const ProductsPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [modalLoading, setModalLoading] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<ProductWithImages | null>(null)
   const [imageErrors, setImageErrors] = useState<{ [key: string]: boolean }>({})
+  const [productImages, setProductImages] = useState<ProductImage[]>([])
+  const [urlInput, setUrlInput] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageError = (productId: string) => {
     setImageErrors(prev => ({ ...prev, [productId]: true }))
@@ -74,6 +89,58 @@ const ProductsPage = () => {
     }
     return product.images?.[0] || product.imageUrl || '/placeholder-product.svg'
   }
+
+  // Image management functions
+  const addImageFromFile = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length > 0 && productImages.length < 5) {
+      files.slice(0, 5 - productImages.length).forEach(file => {
+        if (file && productImages.length < 5) {
+          const reader = new FileReader()
+          reader.onload = () => {
+            const newImage: ProductImage = {
+              id: `${Date.now()}-${Math.random()}`,
+              url: reader.result as string,
+              alt: file.name.split('.')[0],
+              caption: ''
+            }
+            setProductImages(prev => [...prev, newImage])
+          }
+          reader.readAsDataURL(file)
+        }
+      })
+    }
+  }
+
+  const addImageFromUrl = () => {
+    if (urlInput.trim() && productImages.length < 5) {
+      const newImage: ProductImage = {
+        id: `${Date.now()}-${Math.random()}`,
+        url: urlInput.trim(),
+        alt: urlInput.split('/').pop()?.split('.')[0] || 'Image',
+        caption: ''
+      }
+      setProductImages(prev => [...prev, newImage])
+      setUrlInput('')
+    }
+  }
+
+  const removeImage = (id: string) => {
+    setProductImages(prev => prev.filter(img => img.id !== id))
+  }
+
+  const updateImage = (id: string, field: keyof ProductImage, value: string) => {
+    setProductImages(prev =>
+      prev.map(img =>
+        img.id === id ? { ...img, [field]: value } : img
+      )
+    )
+  }
+
   const [newProduct, setNewProduct] = useState({
     name: '',
     slug: '',
@@ -133,7 +200,6 @@ const ProductsPage = () => {
   }
 
   const handleAddProduct = async () => {
-    setModalLoading(true)
     try {
       const formData = new FormData()
       formData.append('productName', newProduct.name)
@@ -159,23 +225,22 @@ const ProductsPage = () => {
       const success = await dispatch(createProduct(formData)) as unknown as boolean
       if (success) {
         setShowAddModal(false)
-      setNewProduct({ 
+        setNewProduct({ 
           name: '', slug: '', category: '', price: { amount: '', currency: 'INR', mrp: '' },
           stockQuantity: '', shortDescription: '', description: '', longDescription: '',
           weightSize: { value: '', unit: 'g' }, expiryDate: '', ingredients: '', benefits: '',
           dosageInstructions: '', manufacturer: '', images: '', metaTitle: '', metaDescription: ''
         })
+        setProductImages([])
+        setUrlInput('')
         dispatch(fetchProductsData())
       }
     } catch (error) {
       console.error('Error creating product:', error)
-    } finally {
-      setModalLoading(false)
     }
   }
 
   const handleEditProduct = async () => {
-    setModalLoading(true)
     try {
       if (!selectedProduct) return
 
@@ -208,13 +273,10 @@ const ProductsPage = () => {
       }
     } catch (error) {
       console.error('Error updating product:', error)
-    } finally {
-      setModalLoading(false)
     }
   }
 
   const handleDeleteProduct = async () => {
-    setModalLoading(true)
     try {
       if (!selectedProduct) return
       
@@ -226,13 +288,20 @@ const ProductsPage = () => {
       }
     } catch (error) {
       console.error('Error deleting product:', error)
-    } finally {
-      setModalLoading(false)
     }
   }
 
   const openEditModal = (product: Product) => {
-    setSelectedProduct(product)
+    const productWithImages: ProductWithImages = {
+      ...product,
+      productImages: product.images.map((img, index) => ({
+        id: `img-${index}`,
+        url: img,
+        alt: product.name,
+        caption: ''
+      }))
+    }
+    setSelectedProduct(productWithImages)
     setNewProduct({
       name: product.name,
       slug: product.slug || '',
@@ -259,11 +328,21 @@ const ProductsPage = () => {
       metaTitle: product.metaTitle || '',
       metaDescription: product.metaDescription || ''
     })
+    setUrlInput('')
     setShowEditModal(true)
   }
 
   const openDeleteModal = (product: Product) => {
-    setSelectedProduct(product)
+    const productWithImages: ProductWithImages = {
+      ...product,
+      productImages: product.images.map((img, index) => ({
+        id: `img-${index}`,
+        url: img,
+        alt: product.name,
+        caption: ''
+      }))
+    }
+    setSelectedProduct(productWithImages)
     setShowDeleteModal(true)
   }
 
@@ -822,6 +901,80 @@ const ProductsPage = () => {
                   />
                 </div>
               </div>
+
+              {/* Product Images */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">Product Images (Limit: 5)</h3>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label>Product Images {productImages.length}/5</Label>
+                    <div className="flex gap-2">
+                      {(productImages.length < 5) && (
+                        <Button onClick={addImageFromFile} size="sm" variant="outline">
+                          <Upload className="w-4 h-4 mr-1" />
+                          Upload Files
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  {(productImages.length < 5) && (
+                    <div className="flex gap-2 mb-3">
+                      <Input
+                        placeholder="Image URL"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                      />
+                      <Button onClick={addImageFromUrl} size="sm" variant="outline">
+                        Add URL
+                      </Button>
+                    </div>
+                  )}
+                  {productImages.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {productImages.map((image) => (
+                        <div key={image.id} className="border rounded-lg p-3 space-y-2">
+                          <div className="relative w-full h-20 overflow-hidden rounded-lg">
+                            <Image
+                              src={image.url}
+                              alt={image.alt}
+                              fill
+                              className="object-cover"
+                            />
+                            <Button
+                              onClick={() => removeImage(image.id)}
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-1 right-1 h-5 w-5"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <Input
+                            placeholder="Alt text"
+                            value={image.alt}
+                            onChange={(e) => updateImage(image.id, 'alt', e.target.value)}
+                            className="text-sm"
+                          />
+                          <Input
+                            placeholder="Caption (optional)"
+                            value={image.caption || ''}
+                            onChange={(e) => updateImage(image.id, 'caption', e.target.value)}
+                            className="text-sm"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={isLoading}>
@@ -1002,6 +1155,108 @@ const ProductsPage = () => {
                     value={newProduct.expiryDate}
                     onChange={(e) => setNewProduct({...newProduct, expiryDate: e.target.value})}
                   />
+                </div>
+              </div>
+
+              {/* Product Images */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">Product Images (Limit: 5)</h3>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label>Product Images {selectedProduct?.productImages?.length || 0}/5</Label>
+                    <div className="flex gap-2">
+                      {(selectedProduct?.productImages?.length || 0) < 5 && (
+                        <Button onClick={addImageFromFile} size="sm" variant="outline">
+                          <Upload className="w-4 h-4 mr-1" />
+                          Upload More
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  {(selectedProduct?.productImages?.length || 0) < 5 && (
+                    <div className="flex gap-2 mb-3">
+                      <Input
+                        placeholder="Image URL"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                      />
+                      <Button onClick={addImageFromUrl} size="sm" variant="outline">
+                        Add URL
+                      </Button>
+                    </div>
+                  )}
+                  {selectedProduct?.productImages && selectedProduct.productImages.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {selectedProduct.productImages.map((image) => (
+                        <div key={image.id} className="border rounded-lg p-3 space-y-2">
+                          <div className="relative w-full h-20 overflow-hidden rounded-lg">
+                            <Image
+                              src={image.url}
+                              alt={image.alt}
+                              fill
+                              className="object-cover"
+                            />
+                            <Button
+                              onClick={() => {
+                                if (selectedProduct.productImages) {
+                                  const updatedImages = selectedProduct.productImages.filter(img => img.id !== image.id)
+                                  setSelectedProduct({
+                                    ...selectedProduct,
+                                    productImages: updatedImages
+                                  })
+                                }
+                              }}
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-1 right-1 h-5 w-5"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <Input
+                            placeholder="Alt text"
+                            value={image.alt}
+                            onChange={(e) => {
+                              if (selectedProduct.productImages) {
+                                const updatedImages = selectedProduct.productImages.map(img =>
+                                  img.id === image.id ? { ...img, alt: e.target.value } : img
+                                )
+                                setSelectedProduct({
+                                  ...selectedProduct,
+                                  productImages: updatedImages
+                                })
+                              }
+                            }}
+                            className="text-sm"
+                          />
+                          <Input
+                            placeholder="Caption (optional)"
+                            value={image.caption || ''}
+                            onChange={(e) => {
+                              if (selectedProduct.productImages) {
+                                const updatedImages = selectedProduct.productImages.map(img =>
+                                  img.id === image.id ? { ...img, caption: e.target.value } : img
+                                )
+                                setSelectedProduct({
+                                  ...selectedProduct,
+                                  productImages: updatedImages
+                                })
+                              }
+                            }}
+                            className="text-sm"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

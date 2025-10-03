@@ -203,11 +203,12 @@ export const fetchLeadsData = () => async (dispatch: AppDispatch, getState: () =
 
     if (response.data?.success) {
       // Map API response to our Lead interface
-      const mappedLeads = response.data.data.leads.map((lead: ApiLead) => mapApiLeadToLead(lead));
+      const mappedLeads = response.data.data.map((lead: ApiLead) => mapApiLeadToLead(lead));
+      console.log(response.data.data);
 
       dispatch(setLeadData({
         data: mappedLeads,
-        total: response.data.data.pagination.totalLeads,
+        total: response.data.pagination.total,
       }));
     } else {
       throw new Error(response.data?.message || "Failed to fetch leads");
@@ -242,11 +243,11 @@ export const fetchActiveLeads = () => async (dispatch: AppDispatch, getState: ()
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/leads/getActiveLeads?${queryParams}`);
     if (response.data?.success) {
       // Map API response to our Lead interface
-      const mappedLeads = response.data.data.leads.map((lead: ApiLead) => mapApiLeadToLead(lead));
+      const mappedLeads = response.data.data.map((lead: ApiLead) => mapApiLeadToLead(lead));
 
       dispatch(setLeadData({
         data: mappedLeads,
-        total: response.data.data.pagination.totalLeads,
+        total: response.data.pagination.total,
       }));
     } else {
       throw new Error(response.data?.message || "Failed to fetch leads");
@@ -296,11 +297,11 @@ export const fetchLeadsByStatus = (status: string) => async (dispatch: AppDispat
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/leads/getLeadsByStatus?${queryParams}`
     );
     if (response.data?.success) {
-      const mappedLeads = response.data.data.leads.map((lead: ApiLead) => mapApiLeadToLead(lead));
+      const mappedLeads = response.data.data.map((lead: ApiLead) => mapApiLeadToLead(lead));
 
       dispatch(setLeadData({
         data: mappedLeads,
-        total: response.data.data.pagination.totalLeads,
+        total: response.data.pagination.total,
       }));
     } else {
       throw new Error(response.data?.message || "Failed to fetch leads by status");
@@ -322,11 +323,11 @@ export const fetchLatestLeads = () => async (dispatch: AppDispatch) => {
     );
     if (response.data?.success) {
       // Map API response to our Lead interface
-      const mappedLeads = response.data.data.leads.map((lead: ApiLead) => mapApiLeadToLead(lead));
+      const mappedLeads = response.data.data.map((lead: ApiLead) => mapApiLeadToLead(lead));
 
       dispatch(setLeadData({
         data: mappedLeads,
-        total: response.data.data.pagination.totalLeads,
+        total: response.data.pagination.total,
       }));
     } else {
       throw new Error(response.data?.message || "Failed to fetch latest leads");

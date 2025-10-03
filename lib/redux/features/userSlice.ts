@@ -16,6 +16,7 @@ export interface User {
   verified: boolean;
   address?: string;
   bio?: string;
+  avatar?: string;
   
   // Doctor specific fields
   hospital?: string;

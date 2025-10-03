@@ -25,7 +25,9 @@ import {
   Twitter,
   Facebook,
   Grid3X3,
-  List
+  List,
+  Upload,
+  Camera
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,7 +49,6 @@ import {
   selectUsersData,
   selectUsersLoading,
   selectUsersError,
-  selectUsersFilters,
   selectUsersPagination,
   updateUser,
   deleteUser,
@@ -210,7 +211,7 @@ const InfluencersPage = () => {
     }
   }
 
-  const handleUpdateInfluencer = async (influencerData: Partial<Influencer>) => {
+  const handleUpdateInfluencer = async () => {
     setModalLoading(true)
     try {
       if (selectedInfluencer) {
@@ -622,13 +623,31 @@ const InfluencersPage = () => {
 
             {/* Add Influencer Modal */}
             <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Add New Influencer</DialogTitle>
                   <DialogDescription>
                     Register a new social media influencer
                   </DialogDescription>
                 </DialogHeader>
+                {/* Avatar Section - Top Center */}
+                <div className="flex flex-col items-center space-y-4 py-4">
+                  <Label className="text-lg font-medium">Profile Picture</Label>
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage src="/placeholder-influencer.svg" />
+                    <AvatarFallback className="text-xl">INF</AvatarFallback>
+                  </Avatar>
+                  <div className="flex gap-3">
+                    <Button variant="outline" size="sm">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Photo
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Remove
+                    </Button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="addName">Full Name</Label>
@@ -693,7 +712,7 @@ const InfluencersPage = () => {
 
             {/* Edit Influencer Modal */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-              <DialogContent className="max-w-4xl">
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Influencer Details</DialogTitle>
                   <DialogDescription>
@@ -701,7 +720,28 @@ const InfluencersPage = () => {
                   </DialogDescription>
                 </DialogHeader>
                 {selectedInfluencer && (
-                  <Tabs defaultValue="details" className="w-full">
+                  <>
+                    {/* Avatar Section - Top Center */}
+                    <div className="flex flex-col items-center space-y-4 py-4">
+                      <Label className="text-lg font-medium">Profile Picture</Label>
+                      <Avatar className="w-24 h-24">
+                        <AvatarImage src={selectedInfluencer.avatar || '/placeholder-influencer.svg'} />
+                        <AvatarFallback className="text-xl">
+                          {selectedInfluencer.firstName[0]}{selectedInfluencer.lastName[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex gap-3">
+                        <Button variant="outline" size="sm">
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Photo
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Camera className="w-4 h-4 mr-2" />
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                    <Tabs defaultValue="details" className="w-full">
                     <TabsList className="grid w-full grid-cols-4">
                       <TabsTrigger value="details">Details</TabsTrigger>
                       <TabsTrigger value="performance">Performance</TabsTrigger>
@@ -779,12 +819,13 @@ const InfluencersPage = () => {
                       </div>
                     </TabsContent>
                   </Tabs>
+                  </>
                 )}
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => handleUpdateInfluencer(selectedInfluencer || {})} disabled={modalLoading}>
+                  <Button onClick={handleUpdateInfluencer} disabled={modalLoading}>
                     {modalLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />

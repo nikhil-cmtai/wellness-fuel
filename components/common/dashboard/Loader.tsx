@@ -160,7 +160,7 @@ const Loader: React.FC<LoaderProps> = ({
   }
 
   return (
-    <div className={`h-screen w-screen flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center ${className}`}>
       <div className="relative">
         {renderLoader()}
         

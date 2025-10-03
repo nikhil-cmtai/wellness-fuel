@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import { 
   Loader2, 
   Sparkles, 
@@ -10,7 +11,8 @@ import {
   FileText,
   Save,
   Plus,
-  Trash2
+  Trash2,
+  Upload
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,6 +22,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
+import { useAppDispatch } from '@/lib/redux/hooks'
+import { generateBlogs, createBlog } from '@/lib/redux/features/blogsSlice'
 
 interface BlogImage {
   id: string
@@ -54,6 +58,7 @@ interface AIBlogData {
 
 const AddBlogs = () => {
   const router = useRouter()
+  const dispatch = useAppDispatch()
   const [blogTopic, setBlogTopic] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [aiData, setAiData] = useState<AIBlogData | null>(null)
@@ -89,55 +94,42 @@ const AddBlogs = () => {
 
     setIsGenerating(true)
     try {
-      // Call OpenAI API for blog generation
-      const response = await fetch('/api/generate-blog', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          topic: blogTopic,
-          prompt: `Create a comprehensive blog post about "${blogTopic}" with the following structure in JSON format:
-          {
-            "title": "Engaging blog title",
-            "slug": "url-friendly-slug",
-            "excerpt": "Brief 2-3 sentence summary",
-            "content": "Full blog content in HTML format with proper headings, paragraphs, and formatting",
-            "featuredImage": "https://images.unsplash.com/photo-...",
-            "author": "Dr. [Name] or [Author Name]",
-            "category": "One of: Health & Wellness, Nutrition, Fitness, Mental Health, Lifestyle, Medical, Technology, Research",
-            "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-            "status": "draft",
-            "readTime": "X min read",
-            "views": 0,
-            "likes": 0,
-            "metaTitle": "SEO optimized title (50-60 characters)",
-            "metaDescription": "SEO meta description (150-160 characters)",
-            "metaKeywords": "keyword1, keyword2, keyword3, keyword4",
-            "canonicalUrl": "https://wellnessfuel.com/blog/url-friendly-slug",
-            "ogTitle": "Social media title",
-            "ogDescription": "Social media description",
-            "ogImage": "https://images.unsplash.com/photo-...",
-            "images": [
-              {
-                "id": "img1",
-                "url": "https://images.unsplash.com/photo-...",
-                "alt": "Descriptive alt text",
-                "caption": "Image caption"
-              }
-            ],
-            "confidence": "Confidence score 0-100"
-          }`
-        })
-      })
 
-      if (!response.ok) {
-        throw new Error('Failed to generate blog')
+
+      // Call Redux action for blog generation
+      const response = await dispatch(generateBlogs(blogTopic));
+      if (response && response.payload) {
+        // Map the response data to match our interface
+        const blogData: AIBlogData = {
+          title: response.payload.title || 'AI Generated Blog',
+          slug: response.payload.slug || blogTopic.toLowerCase().replace(/\s+/g, '-'),
+          excerpt: response.payload.excerpt || 'AI generated excerpt',
+          content: response.payload.content || 'AI generated content',
+          featuredImage: response.payload.featuredImage || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop',
+          author: response.payload.author || 'Dr. AI Assistant',
+          category: response.payload.category || 'Health & Wellness',
+          tags: typeof response.payload.tags === 'string' 
+          ? response.payload.tags.split(',').map((tag: string) => tag.trim())
+          : (Array.isArray(response.payload.tags) ? response.payload.tags : []),
+          status: response.payload.status || 'draft',
+          readTime: typeof response.payload.readTime === 'number' 
+          ? `${response.payload.readTime} min read` 
+          : response.payload.readTime || '5 min read',
+          views: response.payload.views || 0,
+          likes: response.payload.likes || 0,
+          metaTitle: response.payload.metaTitle || response.payload.title,
+          metaDescription: response.payload.metaDescription || response.payload.excerpt,
+          metaKeywords: response.payload.metaKeywords || '',
+          canonicalUrl: response.payload.canonicalUrl || '',
+          ogTitle: response.payload.ogTitle || response.payload.title,
+          ogDescription: response.payload.ogDescription || response.payload.excerpt,
+          ogImage: response.payload.ogImage || response.payload.featuredImage,
+          images: response.payload.images || [],
+          confidence: response.payload.confidence || 85
+        }
+        setAiData(blogData)
+        setFormData(blogData)
       }
-
-      const data = await response.json()
-      setAiData(data)
-      setFormData(data)
     } catch (error) {
       console.error('Error generating blog:', error)
       // Fallback: Show demo data
@@ -206,13 +198,45 @@ const AddBlogs = () => {
   }
 
   const addImage = () => {
+    if (formData.images.length >= 5) {
+      alert('You can add a maximum of 5 images')
+      return
+    }
+    
     const newImage: BlogImage = {
       id: `img_${Date.now()}`,
-      url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop',
-      alt: 'Blog image',
+      url: '',
+      alt: '',
       caption: ''
     }
     handleInputChange('images', [...formData.images, newImage])
+  }
+
+  const addImageFromFile = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.multiple = true
+    input.onchange = (e) => {
+      const files = Array.from((e.target as HTMLInputElement).files || [])
+      const availableSlots = 5 - formData.images.length
+      const newFiles = files.slice(0, availableSlots)
+      
+      newFiles.forEach((file) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const newImage: BlogImage = {
+            id: `img_${Date.now()}_${Math.random()}`,
+            url: reader.result as string,
+            alt: file.name,
+            caption: ''
+          }
+          handleInputChange('images', [...formData.images, newImage])
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+    input.click()
   }
 
   const removeImage = (imageId: string) => {
@@ -230,14 +254,38 @@ const AddBlogs = () => {
   const saveBlog = async () => {
     setIsGenerating(true)
     try {
-      // Here you would save to your database
-      console.log('Saving blog:', formData)
+      // Convert formData to FormData for multipart upload
+      const formDataToSend = new FormData()
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Add all text fields
+      formDataToSend.append('title', formData.title)
+      formDataToSend.append('slug', formData.slug)
+      formDataToSend.append('excerpt', formData.excerpt)
+      formDataToSend.append('content', formData.content)
+      formDataToSend.append('featuredImage', formData.featuredImage)
+      formDataToSend.append('author', formData.author)
+      formDataToSend.append('category', formData.category)
+      formDataToSend.append('tags', JSON.stringify(formData.tags))
+      formDataToSend.append('status', formData.status)
+      formDataToSend.append('readTime', formData.readTime)
+      formDataToSend.append('metaTitle', formData.metaTitle)
+      formDataToSend.append('metaDescription', formData.metaDescription)
+      formDataToSend.append('metaKeywords', formData.metaKeywords)
+      formDataToSend.append('canonicalUrl', formData.canonicalUrl)
+      formDataToSend.append('ogTitle', formData.ogTitle)
+      formDataToSend.append('ogDescription', formData.ogDescription)
+      formDataToSend.append('ogImage', formData.ogImage)
       
-      // Redirect back to blogs page
-      router.push('/dashboard/blogs')
+      // Add images array
+      formDataToSend.append('blogImages', JSON.stringify(formData.images))
+      
+      // Call Redux action to create blog
+      const success = await dispatch(createBlog(formDataToSend))
+      
+      if (success) {
+        // Redirect back to blogs page
+        router.push('/dashboard/blogs')
+      }
     } catch (error) {
       console.error('Error saving blog:', error)
     } finally {
@@ -413,16 +461,18 @@ const AddBlogs = () => {
 
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(category => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="category"
+                    value={formData.category}
+                    onChange={(e) => handleInputChange('category', e.target.value)}
+                    placeholder="e.g., Health & Wellness, Nutrition, Fitness..."
+                    list="category-options"
+                  />
+                  <datalist id="category-options">
+                    {categories.map(category => (
+                      <option key={category} value={category} />
+                    ))}
+                  </datalist>
                 </div>
 
                 <div>
@@ -508,17 +558,27 @@ const AddBlogs = () => {
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <Label>Blog Images</Label>
-                    <Button onClick={addImage} size="sm" variant="outline">
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add Image
-                    </Button>
+                    <Label>Blog Images {formData.images.length}/5</Label>
+                    <div className="flex gap-2">
+                      {formData.images.length < 5 && (
+                        <Button onClick={addImage} size="sm" variant="outline">
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Image URL
+                        </Button>
+                      )}
+                      {formData.images.length < 5 && (
+                        <Button onClick={addImageFromFile} size="sm" variant="outline">
+                          <Upload className="w-4 h-4 mr-1" />
+                          Upload Files
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-3">
-                    {formData.images.map((image) => (
+                    {formData.images.map((image, index) => (
                       <div key={image.id} className="border rounded-lg p-3 space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Image {image.id}</span>
+                          <span className="text-sm font-medium">Image {index + 1}</span>
                           <Button
                             onClick={() => removeImage(image.id)}
                             size="sm"
@@ -527,6 +587,19 @@ const AddBlogs = () => {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
+                        
+                        {/* Image Preview */}
+                        {image.url && (
+                          <div className="relative w-full h-32 overflow-hidden rounded-lg border">
+                            <Image
+                              src={image.url}
+                              alt={image.alt || `Blog image ${index + 1}`}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        
                         <Input
                           placeholder="Image URL"
                           value={image.url}

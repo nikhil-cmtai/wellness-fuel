@@ -28,7 +28,9 @@ import {
   Eye as EyeIcon,
   Baby,
   Grid3X3,
-  List
+  List,
+  Upload,
+  Camera,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,7 +52,6 @@ import {
   selectUsersData,
   selectUsersLoading,
   selectUsersError,
-  selectUsersFilters,
   selectUsersPagination,
   updateUser,
   deleteUser,
@@ -98,7 +99,6 @@ const DoctorsPage = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<UserType | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [modalLoading, setModalLoading] = useState(false)
 
   // Fetch doctors data on component mount
   useEffect(() => {
@@ -196,7 +196,6 @@ const DoctorsPage = () => {
   }
 
   const handleDeleteDoctor = async (doctorId: number) => {
-    setModalLoading(true)
     try {
       const user = users.find(u => u.role === 'Doctor' && parseInt(u._id.slice(-8), 16) === doctorId)
       if (user) {
@@ -205,25 +204,23 @@ const DoctorsPage = () => {
           dispatch(fetchUsersData())
         }
       }
-    } finally {
-      setModalLoading(false)
+    } catch (error) {
+      console.error('Error deleting doctor:', error)
     }
   }
 
-  const handleAddDoctor = async (doctorData: Partial<Doctor>) => {
-    setModalLoading(true)
+  const handleAddDoctor = async () => {
     try {
       // Add logic to create doctor via API
-      console.log('Adding new doctor:', doctorData)
+      console.log('Adding new doctor')
       setIsAddModalOpen(false)
       dispatch(fetchUsersData())
-    } finally {
-      setModalLoading(false)
+    } catch (error) {
+      console.error('Error adding doctor:', error)
     }
   }
 
-  const handleUpdateDoctor = async (doctorData: Partial<Doctor>) => {
-    setModalLoading(true)
+  const handleUpdateDoctor = async () => {
     try {
       if (selectedDoctor) {
         const success = await dispatch(updateUser(selectedDoctor._id, selectedDoctor)) as unknown as boolean
@@ -232,8 +229,8 @@ const DoctorsPage = () => {
           dispatch(fetchUsersData())
         }
       }
-    } finally {
-      setModalLoading(false)
+    } catch (error) {
+      console.error('_error updating doctor:', error)
     }
   }
 
@@ -639,13 +636,31 @@ const DoctorsPage = () => {
 
         {/* Add Doctor Modal */}
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Doctor</DialogTitle>
               <DialogDescription>
                 Register a new doctor with their medical credentials
               </DialogDescription>
             </DialogHeader>
+            {/* Avatar Section - Top Center */}
+            <div className="flex flex-col items-center space-y-4 py-4">
+              <Label className="text-lg font-medium">Profile Picture</Label>
+              <Avatar className="w-24 h-24">
+                <AvatarImage src="/placeholder-doctor.svg" />
+                <AvatarFallback className="text-xl">DR</AvatarFallback>
+              </Avatar>
+              <div className="flex gap-3">
+                <Button variant="outline" size="sm">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Photo
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Remove
+                </Button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="addName">Full Name</Label>
@@ -700,7 +715,7 @@ const DoctorsPage = () => {
               <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => handleAddDoctor({})} disabled={isLoading}>
+              <Button onClick={handleAddDoctor} disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -716,7 +731,7 @@ const DoctorsPage = () => {
 
         {/* Edit Doctor Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Doctor Details</DialogTitle>
               <DialogDescription>
@@ -724,7 +739,28 @@ const DoctorsPage = () => {
               </DialogDescription>
             </DialogHeader>
             {selectedDoctor && (
-              <Tabs defaultValue="details" className="w-full">
+              <>
+                {/* Avatar Section - Top Center */}
+                <div className="flex flex-col items-center space-y-4 py-4">
+                  <Label className="text-lg font-medium">Profile Picture</Label>
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage src={selectedDoctor.avatar || '/placeholder-doctor.svg'} />
+                    <AvatarFallback className="text-xl">
+                      {selectedDoctor.firstName[0]}{selectedDoctor.lastName[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex gap-3">
+                    <Button variant="outline" size="sm">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Photo
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+                <Tabs defaultValue="details" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="details">Details</TabsTrigger>
                   <TabsTrigger value="schedule">Schedule</TabsTrigger>
@@ -825,12 +861,13 @@ const DoctorsPage = () => {
                   </div>
                 </TabsContent>
               </Tabs>
+              </>
             )}
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => handleUpdateDoctor(selectedDoctor || {})} disabled={isLoading}>
+              <Button onClick={handleUpdateDoctor} disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

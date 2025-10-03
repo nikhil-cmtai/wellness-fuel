@@ -538,14 +538,89 @@ const CategoriesPage = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="add-category-image" className="mb-2 block">Image URL</Label>
-                  <Input
-                    id="add-category-image"
-                    type="url"
-                    placeholder="https://example.com/image.jpg"
-                    value={newCategory.imageUrl}
-                    onChange={(e) => setNewCategory({...newCategory, imageUrl: e.target.value})}
-                  />
+                  <Label htmlFor="add-category-image" className="mb-2 block">Category Image</Label>
+                  {newCategory.imageUrl ? (
+                    <div className="space-y-3">
+                      <div className="relative w-full h-48 overflow-hidden rounded-lg border">
+                        <Image
+                          src={newCategory.imageUrl}
+                          alt={newCategory.name || 'New category'}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              // Convert file to URL for preview
+                              const imageUrl = URL.createObjectURL(file)
+                              setNewCategory({...newCategory, imageUrl})
+                            }
+                          }}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            const newUrl = prompt('Enter new image URL:', newCategory.imageUrl)
+                            if (newUrl !== null && newUrl !== newCategory.imageUrl) {
+                              setNewCategory({...newCategory, imageUrl: newUrl})
+                            }
+                          }}
+                        >
+                          Edit URL
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setNewCategory({...newCategory, imageUrl: ''})}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500">
+                        <div className="text-center">
+                          <div className="mb-2">No image selected</div>
+                          <div className="text-sm">Choose a file or enter a URL</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              // Convert file to URL for preview
+                              const imageUrl = URL.createObjectURL(file)
+                              setNewCategory({...newCategory, imageUrl})
+                            }
+                          }}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            const newUrl = prompt('Enter image URL:', '')
+                            if (newUrl !== null && newUrl.trim()) {
+                              setNewCategory({...newCategory, imageUrl: newUrl.trim()})
+                            }
+                          }}
+                        >
+                          Enter URL
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -649,14 +724,87 @@ const CategoriesPage = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="edit-category-image" className="mb-2 block">Image URL</Label>
-                    <Input
-                      id="edit-category-image"
-                      type="url"
-                      placeholder="https://example.com/image.jpg"
-                      value={selectedCategory.imageUrl}
-                      onChange={(e) => setSelectedCategory({...selectedCategory, imageUrl: e.target.value})}
-                    />
+                    <Label htmlFor="edit-category-image" className="mb-2 block">Category Image</Label>
+                    {selectedCategory.imageUrl ? (
+                      <div className="space-y-3">
+                        <div className="relative w-full h-48 overflow-hidden rounded-lg border">
+                          <Image
+                            src={selectedCategory.imageUrl}
+                            alt={selectedCategory.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                // Convert file to URL for preview
+                                const imageUrl = URL.createObjectURL(file)
+                                setSelectedCategory({...selectedCategory, imageUrl})
+                              }
+                            }}
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              const input = document.createElement('input')
+                              input.type = 'text'
+                              input.value = selectedCategory.imageUrl
+                              input.placeholder = 'Enter image URL'
+                              input.className = 'w-full px-3 py-2 border rounded-md'
+                              const newUrl = prompt('Enter new image URL:', selectedCategory.imageUrl)
+                              if (newUrl !== null && newUrl !== selectedCategory.imageUrl) {
+                                setSelectedCategory({...selectedCategory, imageUrl: newUrl})
+                              }
+                            }}
+                          >
+                            Edit URL
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <div className="mb-2">No image selected</div>
+                            <div className="text-sm">Choose a file or enter a URL</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                // Convert file to URL for preview
+                                const imageUrl = URL.createObjectURL(file)
+                                setSelectedCategory({...selectedCategory, imageUrl})
+                              }
+                            }}
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              const newUrl = prompt('Enter image URL:', '')
+                              if (newUrl !== null && newUrl.trim()) {
+                                setSelectedCategory({...selectedCategory, imageUrl: newUrl.trim()})
+                              }
+                            }}
+                          >
+                            Enter URL
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

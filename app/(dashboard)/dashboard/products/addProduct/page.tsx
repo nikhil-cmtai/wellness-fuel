@@ -73,8 +73,8 @@ const AddProduct = () => {
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
     if (files.length > 0) {
-      // Limit to 4 images
-      const limitedFiles = files.slice(0, 4)
+      // Limit to 5 images
+      const limitedFiles = files.slice(0, 5)
       setSelectedImages(limitedFiles)
       
       // Create previews for all selected images
@@ -86,6 +86,40 @@ const AddProduct = () => {
           if (previews.length === limitedFiles.length) {
             setImagePreviews(previews)
           }
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+  }
+
+  const removeImage = (index: number) => {
+    const newImages = selectedImages.filter((_, i) => i !== index)
+    const newPreviews = imagePreviews.filter((_, i) => i !== index)
+    setSelectedImages(newImages)
+    setImagePreviews(newPreviews)
+    
+    // If no images left, clear AI data
+    if (newImages.length === 0) {
+      setAiData(null)
+      setIsEditing(false)
+    }
+  }
+
+  const addMoreImages = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length > 0) {
+      const currentCount = selectedImages.length
+      const availableSlots = 5 - currentCount
+      const newFiles = files.slice(0, availableSlots)
+      
+      const updatedImages = [...selectedImages, ...newFiles]
+      setSelectedImages(updatedImages)
+      
+      // Create previews for new images
+      newFiles.forEach((file) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          setImagePreviews(prev => [...prev, e.target?.result as string])
         }
         reader.readAsDataURL(file)
       })
@@ -120,7 +154,7 @@ const AddProduct = () => {
         },
         body: JSON.stringify({
           images: base64Images,
-          prompt: `Analyze these ${selectedImages.length} product images and extract the following information in JSON format. Consider all images together to get the most accurate information:
+          prompt: `Analyze these ${selectedImages.length} product images and extract the following information in JSON format. Consider all images together to get the most accurate information. Focus on the product details, ingredients, benefits, and any visible text or nutritional information:
           {
             "name": "Product name",
             "category": "One of: Supplements, Vitamins, Beverages, Wellness",
@@ -270,18 +304,18 @@ const AddProduct = () => {
                 <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-lg font-semibold mb-2">Upload Product Images</h3>
                 <p className="text-muted-foreground mb-4">
-                  Click here or drag and drop up to 4 product images for better AI analysis
+                  Click here or drag and drop up to 5 product images for better AI analysis
                 </p>
                 <Button onClick={handleCameraClick}>
                   <Camera className="w-4 h-4 mr-2" />
-                  Choose Images (Max 4)
+                  Choose Images (Max 5)
                 </Button>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative">
+                    <div key={index} className="relative group">
                       <Image
                         src={preview}
                         alt={`Product preview ${index + 1}`}
@@ -292,22 +326,49 @@ const AddProduct = () => {
                       <div className="absolute top-1 left-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
                         {index + 1}
                       </div>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
                     </div>
                   ))}
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    {imagePreviews.length} image(s) selected
+                    {imagePreviews.length}/5 images selected
                   </p>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={resetForm}
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Clear All
-                  </Button>
+                  <div className="flex gap-2">
+                    {imagePreviews.length < 5 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const input = document.createElement('input')
+                          input.type = 'file'
+                          input.accept = 'image/*'
+                          input.multiple = true
+                          input.onchange = (e) => addMoreImages(e as unknown as React.ChangeEvent<HTMLInputElement>)
+                          input.click()
+                        }}
+                      >
+                        <Upload className="w-4 h-4 mr-1" />
+                        Add More
+                      </Button>
+                    )}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={resetForm}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Clear All
+                    </Button>
+                  </div>
                 </div>
                 
                 {!aiData && (

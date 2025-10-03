@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
-import Image from 'next/image'
+import React, { useState, useEffect, useRef } from 'react'
 import { 
   Search, 
   Grid3X3, 
@@ -20,6 +19,8 @@ import {
   Stethoscope,
   Megaphone,
   ShoppingBag,
+  Upload,
+  Camera,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,7 +32,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks'
 import {
   fetchUsersData,
@@ -42,7 +43,6 @@ import {
   selectUsersError,
   selectUsersFilters,
   selectUsersPagination,
-  createUser,
   updateUser,
   deleteUser,
   User as UserType
@@ -67,18 +67,77 @@ const UsersPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null)
   const [modalLoading, setModalLoading] = useState(false)
-  const [imageErrors, setImageErrors] = useState<{ [key: string]: boolean }>({})
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const newUserFileInputRef = useRef<HTMLInputElement>(null)
+  
+  const [newUser, setNewUser] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    avatar: '',
+    role: 'Customer' as 'Admin' | 'Doctor' | 'Influencer' | 'Customer',
+    status: 'Active' as 'Active' | 'Inactive'
+  })
 
-  const handleImageError = (userId: string) => {
-    setImageErrors(prev => ({ ...prev, [userId]: true }))
-  }
 
   const getUserImage = (user: UserType) => {
-    const hasError = imageErrors[user._id]
-    if (hasError) {
-      return '/placeholder-product.svg'
+    return user.avatar || '/placeholder-user.svg'
+  }
+
+  // Avatar upload functions
+  const handleAvatarUpload = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file && selectedUser) {
+      const reader = new FileReader()
+      reader.onload = () => {
+        setSelectedUser({
+          ...selectedUser,
+          avatar: reader.result as string
+        })
+      }
+      reader.readAsDataURL(file)
     }
-    return '/placeholder-product.svg' // No avatar field in User interface
+  }
+
+
+  const removeAvatar = () => {
+    if (selectedUser) {
+      setSelectedUser({
+        ...selectedUser,
+        avatar: undefined
+      })
+    }
+  }
+
+  // New User avatar functions
+  const handleNewUserAvatarUpload = () => {
+    newUserFileInputRef.current?.click()
+  }
+
+  const handleNewUserFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = () => {
+        setNewUser({
+          ...newUser,
+          avatar: reader.result as string
+        })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeNewUserAvatar = () => {
+    setNewUser({
+      ...newUser,
+      avatar: ''
+    })
   }
 
   // Fetch data on component mount
@@ -360,19 +419,16 @@ const UsersPage = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                        {getUserImage(user) ? (
-                          <Image
-                            src={getUserImage(user)}
-                            alt={`${user.firstName} ${user.lastName}`}
-                            fill
-                            className="object-cover"
-                            onError={() => handleImageError(user._id)}
-                          />
-                        ) : (
-                          <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-                        )}
-                      </div>
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage 
+                          src={getUserImage(user)} 
+                          alt={`${user.firstName} ${user.lastName}`}
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder-user.svg'
+                          }}
+                        />
+                        <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+                      </Avatar>
                       <div>
                         <CardTitle className="text-lg">{user.firstName} {user.lastName}</CardTitle>
                         <CardDescription className="text-sm">{user.email}</CardDescription>
@@ -481,20 +537,16 @@ const UsersPage = () => {
                       <TableRow key={user._id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                              {getUserImage(user) ? (
-                                <Image
-                                  src={getUserImage(user)}
-                                  alt={`${user.firstName} ${user.lastName}`}
-                                  width={40}
-                                  height={40}
-                                  className="object-cover"
-                                  onError={() => handleImageError(user._id)}
-                                />
-                              ) : (
-                                <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-                              )}
-                            </div>
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage 
+                                src={getUserImage(user)} 
+                                alt={`${user.firstName} ${user.lastName}`}
+                                onError={(e) => {
+                                  e.currentTarget.src = '/placeholder-user.svg'
+                                }}
+                              />
+                              <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+                            </Avatar>
                             <div>
                               <p className="font-medium text-foreground">{user.firstName} {user.lastName}</p>
                               <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -795,8 +847,37 @@ const UsersPage = () => {
                 Update user information and account settings.
               </DialogDescription>
             </DialogHeader>
+            
             {selectedUser && (
               <div className="space-y-6">
+                {/* Avatar Section - Top Center */}
+                <div className="flex flex-col items-center space-y-4 py-4">
+                  <Label htmlFor="avatar" className="text-lg font-medium">Profile Picture</Label>
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage 
+                      src={selectedUser.avatar || '/placeholder-user.svg'} 
+                      alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                    />
+                    <AvatarFallback className="text-xl">{selectedUser.firstName[0]}{selectedUser.lastName[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex gap-3">
+                    <Button onClick={handleAvatarUpload} variant="outline" size="sm">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Photo
+                    </Button>
+                    <Button onClick={removeAvatar} variant="outline" size="sm">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Remove
+                    </Button>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Label htmlFor="firstName">First Name</Label>
@@ -945,12 +1026,44 @@ const UsersPage = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-6">
+              {/* Avatar Section - Top Center */}
+              <div className="flex flex-col items-center space-y-4 py-4">
+                <Label htmlFor="newAvatar" className="text-lg font-medium">Profile Picture</Label>
+                <Avatar className="w-24 h-24">
+                  <AvatarImage 
+                    src={newUser.avatar || '/placeholder-user.svg'} 
+                    alt={`${newUser.firstName} ${newUser.lastName}`}
+                  />
+                  <AvatarFallback className="text-xl">
+                    {newUser.firstName ? newUser.firstName[0] : '?'}{newUser.lastName ? newUser.lastName[0] : '?'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex gap-3">
+                  <Button onClick={handleNewUserAvatarUpload} variant="outline" size="sm">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Photo
+                  </Button>
+                  <Button onClick={removeNewUserAvatar} variant="outline" size="sm">
+                    <Camera className="w-4 h-4 mr-2" />
+                    Remove
+                  </Button>
+                </div>
+                <input
+                  ref={newUserFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleNewUserFileSelect}
+                  className="hidden"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="newFirstName">First Name</Label>
                   <Input
                     id="newFirstName"
                     placeholder="Enter first name"
+                    value={newUser.firstName}
+                    onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
                   />
                 </div>
                 <div>
@@ -958,6 +1071,8 @@ const UsersPage = () => {
                   <Input
                     id="newLastName"
                     placeholder="Enter last name"
+                    value={newUser.lastName}
+                    onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
                   />
                 </div>
                 <div>
@@ -966,6 +1081,8 @@ const UsersPage = () => {
                     id="newEmail"
                     type="email"
                     placeholder="Enter email address"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                   />
                 </div>
                 <div>
@@ -973,19 +1090,21 @@ const UsersPage = () => {
                   <Input
                     id="newPhone"
                     placeholder="Enter phone number"
+                    value={newUser.phone}
+                    onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
                   />
                 </div>
                 <div>
                   <Label htmlFor="newRole">Role</Label>
-                  <Select defaultValue="customer">
+                  <Select value={newUser.role} onValueChange={(value: "Admin" | "Doctor" | "Influencer" | "Customer") => setNewUser({...newUser, role: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="doctor">Doctor</SelectItem>
-                      <SelectItem value="influencer">Influencer</SelectItem>
-                      <SelectItem value="customer">Customer</SelectItem>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Doctor">Doctor</SelectItem>
+                      <SelectItem value="Influencer">Influencer</SelectItem>
+                      <SelectItem value="Customer">Customer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
