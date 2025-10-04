@@ -42,6 +42,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks'
+import Loader from '@/components/common/dashboard/Loader'
+import Error from '@/components/common/dashboard/Error'
+import NoData from '@/components/common/dashboard/NoData'
 import {
   fetchUsersData,
   setFilters,
@@ -229,213 +232,204 @@ const InfluencersPage = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Influencers</h1>
-            <p className="text-muted-foreground">Manage your social media influencers and partners</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
-            <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-              <UserPlus className="w-4 h-4" />
-              Add Influencer
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Influencers</p>
-                  <p className="text-2xl font-bold text-foreground">{influencers.length}</p>
-                  <p className="text-sm text-emerald-600 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    +12% from last month
-                  </p>
-                </div>
-                <Megaphone className="w-8 h-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Influencers</p>
-                  <p className="text-2xl font-bold text-foreground">{influencers.filter(i => i.status === 'active').length}</p>
-                  <p className="text-sm text-blue-600 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" />
-                    {Math.round((influencers.filter(i => i.status === 'active').length / influencers.length) * 100) || 0}% of total
-                  </p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Platforms</p>
-                  <p className="text-2xl font-bold text-foreground">{new Set(influencers.map(i => i.platform)).size}</p>
-                  <p className="text-sm text-purple-600 flex items-center gap-1">
-                    <Award className="w-3 h-3" />
-                    Social platforms
-                  </p>
-                </div>
-                <Award className="w-8 h-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Avg. Commission</p>
-                  <p className="text-2xl font-bold text-foreground">{influencers.length > 0 ? (influencers.reduce((sum, i) => sum + i.commissionRate, 0) / influencers.length).toFixed(1) : '0'}%</p>
-                  <p className="text-sm text-orange-600 flex items-center gap-1">
-                    <Star className="w-3 h-3" />
-                    Commission rate
-                  </p>
-                </div>
-                <Star className="w-8 h-8 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    placeholder="Search influencers by name, email, phone, or platform..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+        {error ? (
+          <Error title="Error loading influencers" message={error} />
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Influencers</h1>
+                <p className="text-muted-foreground">Manage your social media influencers and partners</p>
               </div>
               <div className="flex gap-2">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Platform" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Platforms</SelectItem>
-                    <SelectItem value="Instagram">Instagram</SelectItem>
-                    <SelectItem value="Youtube">YouTube</SelectItem>
-                    <SelectItem value="Twitter">Twitter</SelectItem>
-                    <SelectItem value="Facebook">Facebook</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="name">Name</SelectItem>
-                    <SelectItem value="platform">Platform</SelectItem>
-                    <SelectItem value="followers">Followers</SelectItem>
-                    <SelectItem value="category">Category</SelectItem>
-                    <SelectItem value="commissionRate">Commission</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                >
-                  {sortOrder === 'asc' ? '↑' : '↓'}
+                <Button variant="outline" className="gap-2">
+                  <Download className="w-4 h-4" />
+                  Export
                 </Button>
-                
-                {/* View Toggle */}
-                <div className="flex border border-input rounded-lg overflow-hidden">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                        size="icon"
-                        onClick={() => setViewMode('grid')}
-                        className="rounded-none"
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Grid view</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={viewMode === 'table' ? 'default' : 'ghost'}
-                        size="icon"
-                        onClick={() => setViewMode('table')}
-                        className="rounded-none"
-                      >
-                        <List className="w-4 h-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>List view</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
+                  <UserPlus className="w-4 h-4" />
+                  Add Influencer
+                </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Loading State */}
-        {isLoading && (
-          <Card>
-            <CardContent className="p-12">
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                <p className="text-muted-foreground">Loading influencers...</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Influencers</p>
+                      <p className="text-2xl font-bold text-foreground">{influencers.length}</p>
+                      <p className="text-sm text-emerald-600 flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        +12% from last month
+                      </p>
+                    </div>
+                    <Megaphone className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Influencers</p>
+                      <p className="text-2xl font-bold text-foreground">{influencers.filter(i => i.status === 'active').length}</p>
+                      <p className="text-sm text-blue-600 flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" />
+                        {Math.round((influencers.filter(i => i.status === 'active').length / influencers.length) * 100) || 0}% of total
+                      </p>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Platforms</p>
+                      <p className="text-2xl font-bold text-foreground">{new Set(influencers.map(i => i.platform)).size}</p>
+                      <p className="text-sm text-purple-600 flex items-center gap-1">
+                        <Award className="w-3 h-3" />
+                        Social platforms
+                      </p>
+                    </div>
+                    <Award className="w-8 h-8 text-purple-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Avg. Commission</p>
+                      <p className="text-2xl font-bold text-foreground">{influencers.length > 0 ? (influencers.reduce((sum, i) => sum + i.commissionRate, 0) / influencers.length).toFixed(1) : '0'}%</p>
+                      <p className="text-sm text-orange-600 flex items-center gap-1">
+                        <Star className="w-3 h-3" />
+                        Commission rate
+                      </p>
+                    </div>
+                    <Star className="w-8 h-8 text-orange-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Error State */}
-        {error && (
-          <Card>
-            <CardContent className="p-12">
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <p className="text-destructive">Error: {error}</p>
-                <Button onClick={() => dispatch(fetchUsersData())}>
-                  Retry
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Search influencers by name, email, phone, or platform..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={platformFilter} onValueChange={setPlatformFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Platform" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Platforms</SelectItem>
+                        <SelectItem value="Instagram">Instagram</SelectItem>
+                        <SelectItem value="Youtube">YouTube</SelectItem>
+                        <SelectItem value="Twitter">Twitter</SelectItem>
+                        <SelectItem value="Facebook">Facebook</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="name">Name</SelectItem>
+                        <SelectItem value="platform">Platform</SelectItem>
+                        <SelectItem value="followers">Followers</SelectItem>
+                        <SelectItem value="category">Category</SelectItem>
+                        <SelectItem value="commissionRate">Commission</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                    >
+                      {sortOrder === 'asc' ? '↑' : '↓'}
+                    </Button>
+                    
+                    {/* View Toggle */}
+                    <div className="flex border border-input rounded-lg overflow-hidden">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                            size="icon"
+                            onClick={() => setViewMode('grid')}
+                            className="rounded-none"
+                          >
+                            <Grid3X3 className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Grid view</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={viewMode === 'table' ? 'default' : 'ghost'}
+                            size="icon"
+                            onClick={() => setViewMode('table')}
+                            className="rounded-none"
+                          >
+                            <List className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>List view</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Influencers Display */}
-        {!isLoading && !error && (
+            {/* Content */}
+            {isLoading ? (
+              <Loader variant="skeleton" message="Loading influencers..." />
+            ) : filteredInfluencers.length === 0 ? (
+              <NoData 
+                message="No influencers found"
+                description="Get started by adding your first influencer"
+                icon={<Megaphone className="w-full h-full text-muted-foreground/60" />}
+                action={{
+                  label: "Add Influencer",
+                  onClick: () => setIsAddModalOpen(true)
+                }}
+                size="lg"
+              />
+            ) : (
           <>
             {viewMode === 'table' && (
               <Card>
@@ -592,7 +586,7 @@ const InfluencersPage = () => {
             )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {!isLoading && filteredInfluencers.length > 0 && totalPages > 1 && (
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
                   Showing {startIndex + 1} to {Math.min(startIndex + pagination.limit, filteredInfluencers.length)} of {filteredInfluencers.length} influencers
@@ -620,8 +614,10 @@ const InfluencersPage = () => {
                 </div>
               </div>
             )}
+          </>
+        )}
 
-            {/* Add Influencer Modal */}
+        {/* Add Influencer Modal */}
             <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>

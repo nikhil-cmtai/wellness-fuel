@@ -59,6 +59,7 @@ import {
 } from '@/lib/redux/features/userSlice'
 import Loader from '@/components/common/dashboard/Loader'
 import Error from '@/components/common/dashboard/Error'
+import NoData from '@/components/common/dashboard/NoData'
 
 // Doctor type definition
 type Doctor = {
@@ -237,197 +238,207 @@ const DoctorsPage = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Doctors</h1>
-            <p className="text-muted-foreground">Manage your medical professionals and specialists</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
-            <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-              <UserPlus className="w-4 h-4" />
-              Add Doctor
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Doctors</p>
-                  <p className="text-2xl font-bold text-foreground">{doctors.length}</p>
-                  <p className="text-sm text-emerald-600 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    +8% from last month
-                  </p>
-                </div>
-                <Stethoscope className="w-8 h-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Doctors</p>
-                  <p className="text-2xl font-bold text-foreground">{doctors.filter(d => d.status === 'active').length}</p>
-                  <p className="text-sm text-blue-600 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" />
-                    {Math.round((doctors.filter(d => d.status === 'active').length / doctors.length) * 100)}% of total
-                  </p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Specializations</p>
-                  <p className="text-2xl font-bold text-foreground">{new Set(doctors.map(d => d.specialization)).size}</p>
-                  <p className="text-sm text-purple-600 flex items-center gap-1">
-                    <Award className="w-3 h-3" />
-                    Medical fields
-                  </p>
-                </div>
-                <Award className="w-8 h-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Avg. Rating</p>
-                  <p className="text-2xl font-bold text-foreground">{(doctors.reduce((sum, d) => sum + d.rating, 0) / doctors.length).toFixed(1)}</p>
-                  <p className="text-sm text-orange-600 flex items-center gap-1">
-                    <Star className="w-3 h-3" />
-                    Out of 5.0
-                  </p>
-                </div>
-                <Star className="w-8 h-8 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    placeholder="Search doctors by name, email, phone, or specialization..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+        {error ? (
+          <Error title="Error loading doctors" message={error} />
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Doctors</h1>
+                <p className="text-muted-foreground">Manage your medical professionals and specialists</p>
               </div>
               <div className="flex gap-2">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Specialization" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Specializations</SelectItem>
-                    <SelectItem value="Cardiology">Cardiology</SelectItem>
-                    <SelectItem value="Neurology">Neurology</SelectItem>
-                    <SelectItem value="Orthopedics">Orthopedics</SelectItem>
-                    <SelectItem value="Pediatrics">Pediatrics</SelectItem>
-                    <SelectItem value="Dermatology">Dermatology</SelectItem>
-                    <SelectItem value="Ophthalmology">Ophthalmology</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="name">Name</SelectItem>
-                    <SelectItem value="specialization">Specialization</SelectItem>
-                    <SelectItem value="experience">Experience</SelectItem>
-                    <SelectItem value="rating">Rating</SelectItem>
-                    <SelectItem value="totalPatients">Patients</SelectItem>
-                    <SelectItem value="consultationFee">Fee</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                >
-                  {sortOrder === 'asc' ? '↑' : '↓'}
+                <Button variant="outline" className="gap-2">
+                  <Download className="w-4 h-4" />
+                  Export
                 </Button>
-                
-                {/* View Toggle */}
-                <div className="flex border border-input rounded-lg overflow-hidden">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                        size="icon"
-                        onClick={() => setViewMode('grid')}
-                        className="rounded-none"
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Grid view</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={viewMode === 'table' ? 'default' : 'ghost'}
-                        size="icon"
-                        onClick={() => setViewMode('table')}
-                        className="rounded-none"
-                      >
-                        <List className="w-4 h-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>List view</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
+                  <UserPlus className="w-4 h-4" />
+                  Add Doctor
+                </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {isLoading && (
-            <Loader />
-        )}
-        {error && (
-          <Error />
-        )}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Doctors</p>
+                      <p className="text-2xl font-bold text-foreground">{doctors.length}</p>
+                      <p className="text-sm text-emerald-600 flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        +8% from last month
+                      </p>
+                    </div>
+                    <Stethoscope className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Doctors</p>
+                      <p className="text-2xl font-bold text-foreground">{doctors.filter(d => d.status === 'active').length}</p>
+                      <p className="text-sm text-blue-600 flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" />
+                        {Math.round((doctors.filter(d => d.status === 'active').length / doctors.length) * 100)}% of total
+                      </p>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Specializations</p>
+                      <p className="text-2xl font-bold text-foreground">{new Set(doctors.map(d => d.specialization)).size}</p>
+                      <p className="text-sm text-purple-600 flex items-center gap-1">
+                        <Award className="w-3 h-3" />
+                        Medical fields
+                      </p>
+                    </div>
+                    <Award className="w-8 h-8 text-purple-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Avg. Rating</p>
+                      <p className="text-2xl font-bold text-foreground">{(doctors.reduce((sum, d) => sum + d.rating, 0) / doctors.length).toFixed(1)}</p>
+                      <p className="text-sm text-orange-600 flex items-center gap-1">
+                        <Star className="w-3 h-3" />
+                        Out of 5.0
+                      </p>
+                    </div>
+                    <Star className="w-8 h-8 text-orange-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Doctors Table */}
-        {viewMode === 'table' ? (
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Search doctors by name, email, phone, or specialization..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Specialization" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Specializations</SelectItem>
+                        <SelectItem value="Cardiology">Cardiology</SelectItem>
+                        <SelectItem value="Neurology">Neurology</SelectItem>
+                        <SelectItem value="Orthopedics">Orthopedics</SelectItem>
+                        <SelectItem value="Pediatrics">Pediatrics</SelectItem>
+                        <SelectItem value="Dermatology">Dermatology</SelectItem>
+                        <SelectItem value="Ophthalmology">Ophthalmology</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="name">Name</SelectItem>
+                        <SelectItem value="specialization">Specialization</SelectItem>
+                        <SelectItem value="experience">Experience</SelectItem>
+                        <SelectItem value="rating">Rating</SelectItem>
+                        <SelectItem value="totalPatients">Patients</SelectItem>
+                        <SelectItem value="consultationFee">Fee</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                    >
+                      {sortOrder === 'asc' ? '↑' : '↓'}
+                    </Button>
+                    
+                    {/* View Toggle */}
+                    <div className="flex border border-input rounded-lg overflow-hidden">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                            size="icon"
+                            onClick={() => setViewMode('grid')}
+                            className="rounded-none"
+                          >
+                            <Grid3X3 className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Grid view</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={viewMode === 'table' ? 'default' : 'ghost'}
+                            size="icon"
+                            onClick={() => setViewMode('table')}
+                            className="rounded-none"
+                          >
+                            <List className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>List view</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Content */}
+            {isLoading ? (
+              <Loader variant="skeleton" message="Loading doctors..." />
+            ) : filteredDoctors.length === 0 ? (
+              <NoData 
+                message="No doctors found"
+                description="Get started by adding your first doctor"
+                icon={<Stethoscope className="w-full h-full text-muted-foreground/60" />}
+                action={{
+                  label: "Add Doctor",
+                  onClick: () => setIsAddModalOpen(true)
+                }}
+                size="lg"
+              />
+            ) : viewMode === 'table' ? (
           <Card>
             <CardContent className="p-0">
               <Table>
@@ -605,33 +616,36 @@ const DoctorsPage = () => {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(startIndex + pagination.limit, filteredDoctors.length)} of {filteredDoctors.length} doctors
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
-                disabled={pagination.page === 1}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-sm">
-                Page {pagination.page} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(Math.min(pagination.page + 1, totalPages))}
-                disabled={pagination.page === totalPages}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+            {/* Pagination */}
+            {!isLoading && filteredDoctors.length > 0 && totalPages > 1 && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Showing {startIndex + 1} to {Math.min(startIndex + pagination.limit, filteredDoctors.length)} of {filteredDoctors.length} doctors
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
+                    disabled={pagination.page === 1}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <span className="text-sm">
+                    Page {pagination.page} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(Math.min(pagination.page + 1, totalPages))}
+                    disabled={pagination.page === totalPages}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Add Doctor Modal */}

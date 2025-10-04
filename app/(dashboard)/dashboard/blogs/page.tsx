@@ -36,6 +36,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
 import { fetchBlogsData, selectBlogsData, selectBlogsError, selectBlogsLoading, setBlogsData } from '@/lib/redux/features/blogsSlice'
 import Loader from '@/components/common/dashboard/Loader'
 import Error from '@/components/common/dashboard/Error'
+import NoData from '@/components/common/dashboard/NoData'
 
 // Types
 interface BlogWithEditableTags {
@@ -396,175 +397,189 @@ const BlogsPage = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Blog Management</h1>
-            <p className="text-muted-foreground">Manage blog posts, SEO, and content strategy</p>
-          </div>
-          <div className="flex gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => setShowAddModal(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Blog Post
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add a new blog post</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                onClick={() => window.location.href = '/dashboard/blogs/addBlogs'} 
-                className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                <Sparkles className="w-4 h-4" />
-                AI Add Blog
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add blog post using AI image analysis</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Posts</p>
-                  <p className="text-2xl font-bold text-foreground">{blogs?.length || 0}</p>
-                </div>
-                <FileText className="w-8 h-8 text-primary" />
+        {error ? (
+          <Error title="Error loading blogs" message={error} />
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Blog Management</h1>
+                <p className="text-muted-foreground">Manage blog posts, SEO, and content strategy</p>
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Published</p>
-                  <p className="text-2xl font-bold text-foreground">{(blogs || []).filter(b => b.status === 'published').length}</p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Drafts</p>
-                  <p className="text-2xl font-bold text-foreground">{(blogs || []).filter(b => b.status === 'draft').length}</p>
-                </div>
-                <Clock className="w-8 h-8 text-amber-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Views</p>
-                  <p className="text-2xl font-bold text-foreground">{(blogs || []).reduce((sum, b) => sum + b.views, 0).toLocaleString()}</p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Search */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search blog posts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {blogStatuses.map(status => (
-                    <SelectItem key={status} value={status}>
-                      {status === 'All' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Category Filter */}
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {blogCategories.map(category => (
-                    <SelectItem key={category} value={category}>
-                      {category === 'All' ? 'All Categories' : category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* View Toggle */}
-              <div className="flex border border-input rounded-lg overflow-hidden">
+              <div className="flex gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('grid')}
-                      className="rounded-none"
-                    >
-                      <Grid3X3 className="w-4 h-4" />
+                    <Button onClick={() => setShowAddModal(true)} className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Add Blog Post
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Grid view</p>
+                    <p>Add a new blog post</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('list')}
-                      className="rounded-none"
+                    <Button 
+                      onClick={() => window.location.href = '/dashboard/blogs/addBlogs'} 
+                      className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
-                      <List className="w-4 h-4" />
+                      <Sparkles className="w-4 h-4" />
+                      AI Add Blog
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>List view</p>
+                    <p>Add blog post using AI image analysis</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {isLoading && <Loader variant="skeleton" message="Loading blogs..." />}
-        {error && <Error title="Error loading blogs" message="Failed to load blogs" />}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Posts</p>
+                      <p className="text-2xl font-bold text-foreground">{blogs?.length || 0}</p>
+                    </div>
+                    <FileText className="w-8 h-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Published</p>
+                      <p className="text-2xl font-bold text-foreground">{(blogs || []).filter(b => b.status === 'published').length}</p>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Drafts</p>
+                      <p className="text-2xl font-bold text-foreground">{(blogs || []).filter(b => b.status === 'draft').length}</p>
+                    </div>
+                    <Clock className="w-8 h-8 text-amber-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Views</p>
+                      <p className="text-2xl font-bold text-foreground">{(blogs || []).reduce((sum, b) => sum + b.views, 0).toLocaleString()}</p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Blogs Display */}
-        {viewMode === 'grid' ? (
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Search */}
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search blog posts..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Status Filter */}
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {blogStatuses.map(status => (
+                        <SelectItem key={status} value={status}>
+                          {status === 'All' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Category Filter */}
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {blogCategories.map(category => (
+                        <SelectItem key={category} value={category}>
+                          {category === 'All' ? 'All Categories' : category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* View Toggle */}
+                  <div className="flex border border-input rounded-lg overflow-hidden">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('grid')}
+                          className="rounded-none"
+                        >
+                          <Grid3X3 className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Grid view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'list' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('list')}
+                          className="rounded-none"
+                        >
+                          <List className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>List view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Content */}
+            {isLoading ? (
+              <Loader variant="skeleton" message="Loading blogs..." />
+            ) : filteredBlogs.length === 0 ? (
+          <NoData 
+            message="No blog posts found"
+            description="Get started by creating your first blog post"
+            icon={<FileText className="w-full h-full text-muted-foreground/60" />}
+            action={{
+              label: "Add Blog Post",
+              onClick: () => setShowAddModal(true)
+            }}
+            size="lg"
+          />
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {paginatedBlogs.map(blog => (
               <Card key={blog._id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -646,18 +661,20 @@ const BlogsPage = () => {
         ) : (
           <Card>
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Blog Post</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Views</TableHead>
-                  <TableHead>Published</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+              {filteredBlogs.length > 0 && (
+                <>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Blog Post</TableHead>
+                      <TableHead>Author</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Views</TableHead>
+                      <TableHead>Published</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                 {paginatedBlogs.map(blog => (
                   <TableRow key={blog._id}>
                     <TableCell>
@@ -739,55 +756,60 @@ const BlogsPage = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-              </TableBody>
+                  </TableBody>
+                </>
+              )}
             </Table>
           </Card>
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredBlogs.length)} of {filteredBlogs.length} blog posts
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Previous
-                  </Button>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            {/* Pagination */}
+            {!isLoading && filteredBlogs.length > 0 && totalPages > 1 && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                      Showing {startIndex + 1} to {Math.min(endIndex, filteredBlogs.length)} of {filteredBlogs.length} blog posts
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Button
-                        key={page}
-                        variant={currentPage === page ? "default" : "outline"}
+                        variant="outline"
                         size="sm"
-                        onClick={() => setCurrentPage(page)}
-                        className="w-8 h-8 p-0"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
                       >
-                        {page}
+                        <ChevronLeft className="w-4 h-4" />
+                        Previous
                       </Button>
-                    ))}
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="w-8 h-8 p-0"
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            )}
+          </>
         )}
 
         {/* Add Blog Modal */}

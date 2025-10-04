@@ -13,6 +13,9 @@ import {
   Loader2,
   CheckCircle,
 } from 'lucide-react'
+import Loader from '@/components/common/dashboard/Loader'
+import Error from '@/components/common/dashboard/Error'
+import NoData from '@/components/common/dashboard/NoData'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -205,148 +208,137 @@ const CategoriesPage = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Product Categories</h1>
-            <p className="text-muted-foreground">Manage product categories and organization</p>
-          </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => setShowAddModal(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Category
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add new product category</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Categories</p>
-                  <p className="text-2xl font-bold text-foreground">{categories?.length || 0}</p>
-                </div>
-                <Package className="w-8 h-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Categories</p>
-                  <p className="text-2xl font-bold text-foreground">{(categories || []).filter(c => c.status === 'active').length}</p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Search */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search categories..."
-                  value={filters.name?.toLowerCase() || ''}
-                  onChange={(e) => handleSearchChange(e.target.value || '')}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <Select value={filters.status || 'All'} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryStatuses.map(status => (
-                    <SelectItem key={status} value={status}>
-                      {status === 'All' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* View Toggle */}
-              <div className="flex border border-input rounded-lg overflow-hidden">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('grid')}
-                      className="rounded-none"
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Grid view</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('list')}
-                      className="rounded-none"
-                    >
-                      <List className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>List view</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Loading State */}
-        {isLoading && (
-          <Card>
-            <CardContent className="p-12">
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                <p className="text-muted-foreground">Loading categories...</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <Card>
-            <CardContent className="p-12">
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <p className="text-destructive">Error: {error}</p>
-                <Button onClick={() => dispatch(fetchCategoriesData())}>
-                  Retry
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Categories Display */}
-        {!isLoading && !error && (
+        {error ? (
+          <Error title="Error loading categories" message={error} />
+        ) : (
           <>
-            {viewMode === 'grid' ? (
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Product Categories</h1>
+                <p className="text-muted-foreground">Manage product categories and organization</p>
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={() => setShowAddModal(true)} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Add Category
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add new product category</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Categories</p>
+                      <p className="text-2xl font-bold text-foreground">{categories?.length || 0}</p>
+                    </div>
+                    <Package className="w-8 h-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Categories</p>
+                      <p className="text-2xl font-bold text-foreground">{(categories || []).filter(c => c.status === 'active').length}</p>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Search */}
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search categories..."
+                      value={filters.name?.toLowerCase() || ''}
+                      onChange={(e) => handleSearchChange(e.target.value || '')}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Status Filter */}
+                  <Select value={filters.status || 'All'} onValueChange={handleStatusChange}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoryStatuses.map(status => (
+                        <SelectItem key={status} value={status}>
+                          {status === 'All' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* View Toggle */}
+                  <div className="flex border border-input rounded-lg overflow-hidden">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('grid')}
+                          className="rounded-none"
+                        >
+                          <Grid3X3 className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Grid view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'list' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('list')}
+                          className="rounded-none"
+                        >
+                          <List className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>List view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Content */}
+            {isLoading ? (
+              <Loader variant="skeleton" message="Loading categories..." />
+            ) : filteredCategories.length === 0 ? (
+              <NoData 
+                message="No categories found"
+                description="Get started by creating your first category"
+                icon={<Package className="w-full h-full text-muted-foreground/60" />}
+                action={{
+                  label: "Add Category",
+                  onClick: () => setShowAddModal(true)
+                }}
+                size="lg"
+              />
+            ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredCategories.map(category => (
               <Card key={category._id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
@@ -490,9 +482,8 @@ const CategoriesPage = () => {
             </Table>
           </Card>
             )}
-            </>
-          )}
-
+          </>
+        )}
 
         {/* Add Category Modal */}
         <Dialog open={showAddModal} onOpenChange={setShowAddModal}>

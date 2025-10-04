@@ -4,6 +4,10 @@ import categoryReducer from "./features/categorySlice";
 import productReducer from "./features/productSlice";
 import leadReducer from "./features/leadSlice";
 import userReducer from "./features/userSlice";
+import reviewReducer from "./features/reviewSlice";
+import addressReducer from "./features/addressSlice";
+import orderReducer from "./features/orderSlice";
+import settingReducer from "./features/settingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +16,10 @@ export const store = configureStore({
     products: productReducer,
     leads: leadReducer,
     users: userReducer,
+    reviews: reviewReducer,
+    address: addressReducer,
+    order: orderReducer,
+    settings: settingReducer,
   },
 });
 

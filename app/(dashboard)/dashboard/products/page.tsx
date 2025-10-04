@@ -31,6 +31,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks'
+import NoData from '@/components/common/dashboard/NoData'
+import Loader from '@/components/common/dashboard/Loader'
+import Error from '@/components/common/dashboard/Error'
 import {
   fetchProductsData,
   setFilters,
@@ -349,194 +352,185 @@ const ProductsPage = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Products</h1>
-          <p className="text-muted-foreground">Manage your product inventory</p>
-        </div>
-        <div className="flex gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => setShowAddModal(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Product
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add a new product to inventory</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                onClick={() => window.location.href = '/dashboard/products/addProduct'} 
-                className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                <Sparkles className="w-4 h-4" />
-                AI Add Product
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add product using AI image analysis</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </div>
+        {error ? (
+          <Error title="Error loading products" message={error} />
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Products</h1>
+                <p className="text-muted-foreground">Manage your product inventory</p>
+              </div>
+              <div className="flex gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={() => setShowAddModal(true)} className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Add Product
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add a new product to inventory</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={() => window.location.href = '/dashboard/products/addProduct'} 
+                      className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      AI Add Product
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add product using AI image analysis</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Products</p>
-                <p className="text-2xl font-bold text-foreground">{pagination.total}</p>
-              </div>
-              <Package className="w-8 h-8 text-primary" />
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Products</p>
+                      <p className="text-2xl font-bold text-foreground">{pagination.total}</p>
+                    </div>
+                    <Package className="w-8 h-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Products</p>
+                      <p className="text-2xl font-bold text-foreground">{(products || []).filter(p => p.status === 'active').length}</p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Inactive Products</p>
+                      <p className="text-2xl font-bold text-foreground">{(products || []).filter(p => p.status === 'inactive').length}</p>
+                    </div>
+                    <Package className="w-8 h-8 text-amber-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Value</p>
+                      <p className="text-2xl font-bold text-foreground">₹{(products || []).reduce((sum, p) => sum + (p.price.amount * p.stockQuantity), 0).toFixed(2)}</p>
+                    </div>
+                    <DollarSign className="w-8 h-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Active Products</p>
-                <p className="text-2xl font-bold text-foreground">{(products || []).filter(p => p.status === 'active').length}</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-emerald-500" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Inactive Products</p>
-                <p className="text-2xl font-bold text-foreground">{(products || []).filter(p => p.status === 'inactive').length}</p>
-              </div>
-              <Package className="w-8 h-8 text-amber-500" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Value</p>
-                <p className="text-2xl font-bold text-foreground">₹{(products || []).reduce((sum, p) => sum + (p.price.amount * p.stockQuantity), 0).toFixed(2)}</p>
-              </div>
-              <DollarSign className="w-8 h-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={filters.search}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Search */}
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search products..."
+                      value={filters.search}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Category Filter */}
+                  <Select value={filters.category || 'All'} onValueChange={handleCategoryChange}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(category => (
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Status Filter */}
+                  <Select value={filters.status || 'All'} onValueChange={handleStatusChange}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statuses.map(status => (
+                        <SelectItem key={status} value={status}>{status.replace('_', ' ')}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* View Toggle */}
+                  <div className="flex border border-input rounded-lg overflow-hidden">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('grid')}
+                          className="rounded-none"
+                        >
+                          <Grid3X3 className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Grid view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'list' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('list')}
+                          className="rounded-none"
+                        >
+                          <List className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>List view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Content */}
+            {isLoading ? (
+              <Loader variant="skeleton" message="Loading products..." />
+            ) : products.length === 0 ? (
+              <NoData 
+                message="No products found"
+                description="Get started by adding your first product"
+                icon={<Package className="w-full h-full text-muted-foreground/60" />}
+                action={{
+                  label: "Add Product",
+                  onClick: () => setShowAddModal(true)
+                }}
+                size="lg"
               />
-            </div>
-
-            {/* Category Filter */}
-            <Select value={filters.category || 'All'} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Status Filter */}
-            <Select value={filters.status || 'All'} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statuses.map(status => (
-                  <SelectItem key={status} value={status}>{status.replace('_', ' ')}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* View Toggle */}
-            <div className="flex border border-input rounded-lg overflow-hidden">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                    size="icon"
-                    onClick={() => setViewMode('grid')}
-                    className="rounded-none"
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Grid view</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={viewMode === 'list' ? 'default' : 'ghost'}
-                    size="icon"
-                    onClick={() => setViewMode('list')}
-                    className="rounded-none"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>List view</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Loading State */}
-      {isLoading && (
-        <Card>
-          <CardContent className="p-12">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="text-muted-foreground">Loading products...</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Error State */}
-      {error && (
-        <Card>
-          <CardContent className="p-12">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <p className="text-destructive">Error: {error}</p>
-              <Button onClick={() => dispatch(fetchProductsData())}>
-                Retry
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Products Display */}
-      {!isLoading && !error && (
+            ) : (
         <>
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -701,8 +695,8 @@ const ProductsPage = () => {
         </Card>
       )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
+            {/* Pagination */}
+            {!isLoading && products.length > 0 && totalPages > 1 && (
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -745,11 +739,11 @@ const ProductsPage = () => {
             </div>
           </CardContent>
         </Card>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
 
-      {/* Add Product Modal */}
+        {/* Add Product Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -1304,8 +1298,10 @@ const ProductsPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
-    </TooltipProvider>
+        </>
+      )}
+      </div>    
+      </TooltipProvider>
   )
 }
 

@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   Search, 
   Grid3X3, 
   List, 
   Edit, 
-  Trash2, 
   Package,
   DollarSign,
   Loader2,
@@ -28,168 +27,54 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
+import { 
+  fetchOrdersData,
+  updateOrderStatus,
+  setFilters,
+  selectOrders,
+  selectOrderLoading,
+  selectOrderError,
+  selectOrderFilters,
+  Order
+} from '@/lib/redux/features/orderSlice'
+import NoData from '@/components/common/dashboard/NoData'
+import Loader from '@/components/common/dashboard/Loader'
+import Error from '@/components/common/dashboard/Error'
 
-// Dummy data
-const dummyOrders = [
-  {
-    id: 1,
-    orderNumber: "ORD-2024-001",
-    customerName: "John Doe",
-    customerEmail: "john.doe@email.com",
-    customerPhone: "+91 98765 43210",
-    orderDate: "2024-03-15",
-    status: "pending",
-    totalAmount: 1249.95,
-    items: [
-      { productId: 1, name: "Premium Protein Powder", quantity: 2, price: 49.99 },
-      { productId: 4, name: "Omega-3 Fish Oil", quantity: 1, price: 34.99 }
-    ],
-    shippingAddress: {
-      street: "123 Main Street",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pincode: "400001",
-      country: "India"
-    },
-    paymentMethod: "Credit Card",
-    paymentStatus: "paid",
-    trackingNumber: "TRK123456789",
-    notes: "Customer requested express delivery"
-  },
-  {
-    id: 2,
-    orderNumber: "ORD-2024-002",
-    customerName: "Sarah Wilson",
-    customerEmail: "sarah.wilson@email.com",
-    customerPhone: "+91 87654 32109",
-    orderDate: "2024-03-14",
-    status: "shipped",
-    totalAmount: 899.85,
-    items: [
-      { productId: 2, name: "Organic Green Tea", quantity: 3, price: 12.99 },
-      { productId: 5, name: "Multivitamin Complex", quantity: 2, price: 19.99 },
-      { productId: 6, name: "Herbal Sleep Aid", quantity: 1, price: 16.99 }
-    ],
-    shippingAddress: {
-      street: "456 Park Avenue",
-      city: "Delhi",
-      state: "Delhi",
-      pincode: "110001",
-      country: "India"
-    },
-    paymentMethod: "UPI",
-    paymentStatus: "paid",
-    trackingNumber: "TRK987654321",
-    notes: "Delivered to reception"
-  },
-  {
-    id: 3,
-    orderNumber: "ORD-2024-003",
-    customerName: "Mike Johnson",
-    customerEmail: "mike.johnson@email.com",
-    customerPhone: "+91 76543 21098",
-    orderDate: "2024-03-13",
-    status: "delivered",
-    totalAmount: 2349.90,
-    items: [
-      { productId: 1, name: "Premium Protein Powder", quantity: 3, price: 49.99 },
-      { productId: 3, name: "Vitamin D3 Capsules", quantity: 2, price: 24.99 },
-      { productId: 4, name: "Omega-3 Fish Oil", quantity: 2, price: 34.99 }
-    ],
-    shippingAddress: {
-      street: "789 Garden Road",
-      city: "Bangalore",
-      state: "Karnataka",
-      pincode: "560001",
-      country: "India"
-    },
-    paymentMethod: "Net Banking",
-    paymentStatus: "paid",
-    trackingNumber: "TRK456789123",
-    notes: "Customer satisfied with delivery"
-  },
-  {
-    id: 4,
-    orderNumber: "ORD-2024-004",
-    customerName: "Emily Davis",
-    customerEmail: "emily.davis@email.com",
-    customerPhone: "+91 65432 10987",
-    orderDate: "2024-03-12",
-    status: "cancelled",
-    totalAmount: 599.85,
-    items: [
-      { productId: 2, name: "Organic Green Tea", quantity: 2, price: 12.99 },
-      { productId: 6, name: "Herbal Sleep Aid", quantity: 3, price: 16.99 }
-    ],
-    shippingAddress: {
-      street: "321 Oak Street",
-      city: "Chennai",
-      state: "Tamil Nadu",
-      pincode: "600001",
-      country: "India"
-    },
-    paymentMethod: "Credit Card",
-    paymentStatus: "refunded",
-    trackingNumber: null,
-    notes: "Customer requested cancellation due to change of mind"
-  },
-  {
-    id: 5,
-    orderNumber: "ORD-2024-005",
-    customerName: "David Brown",
-    customerEmail: "david.brown@email.com",
-    customerPhone: "+91 54321 09876",
-    orderDate: "2024-03-11",
-    status: "processing",
-    totalAmount: 1799.70,
-    items: [
-      { productId: 1, name: "Premium Protein Powder", quantity: 2, price: 49.99 },
-      { productId: 4, name: "Omega-3 Fish Oil", quantity: 1, price: 34.99 },
-      { productId: 5, name: "Multivitamin Complex", quantity: 3, price: 19.99 }
-    ],
-    shippingAddress: {
-      street: "654 Pine Street",
-      city: "Kolkata",
-      state: "West Bengal",
-      pincode: "700001",
-      country: "India"
-    },
-    paymentMethod: "UPI",
-    paymentStatus: "paid",
-    trackingNumber: null,
-    notes: "Processing for next day delivery"
-  }
-]
-
-const orderStatuses = ["All", "pending", "processing", "shipped", "delivered", "cancelled"]
-const paymentStatuses = ["All", "paid", "pending", "refunded", "failed"]
+const orderStatuses = ["all", "Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Returned"] as const
+const paymentStatuses = ["all", "Paid", "Pending", "Refunded", "Failed"] as const
 
 const OrdersPage = () => {
-  const [orders, setOrders] = useState(dummyOrders)
+  const dispatch = useAppDispatch()
+  const orders = useAppSelector(selectOrders)
+  const isLoading = useAppSelector(selectOrderLoading)
+  const error = useAppSelector(selectOrderError)
+  const filters = useAppSelector(selectOrderFilters)
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState('All')
-  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('All')
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedOrder, setSelectedOrder] = useState<typeof dummyOrders[0] | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
 
+  // Fetch orders on mount and when filters change
+  useEffect(() => {
+    dispatch(fetchOrdersData())
+  }, [dispatch, filters])
+
   // Filter orders
-  const filteredOrders = useMemo(() => {
+  const filteredOrders = React.useMemo(() => {
     return orders.filter(order => {
-      const matchesSearch = order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = selectedStatus === 'All' || order.status === selectedStatus
-      const matchesPaymentStatus = selectedPaymentStatus === 'All' || order.paymentStatus === selectedPaymentStatus
+      const matchesSearch = order.orderNumber.toLowerCase().includes(filters.search?.toLowerCase() || '') ||
+                         order.user.toLowerCase().includes(filters.search?.toLowerCase() || '')
+      const matchesStatus = !filters.status || order.status === filters.status
+      const matchesPaymentStatus = !filters.paymentStatus || order.paymentStatus === filters.paymentStatus
       
       return matchesSearch && matchesStatus && matchesPaymentStatus
     })
-  }, [orders, searchTerm, selectedStatus, selectedPaymentStatus])
+  }, [orders, filters])
 
   // Pagination logic
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage)
@@ -200,71 +85,48 @@ const OrdersPage = () => {
   // Reset to first page when filters change
   React.useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, selectedStatus, selectedPaymentStatus])
+  }, [filters])
 
-  const handleUpdateOrderStatus = async (orderId: number, newStatus: string) => {
-    setIsLoading(true)
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: Order['status'], trackingNumber?: string) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setOrders(orders.map(order => 
-        order.id === orderId 
-          ? { ...order, status: newStatus }
-          : order
-      ))
-    } finally {
-      setIsLoading(false)
+      await dispatch(updateOrderStatus(orderId, newStatus, trackingNumber))
+      await dispatch(fetchOrdersData())
+      setShowEditModal(false)
+    } catch (error) {
+      console.error('Failed to update order status:', error)
     }
   }
 
-  const handleDeleteOrder = async () => {
-    setIsLoading(true)
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setOrders(orders.filter(order => order.id !== selectedOrder!.id))
-      setShowDeleteModal(false)
-      setSelectedOrder(null)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const openViewModal = (order: typeof dummyOrders[0]) => {
+  const openViewModal = (order: Order) => {
     setSelectedOrder(order)
     setShowViewModal(true)
   }
 
-  const openEditModal = (order: typeof dummyOrders[0]) => {
+  const openEditModal = (order: Order) => {
     setSelectedOrder(order)
     setShowEditModal(true)
   }
 
-  const openDeleteModal = (order: typeof dummyOrders[0]) => {
-    setSelectedOrder(order)
-    setShowDeleteModal(true)
-  }
-
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="w-4 h-4" />
-      case 'processing': return <Package className="w-4 h-4" />
-      case 'shipped': return <Truck className="w-4 h-4" />
-      case 'delivered': return <CheckCircle className="w-4 h-4" />
-      case 'cancelled': return <XCircle className="w-4 h-4" />
+      case 'Pending': return <Clock className="w-4 h-4" />
+      case 'Processing': return <Package className="w-4 h-4" />
+      case 'Shipped': return <Truck className="w-4 h-4" />
+      case 'Delivered': return <CheckCircle className="w-4 h-4" />
+      case 'Cancelled': return <XCircle className="w-4 h-4" />
+      case 'Returned': return <XCircle className="w-4 h-4" />
       default: return <Clock className="w-4 h-4" />
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'warning'
-      case 'processing': return 'secondary'
-      case 'shipped': return 'default'
-      case 'delivered': return 'success'
-      case 'cancelled': return 'default'
+      case 'Pending': return 'warning'
+      case 'Processing': return 'secondary'
+      case 'Shipped': return 'default'
+      case 'Delivered': return 'success'
+      case 'Cancelled': return 'destructive'
+      case 'Returned': return 'default'
       default: return 'secondary'
     }
   }
@@ -272,159 +134,182 @@ const OrdersPage = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Orders</h1>
-            <p className="text-muted-foreground">Manage customer orders and fulfillment</p>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Orders</p>
-                  <p className="text-2xl font-bold text-foreground">{orders.length}</p>
-                </div>
-                <Package className="w-8 h-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Pending Orders</p>
-                  <p className="text-2xl font-bold text-foreground">{orders.filter(o => o.status === 'pending').length}</p>
-                </div>
-                <Clock className="w-8 h-8 text-amber-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Delivered Orders</p>
-                  <p className="text-2xl font-bold text-foreground">{orders.filter(o => o.status === 'delivered').length}</p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Revenue</p>
-                  <p className="text-2xl font-bold text-foreground">₹{orders.reduce((sum, o) => sum + o.totalAmount, 0).toFixed(2)}</p>
-                </div>
-                <DollarSign className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Search */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search orders..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {orderStatuses.map(status => (
-                    <SelectItem key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Payment Status Filter */}
-              <Select value={selectedPaymentStatus} onValueChange={setSelectedPaymentStatus}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Payment status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {paymentStatuses.map(status => (
-                    <SelectItem key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* View Toggle */}
-              <div className="flex border border-input rounded-lg overflow-hidden">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('grid')}
-                      className="rounded-none"
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Grid view</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('list')}
-                      className="rounded-none"
-                    >
-                      <List className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>List view</p>
-                  </TooltipContent>
-                </Tooltip>
+        {error ? (
+          <Error title="Error loading orders" message={error} />
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Orders</h1>
+                <p className="text-muted-foreground">Manage customer orders and fulfillment</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Orders Display */}
-        {viewMode === 'grid' ? (
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Orders</p>
+                      <p className="text-2xl font-bold text-foreground">{orders.length}</p>
+                    </div>
+                    <Package className="w-8 h-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Pending Orders</p>
+                      <p className="text-2xl font-bold text-foreground">{orders.filter(o => o.status === 'Pending').length}</p>
+                    </div>
+                    <Clock className="w-8 h-8 text-amber-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Delivered Orders</p>
+                      <p className="text-2xl font-bold text-foreground">{orders.filter(o => o.status === 'Delivered').length}</p>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Revenue</p>
+                      <p className="text-2xl font-bold text-foreground">₹{orders.reduce((sum, o) => sum + o.totalAmount, 0).toFixed(2)}</p>
+                    </div>
+                    <DollarSign className="w-8 h-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Search */}
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search orders..."
+                      value={filters.search || ''}
+                      onChange={(e) => dispatch(setFilters({ search: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Status Filter */}
+                  <Select 
+                    value={filters.status || 'all'} 
+                    onValueChange={(value) => dispatch(setFilters({ status: value === 'all' ? '' : value as typeof filters.status }))}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {orderStatuses.map(status => (
+                        <SelectItem key={status} value={status}>
+                          {status === 'all' ? 'All Status' : status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Payment Status Filter */}
+                  <Select 
+                    value={filters.paymentStatus || 'all'} 
+                    onValueChange={(value) => dispatch(setFilters({ paymentStatus: value === 'all' ? '' : value as typeof filters.paymentStatus }))}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Payment status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentStatuses.map(status => (
+                        <SelectItem key={status} value={status}>
+                          {status === 'all' ? 'All Payment Status' : status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* View Toggle */}
+                  <div className="flex border border-input rounded-lg overflow-hidden">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('grid')}
+                          className="rounded-none"
+                        >
+                          <Grid3X3 className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Grid view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'list' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('list')}
+                          className="rounded-none"
+                        >
+                          <List className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>List view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Content */}
+            {isLoading ? (
+              <Loader variant="skeleton" message="Loading orders..." />
+            ) : filteredOrders.length === 0 ? (
+              <NoData 
+                message="No orders found"
+                description="Orders will appear here once customers start making purchases"
+                icon={<Package className="w-full h-full text-muted-foreground/60" />}
+                size="lg"
+              />
+            ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedOrders.map(order => (
-              <Card key={order.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+              <Card key={order._id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{order.orderNumber}</CardTitle>
                     <Badge variant={getStatusColor(order.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                       {getStatusIcon(order.status)}
-                      <span className="ml-1">{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                      <span className="ml-1">{order.status}</span>
                     </Badge>
                   </div>
-                  <CardDescription>{order.customerName}</CardDescription>
+                  <CardDescription>{order.user}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 flex-1 flex flex-col">
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Order Date:</span>
-                      <span className="text-sm font-medium">{new Date(order.orderDate).toLocaleDateString()}</span>
+                      <span className="text-sm font-medium">{new Date(order.createdAt).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Total Amount:</span>
@@ -432,8 +317,8 @@ const OrdersPage = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Payment:</span>
-                      <Badge variant={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'refunded' ? 'default' : 'warning'}>
-                        {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                      <Badge variant={order.paymentStatus === 'Paid' ? 'success' : order.paymentStatus === 'Refunded' ? 'default' : 'warning'}>
+                        {order.paymentStatus}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
@@ -478,7 +363,7 @@ const OrdersPage = () => {
               </Card>
             ))}
           </div>
-        ) : (
+        ) : !isLoading ? (
           <Card>
             <Table>
               <TableHeader>
@@ -494,7 +379,7 @@ const OrdersPage = () => {
               </TableHeader>
               <TableBody>
                 {paginatedOrders.map(order => (
-                  <TableRow key={order.id}>
+                  <TableRow key={order._id}>
                     <TableCell>
                       <div>
                         <p className="font-medium text-foreground">{order.orderNumber}</p>
@@ -503,20 +388,20 @@ const OrdersPage = () => {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium text-foreground">{order.customerName}</p>
-                        <p className="text-sm text-muted-foreground">{order.customerEmail}</p>
+                        <p className="font-medium text-foreground">{order.user}</p>
+                        <p className="text-sm text-muted-foreground">{order.shippingAddress}</p>
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusColor(order.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                         {getStatusIcon(order.status)}
-                        <span className="ml-1">{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                        <span className="ml-1">{order.status}</span>
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'refunded' ? 'default' : 'warning'}>
-                        {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                      <Badge variant={order.paymentStatus === 'Paid' ? 'success' : order.paymentStatus === 'Refunded' ? 'default' : 'warning'}>
+                        {order.paymentStatus}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium">₹{order.totalAmount}</TableCell>
@@ -550,21 +435,6 @@ const OrdersPage = () => {
                             <p>Edit order</p>
                           </TooltipContent>
                         </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              onClick={() => openDeleteModal(order)}
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Delete order</p>
-                          </TooltipContent>
-                        </Tooltip>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -572,10 +442,10 @@ const OrdersPage = () => {
               </TableBody>
             </Table>
           </Card>
-        )}
+        ) : null}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
+            {/* Pagination */}
+            {!isLoading && filteredOrders.length > 0 && totalPages > 1 && (
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -620,13 +490,16 @@ const OrdersPage = () => {
           </Card>
         )}
 
+          </>
+        )}
+
         {/* View Order Modal */}
         <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Order Details - {selectedOrder?.orderNumber}</DialogTitle>
               <DialogDescription>
-                Complete order information and customer details.
+                Complete order information and details.
               </DialogDescription>
             </DialogHeader>
             {selectedOrder && (
@@ -644,13 +517,13 @@ const OrdersPage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Order Date:</span>
-                        <span className="font-medium">{new Date(selectedOrder.orderDate).toLocaleDateString()}</span>
+                        <span className="font-medium">{new Date(selectedOrder.createdAt).toLocaleDateString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Status:</span>
                         <Badge variant={getStatusColor(selectedOrder.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
                           {getStatusIcon(selectedOrder.status)}
-                          <span className="ml-1">{selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}</span>
+                          <span className="ml-1">{selectedOrder.status}</span>
                         </Badge>
                       </div>
                       <div className="flex justify-between">
@@ -663,8 +536,8 @@ const OrdersPage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Payment Status:</span>
-                        <Badge variant={selectedOrder.paymentStatus === 'paid' ? 'success' : selectedOrder.paymentStatus === 'refunded' ? 'default' : 'warning'}>
-                          {selectedOrder.paymentStatus.charAt(0).toUpperCase() + selectedOrder.paymentStatus.slice(1)}
+                        <Badge variant={selectedOrder.paymentStatus === 'Paid' ? 'success' : selectedOrder.paymentStatus === 'Refunded' ? 'default' : 'warning'}>
+                          {selectedOrder.paymentStatus}
                         </Badge>
                       </div>
                       {selectedOrder.trackingNumber && (
@@ -682,34 +555,20 @@ const OrdersPage = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Name:</span>
-                        <span className="font-medium">{selectedOrder.customerName}</span>
+                        <span className="text-muted-foreground">User ID:</span>
+                        <span className="font-medium">{selectedOrder.user}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Email:</span>
-                        <span className="font-medium">{selectedOrder.customerEmail}</span>
+                        <span className="text-muted-foreground">Shipping Address:</span>
+                        <span className="font-medium">{selectedOrder.shippingAddress}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Phone:</span>
-                        <span className="font-medium">{selectedOrder.customerPhone}</span>
+                        <span className="text-muted-foreground">Billing Address:</span>
+                        <span className="font-medium">{selectedOrder.billingAddress}</span>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
-
-                {/* Shipping Address */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Shipping Address</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1">
-                      <p className="font-medium">{selectedOrder.shippingAddress.street}</p>
-                      <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
-                      <p>{selectedOrder.shippingAddress.pincode}, {selectedOrder.shippingAddress.country}</p>
-                    </div>
-                  </CardContent>
-                </Card>
 
                 {/* Order Items */}
                 <Card>
@@ -718,15 +577,15 @@ const OrdersPage = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {selectedOrder.items.map((item: typeof selectedOrder.items[0], index: number) => (
+                      {selectedOrder.items.map((item, index) => (
                         <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                           <div>
-                            <p className="font-medium">{item.name}</p>
+                            <p className="font-medium">{item.product}</p>
                             <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-medium">₹{item.price}</p>
-                            <p className="text-sm text-muted-foreground">Total: ₹{(item.price * item.quantity).toFixed(2)}</p>
+                            <p className="text-sm text-muted-foreground">Total: ₹{item.total}</p>
                           </div>
                         </div>
                       ))}
@@ -770,7 +629,7 @@ const OrdersPage = () => {
                   <Label htmlFor="order-status" className="mb-2 block">Order Status</Label>
                   <Select 
                     value={selectedOrder.status} 
-                    onValueChange={(value) => setSelectedOrder({...selectedOrder, status: value})}
+                    onValueChange={(value: Order['status']) => setSelectedOrder({...selectedOrder, status: value})}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
@@ -778,7 +637,7 @@ const OrdersPage = () => {
                     <SelectContent>
                       {orderStatuses.slice(1).map(status => (
                         <SelectItem key={status} value={status}>
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                          {status}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -812,8 +671,9 @@ const OrdersPage = () => {
               </Button>
               <Button 
                 onClick={() => {
-                  handleUpdateOrderStatus(selectedOrder!.id, selectedOrder!.status)
-                  setShowEditModal(false)
+                  if (selectedOrder) {
+                    handleUpdateOrderStatus(selectedOrder._id!, selectedOrder.status, selectedOrder.trackingNumber)
+                  }
                 }} 
                 disabled={isLoading}
               >
@@ -824,37 +684,6 @@ const OrdersPage = () => {
                   </>
                 ) : (
                   'Update Order'
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Delete Confirmation Modal */}
-        <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Delete Order</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete order {selectedOrder?.orderNumber}? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={isLoading}>
-                Cancel
-              </Button>
-              <Button 
-                variant="destructive" 
-                onClick={handleDeleteOrder} 
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  'Delete Order'
                 )}
               </Button>
             </DialogFooter>
