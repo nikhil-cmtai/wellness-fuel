@@ -5,40 +5,8 @@ import { User, Activity, Calendar, Clock, Package, Heart } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { User as UserType } from '@/lib/redux/features/authSlice'
 
-interface UserProfile {
-  id: string
-  name: string
-  email: string
-  phone: string
-  avatar: string
-  dateOfBirth: string
-  gender: string
-  bloodGroup: string
-  emergencyContact: string
-  occupation: string
-  maritalStatus: string
-  preferences: {
-    newsletter: boolean
-    smsNotifications: boolean
-    emailNotifications: boolean
-    pushNotifications: boolean
-  }
-  membership: {
-    type: 'basic' | 'premium' | 'vip'
-    joinDate: string
-    points: number
-    level: string
-  }
-  stats: {
-    totalOrders: number
-    totalSpent: number
-    averageOrderValue: number
-    favoriteCategory: string
-    lastOrderDate: string
-  }
-}
 
 interface RecentActivity {
   id: string
@@ -50,21 +18,25 @@ interface RecentActivity {
 }
 
 interface OverviewTabProps {
-  profile: UserProfile
+  profile: UserType
   isEditing: boolean
-  onProfileChange: (profile: UserProfile) => void
+  onProfileChange: (profile: UserType) => void
+  currentUser?: UserType // Use UserType instead of any
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
   profile,
   isEditing,
-  onProfileChange
+  onProfileChange,
+  currentUser
 }) => {
   const handleFieldChange = (field: string, value: string) => {
-    onProfileChange({
+    // Update the profile with the new value
+    const updatedProfile = {
       ...profile,
       [field]: value
-    } as UserProfile)
+    }
+    onProfileChange(updatedProfile as UserType)
   }
 
   // Dummy recent activities
@@ -137,147 +109,110 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="firstName">First Name</Label>
                 {isEditing ? (
                   <Input 
-                    id="name" 
-                    value={profile.name} 
-                    onChange={(e) => handleFieldChange('name', e.target.value)} 
+                    id="firstName" 
+                    value={currentUser?.firstName || ''} 
+                    onChange={(e) => handleFieldChange('firstName', e.target.value)} 
                   />
                 ) : (
-                  <p className="text-sm font-medium">{profile.name}</p>
+                  <p className="text-sm font-medium">{currentUser?.firstName || 'Not set'}</p>
                 )}
               </div>
+              <div>
+                <Label htmlFor="lastName">Last Name</Label>
+                {isEditing ? (
+                  <Input 
+                    id="lastName" 
+                    value={currentUser?.lastName || ''} 
+                    onChange={(e) => handleFieldChange('lastName', e.target.value)} 
+                  />
+                ) : (
+                  <p className="text-sm font-medium">{currentUser?.lastName || 'Not set'}</p>
+                )}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="email">Email</Label>
                 {isEditing ? (
                   <Input 
                     id="email" 
                     type="email" 
-                    value={profile.email} 
+                    value={currentUser?.email || ''} 
                     onChange={(e) => handleFieldChange('email', e.target.value)} 
                   />
                 ) : (
-                  <p className="text-sm font-medium">{profile.email}</p>
+                  <p className="text-sm font-medium">{currentUser?.email || 'Not set'}</p>
                 )}
               </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="phone">Phone</Label>
                 {isEditing ? (
                   <Input 
                     id="phone" 
-                    value={profile.phone} 
+                    value={currentUser?.phone || ''} 
                     onChange={(e) => handleFieldChange('phone', e.target.value)} 
                   />
                 ) : (
-                  <p className="text-sm font-medium">{profile.phone}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="dob">Date of Birth</Label>
-                {isEditing ? (
-                  <Input 
-                    id="dob" 
-                    type="date" 
-                    value={profile.dateOfBirth} 
-                    onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)} 
-                  />
-                ) : (
-                  <p className="text-sm font-medium">{new Date(profile.dateOfBirth).toLocaleDateString()}</p>
+                  <p className="text-sm font-medium">{currentUser?.phone || 'Not set'}</p>
                 )}
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="gender">Gender</Label>
-                {isEditing ? (
-                  <Select value={profile.gender} onValueChange={(value) => handleFieldChange('gender', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="text-sm font-medium capitalize">{profile.gender}</p>
-                )}
+                <Label htmlFor="role">Role</Label>
+                <p className="text-sm font-medium capitalize">{currentUser?.role || 'Not set'}</p>
               </div>
               <div>
-                <Label htmlFor="bloodGroup">Blood Group</Label>
-                {isEditing ? (
-                  <Select value={profile.bloodGroup || ''} onValueChange={(value) => handleFieldChange('bloodGroup', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select blood group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="A+">A+</SelectItem>
-                      <SelectItem value="A-">A-</SelectItem>
-                      <SelectItem value="B+">B+</SelectItem>
-                      <SelectItem value="B-">B-</SelectItem>
-                      <SelectItem value="AB+">AB+</SelectItem>
-                      <SelectItem value="AB-">AB-</SelectItem>
-                      <SelectItem value="O+">O+</SelectItem>
-                      <SelectItem value="O-">O-</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="text-sm font-medium">{profile.bloodGroup || 'Not specified'}</p>
-                )}
+                <Label htmlFor="status">Status</Label>
+                <p className="text-sm font-medium capitalize">{currentUser?.status || 'Not set'}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="occupation">Occupation</Label>
+                <Label htmlFor="bio">Bio</Label>
                 {isEditing ? (
                   <Input 
-                    id="occupation" 
-                    value={profile.occupation || ''} 
-                    onChange={(e) => handleFieldChange('occupation', e.target.value)} 
-                    placeholder="Enter your occupation"
+                    id="bio" 
+                    value={currentUser?.bio || ''} 
+                    onChange={(e) => handleFieldChange('bio', e.target.value)} 
+                    placeholder="Enter your bio"
                   />
                 ) : (
-                  <p className="text-sm font-medium">{profile.occupation || 'Not specified'}</p>
+                  <p className="text-sm font-medium">{currentUser?.bio || 'Not specified'}</p>
                 )}
               </div>
               <div>
-                <Label htmlFor="maritalStatus">Marital Status</Label>
+                <Label htmlFor="address">Address</Label>
                 {isEditing ? (
-                  <Select value={profile.maritalStatus || ''} onValueChange={(value) => handleFieldChange('maritalStatus', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select marital status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="single">Single</SelectItem>
-                      <SelectItem value="married">Married</SelectItem>
-                      <SelectItem value="divorced">Divorced</SelectItem>
-                      <SelectItem value="widowed">Widowed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input 
+                    id="address" 
+                    value={currentUser?.address || ''} 
+                    onChange={(e) => handleFieldChange('address', e.target.value)} 
+                    placeholder="Enter your address"
+                  />
                 ) : (
-                  <p className="text-sm font-medium capitalize">{profile.maritalStatus || 'Not specified'}</p>
+                  <p className="text-sm font-medium">{currentUser?.address || 'Not specified'}</p>
                 )}
               </div>
             </div>
 
             <div>
-              <Label htmlFor="emergencyContact">Emergency Contact</Label>
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
               {isEditing ? (
                 <Input 
-                  id="emergencyContact" 
-                  value={profile.emergencyContact || ''} 
-                  onChange={(e) => handleFieldChange('emergencyContact', e.target.value)} 
-                  placeholder="Enter emergency contact number"
+                  id="dateOfBirth" 
+                  type="date" 
+                  value={currentUser?.dateOfBirth || ''} 
+                  onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)} 
                 />
               ) : (
-                <p className="text-sm font-medium">{profile.emergencyContact || 'Not specified'}</p>
+                <p className="text-sm font-medium">{currentUser?.dateOfBirth || 'Not specified'}</p>
               )}
             </div>
           </CardContent>

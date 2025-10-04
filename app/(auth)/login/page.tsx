@@ -1,73 +1,98 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Eye, EyeOff, Lock, UserPlus, KeyRound, ArrowRight, Loader2 } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { loginUser, selectAuthError, selectAuthLoading } from "@/lib/redux/features/authSlice";
+import { storeAuthData, isAuthenticated, fetchUserDetails, updateUserRole, getDashboardForRole } from "@/lib/utils/auth";
 
 const LoginPage = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch()
+  const error = useAppSelector(selectAuthError )
+  const loading = useAppSelector(selectAuthLoading)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const credentials = [
-    { email: "admin@gmail.com", password: "admin123", role: "admin" },
-    { email: "doctor@gmail.com", password: "doctor123", role: "doctor" },
-    { email: "influencer@gmail.com", password: "influencer123", role: "influencer" },
-    { email: "user@gmail.com", password: "user123", role: "user" },
-  ];
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (isAuthenticated()) {
+      // User is already logged in, redirect to appropriate dashboard based on role
+      const userCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user='))
+      
+      if (userCookie) {
+        try {
+          const user = JSON.parse(decodeURIComponent(userCookie.split('=')[1]))
+          const dashboardUrl = getDashboardForRole(user.role)
+          router.push(dashboardUrl)
+        } catch (error) {
+          console.error('Error parsing user cookie:', error)
+          router.push('/profile') // Default fallback
+        }
+      } else {
+        router.push('/profile') // Default fallback
+      }
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Find the user with matching credentials
-    const user = credentials.find(
-      cred => cred.email === email && cred.password === password
-    );
-
-    if (user) {
-      // Store user data in cookie
-      const userData = {
-        email: user.email,
-        role: user.role,
-        name: user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1),
-        loginTime: new Date().toISOString()
-      };
-
-      // Set cookie with user data
-      document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
-
-      // Redirect based on user role
-      switch (user.role) {
-        case "admin":
-          router.push("/dashboard");
-          break;
-        case "doctor":
-          router.push("/doctors");
-          break;
-        case "influencer":
-          router.push("/influencers");
-          break;
-        case "user":
-          router.push("/profile");
-          break;
-        default:
-          setError("Unknown user role");
-          setIsLoading(false);
+    try {
+      // Dispatch login action
+      const result = await dispatch(loginUser(email, password));
+      console.log('Login result:', result);
+      
+      // Check if login was successful
+      if (result && result.message === "login" && result.session) {
+        const { session } = result;
+        console.log('Login successful, session:', session);
+        
+        // Store authentication data using utility function
+        storeAuthData(session);
+        
+        // Fetch user details to get the actual role
+        try {
+          const userDetails = await fetchUserDetails(session.user, session.token);
+          console.log('User details:', userDetails);
+          
+          if (userDetails && userDetails.role) {
+            // Update user role in cookies and localStorage
+            updateUserRole(userDetails.role);
+            console.log('Updated user role to:', userDetails.role);
+            
+            // Redirect based on user role
+            const dashboardUrl = getDashboardForRole(userDetails.role);
+            console.log('Redirecting to:', dashboardUrl);
+            
+            // Use replace instead of push to prevent back button issues
+            router.replace(dashboardUrl);
+          } else {
+            // If API call fails or no role found, use default role
+            console.log('Using default role: user');
+            updateUserRole('user');
+            router.replace('/profile');
+          }
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+          // Use default role if API call fails
+          console.log('Using default role due to API error: user');
+          updateUserRole('user');
+          router.replace('/profile');
+        }
+      } else {
+        console.log('Login failed or invalid response:', result);
       }
-    } else {
-      setError("Invalid email or password");
-      setIsLoading(false);
+    } catch (error) {
+      console.error('Login error:', error);
     }
   };
 
@@ -97,7 +122,7 @@ const LoginPage = () => {
                   {error}
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Email Address
@@ -110,7 +135,7 @@ const LoginPage = () => {
                     onChange={e => setEmail(e.target.value)}
                     autoComplete="username"
                     required
-                    disabled={isLoading}
+                    disabled={loading}
                     className="pl-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="Enter your email"
                   />
@@ -130,7 +155,7 @@ const LoginPage = () => {
                     onChange={e => setPassword(e.target.value)}
                     autoComplete="current-password"
                     required
-                    disabled={isLoading}
+                    disabled={loading}
                     className="pl-10 pr-10 h-11 border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="Enter your password"
                   />
@@ -139,7 +164,7 @@ const LoginPage = () => {
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPassword((v) => !v)}
-                    disabled={isLoading}
+                    disabled={loading}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
@@ -162,12 +187,12 @@ const LoginPage = () => {
                 </button>
               </div>
 
-              <Button 
-                type="submit" 
-                disabled={isLoading}
+              <Button
+                type="submit"
+                disabled={loading}
                 className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Signing In...
@@ -194,8 +219,8 @@ const LoginPage = () => {
             </div>
 
             {/* Sign Up Button */}
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full h-11 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
               onClick={() => router.push('/signup')}
             >

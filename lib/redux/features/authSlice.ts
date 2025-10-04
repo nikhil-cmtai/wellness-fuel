@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
 import axios from "axios";
+import { clearAuthData } from "../../utils/auth";
 
 // User interface based on the provided Mongoose schema
 export interface User {
@@ -147,16 +148,16 @@ export const loginUser = (email: string, password: string) => async (dispatch: A
       password,
     });
 
-    if (response.data?.success) {
-      dispatch(setUser(response.data.data));
-      return true;
+    if (response.data?.message === "login" && response.data?.session) {
+      dispatch(setUser(response.data.session.user));
+      return response.data;
     } else {
       throw new Error(response.data?.message || "Login failed");
     }
   } catch (error: unknown) {
     const errorMessage = handleApiError(error);
     dispatch(setAuthError(errorMessage));
-    return false;
+    return { message: errorMessage, session: null };
   }
 };
 
@@ -240,15 +241,25 @@ export const sendPasswordResetEmail = (email: string) => async (dispatch: AppDis
 };
 
 // Reset password
-export const resetPassword = (token: string, newPassword: string) => async (dispatch: AppDispatch) => {
+export const resetPassword = (oldPassword: string, newPassword: string) => async (dispatch: AppDispatch) => {
   dispatch(setPasswordResetStatus({ loading: true, error: null }));
   try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/reset-password`, {
-      token,
-      newPassword,
-    });
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/resetpassword`,
+      {
+        oldPassword,
+        newPassword,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      }
+    );
 
-    if (response.data?.success) {
+    // According to the prompt, the response will be: { "message": "Password Reset Successfully" }
+    if (response.data?.message === "Password Reset Successfully") {
       dispatch(setPasswordResetStatus({ loading: false }));
       return true;
     } else {
@@ -261,34 +272,12 @@ export const resetPassword = (token: string, newPassword: string) => async (disp
   }
 };
 
-// Change password
-export const changePassword = (oldPassword: string, newPassword: string) => async (dispatch: AppDispatch) => {
-  dispatch(setAuthLoading());
-  try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/change-password`, {
-      oldPassword,
-      newPassword,
-    });
-
-    if (response.data?.success) {
-      dispatch(setAuthError(''));
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Password change failed");
-    }
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setAuthError(errorMessage));
-    return false;
-  }
-};
-
 // Update profile
 export const updateProfile = (userId: string, profileData: Partial<User>) => async (dispatch: AppDispatch) => {
   dispatch(setAuthLoading());
   try {
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/updateProfile/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${userId}`,
       profileData
     );
 
@@ -359,10 +348,12 @@ export const logoutUser = () => async (dispatch: AppDispatch) => {
   try {
     await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`);
     dispatch(logout());
+    clearAuthData(); // Clear local storage and cookies
     return true;
   } catch (error: unknown) {
     const errorMessage = handleApiError(error);
     dispatch(setAuthError(errorMessage));
+    clearAuthData(); // Clear local storage even if API call fails
     return false;
   }
 };

@@ -10,6 +10,8 @@ export interface User {
   email: string;
   password: string;
   phone: string;
+  emergencyContact: string;
+  gender: "Male" | "Female" | "Other";
   role: "Admin" | "Doctor" | "Influencer" | "Customer";
   status: "Active" | "Inactive";
   dateOfBirth?: string;
@@ -59,6 +61,8 @@ interface ApiUser {
   email: string;
   password: string;
   phone: string;
+  gender: "Male" | "Female" | "Other";
+  emergencyContact: string;
   role: "Admin" | "Doctor" | "Influencer" | "Customer";
   status: "Active" | "Inactive";
   dateOfBirth?: string;
@@ -203,7 +207,10 @@ const mapApiUserToUser = (apiUser: ApiUser): User => ({
   email: apiUser.email,
   password: apiUser.password,
   phone: apiUser.phone,
+  gender: apiUser.gender,
+  emergencyContact: apiUser.emergencyContact,
   role: apiUser.role,
+  bloodGroup: apiUser.bloodGroup,
   status: apiUser.status,
   dateOfBirth: apiUser.dateOfBirth,
   verified: apiUser.verified,
@@ -234,7 +241,6 @@ const mapApiUserToUser = (apiUser: ApiUser): User => ({
   isActive: apiUser.isActive,
   language: apiUser.language || [],
   occupation: apiUser.occupation,
-  bloodGroup: apiUser.bloodGroup,
   age: apiUser.age,
   maritalStatus: apiUser.maritalStatus,
   twoFactorEnabled: apiUser.twoFactorEnabled,
@@ -422,7 +428,7 @@ export const updateUserRole = (userId: string, role: string) => async (dispatch:
 export const updateUser = (userId: string, updatedData: Partial<User>) => async (dispatch: AppDispatch) => {
   try {
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/updateUser/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${userId}`,
       updatedData
     );
     if (response.data?.success) {

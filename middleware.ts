@@ -1,30 +1,74 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getDashboardForRole } from '@/lib/utils/auth'
 
 // Define protected routes and their required roles
 const protectedRoutes = {
-  '/dashboard': ['admin'],
-  '/doctors': ['doctor'],
-  '/influencers': ['influencer'],
-  '/profile': ['user', 'admin', 'doctor', 'influencer'],
+  '/dashboard': ['admin', 'super_admin'],
+  '/dashboard/blogs': ['admin', 'super_admin'],
+  '/dashboard/categories': ['admin', 'super_admin'],
+  '/dashboard/products': ['admin', 'super_admin'],
+  '/dashboard/users': ['admin', 'super_admin'],
+  '/dashboard/customers': ['admin', 'super_admin'],
+  '/dashboard/doctors': ['admin', 'super_admin'],
+  '/dashboard/influencers': ['admin', 'super_admin'],
+  '/dashboard/leads': ['admin', 'super_admin'],
+  '/dashboard/reviews': ['admin', 'super_admin'],
+  '/dashboard/orders': ['admin', 'super_admin'],
+  '/dashboard/appointments': ['admin', 'super_admin'],
+  '/dashboard/settings': ['admin', 'super_admin'],
+  '/doctors': ['doctor', 'admin', 'super_admin'],
+  '/influencers': ['influencer', 'admin', 'super_admin'],
+  '/profile': ['user', 'admin', 'doctor', 'influencer', 'super_admin'],
 }
 
 // Public routes that don't require authentication
-const publicRoutes = ['/login', '/signup', '/', '/about', '/contact', '/privacy-policy', '/terms', 'cookie-policy', '/products', '/our-doctors', 'book-appointment']
+const publicRoutes = [
+  '/login', 
+  '/signup', 
+  '/', 
+  '/about', 
+  '/contact', 
+  '/privacy-policy', 
+  '/terms', 
+  '/cookie-policy', 
+  '/products', 
+  '/our-doctors', 
+  '/book-appointment',
+  '/api',
+  '/_next',
+  '/favicon.ico'
+]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
-  // Get user data from cookies
+  // Skip middleware for static files and API routes
+  if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname === '/favicon.ico') {
+    return NextResponse.next()
+  }
+  
+  // Get token and user data from cookies
+  const tokenCookie = request.cookies.get('token')
   const userCookie = request.cookies.get('user')
   let user = null
+  let token = null
   
   if (userCookie) {
     try {
       user = JSON.parse(userCookie.value)
     } catch (error) {
       console.error('Error parsing user cookie:', error)
+      // Clear invalid cookies
+      const response = NextResponse.next()
+      response.cookies.delete('user')
+      response.cookies.delete('token')
+      return response
     }
+  }
+  
+  if (tokenCookie) {
+    token = tokenCookie.value
   }
 
   // Check if the current path is a public route
@@ -33,15 +77,23 @@ export function middleware(request: NextRequest) {
   )
 
   // If user is not authenticated and trying to access protected route
-  if (!user && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if ((!user || !token) && !isPublicRoute) {
+    // Only redirect to login if not already on login page to prevent loops
+    if (pathname !== '/login') {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    return NextResponse.next()
   }
 
   // If user is authenticated
-  if (user) {
+  if (user && token) {
     // If trying to access login/signup while already logged in, redirect to appropriate dashboard
     if (pathname === '/login' || pathname === '/signup') {
-      return NextResponse.redirect(new URL(getDashboardForRole(user.role), request.url))
+      const dashboardUrl = getDashboardForRole(user.role)
+      // Prevent redirect loop by checking if we're already going to the right place
+      if (pathname !== dashboardUrl) {
+        return NextResponse.redirect(new URL(dashboardUrl, request.url))
+      }
     }
 
     // Check if user has access to the current route
@@ -52,9 +104,13 @@ export function middleware(request: NextRequest) {
     if (routeAccess) {
       const [route, allowedRoles] = routeAccess
       
-      if (!allowedRoles.includes(user.role)) {
+      if (!allowedRoles.map(role => role.toLowerCase()).includes(user.role.toLowerCase())) {
         // User doesn't have access to this route, redirect to their dashboard
-        return NextResponse.redirect(new URL(getDashboardForRole(user.role), request.url))
+        const dashboardUrl = getDashboardForRole(user.role)
+        // Prevent redirect loop
+        if (pathname !== dashboardUrl) {
+          return NextResponse.redirect(new URL(dashboardUrl, request.url))
+        }
       }
     }
   }
@@ -62,20 +118,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.next()
 }
 
-function getDashboardForRole(role: string): string {
-  switch (role) {
-    case 'admin':
-      return '/dashboard'
-    case 'doctor':
-      return '/doctors'
-    case 'influencer':
-      return '/influencers'
-    case 'user':
-      return '/profile'
-    default:
-      return '/login'
-  }
-}
 
 export const config = {
   matcher: [

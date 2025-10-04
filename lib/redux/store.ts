@@ -8,6 +8,8 @@ import reviewReducer from "./features/reviewSlice";
 import addressReducer from "./features/addressSlice";
 import orderReducer from "./features/orderSlice";
 import settingReducer from "./features/settingSlice";
+import authReducer from "./features/authSlice";
+import sessionReducer from "./features/sessionSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +22,8 @@ export const store = configureStore({
     address: addressReducer,
     order: orderReducer,
     settings: settingReducer,
+    auth: authReducer,
+    session: sessionReducer,
   },
 });
 

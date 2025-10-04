@@ -39,6 +39,8 @@ import {
   selectReviewsFilters
 } from '@/lib/redux/features/reviewSlice'
 import NoData from '@/components/common/dashboard/NoData'
+import Loader from '@/components/common/dashboard/Loader'
+import Error from '@/components/common/dashboard/Error'
 
 const reviewStatuses = ["all", "Pending", "Approved", "Rejected"] as const
 
@@ -85,7 +87,7 @@ const ReviewsPage = () => {
     setCurrentPage(1)
   }, [filters])
 
-  const handleUpdateReviewStatus = async (reviewId: string, newStatus: "Pending" | "Approved" | "Rejected") => {
+  const handleUpdateReviewStatus = async (reviewId: string, _newStatus: "Pending" | "Approved" | "Rejected") => {
     try {
       await dispatch(updateReviewStatus(reviewId))
       await dispatch(fetchReviewsData())
@@ -151,175 +153,158 @@ const ReviewsPage = () => {
     ))
   }
 
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center text-destructive">
-            <p>Error loading reviews: {error}</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Reviews</h1>
-            <p className="text-muted-foreground">Manage customer reviews and ratings</p>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Reviews</p>
-                  <p className="text-2xl font-bold text-foreground">{reviews.length}</p>
-                </div>
-                <MessageSquare className="w-8 h-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Pending Reviews</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {reviews.filter(r => r.status === 'Pending').length}
-                  </p>
-                </div>
-                <Clock className="w-8 h-8 text-amber-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Approved Reviews</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {reviews.filter(r => r.status === 'Approved').length}
-                  </p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-emerald-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Average Rating</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : '0.0'}
-                  </p>
-                </div>
-                <Star className="w-8 h-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Search */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search reviews..."
-                  value={filters.name || ''}
-                  onChange={(e) => dispatch(setFilters({ name: e.target.value }))}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <Select 
-                value={filters.status || "all"} 
-                onValueChange={(value) => dispatch(setFilters({ status: value === "all" ? "" : value as typeof filters.status }))}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {reviewStatuses.map(status => (
-                    <SelectItem key={status} value={status}>
-                      {status === 'all' ? 'All Statuses' : status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* View Toggle */}
-              <div className="flex border border-input rounded-lg overflow-hidden">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('grid')}
-                      className="rounded-none"
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Grid view</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      size="icon"
-                      onClick={() => setViewMode('list')}
-                      className="rounded-none"
-                    >
-                      <List className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>List view</p>
-                  </TooltipContent>
-                </Tooltip>
+        {error ? (
+          <Error title="Error loading reviews" message={error} />
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Reviews</h1>
+                <p className="text-muted-foreground">Manage customer reviews and ratings</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Loading State */}
-        {isLoading && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center">
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span className="ml-2">Loading reviews...</span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Reviews</p>
+                      <p className="text-2xl font-bold text-foreground">{reviews.length}</p>
+                    </div>
+                    <MessageSquare className="w-8 h-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Pending Reviews</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {reviews.filter(r => r.status === 'Pending').length}
+                      </p>
+                    </div>
+                    <Clock className="w-8 h-8 text-amber-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Approved Reviews</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {reviews.filter(r => r.status === 'Approved').length}
+                      </p>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Average Rating</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : '0.0'}
+                      </p>
+                    </div>
+                    <Star className="w-8 h-8 text-yellow-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Reviews Display */}
-        {!isLoading && filteredReviews.length === 0 && (
-          <NoData 
-            message="No reviews found"
-            description="Reviews will appear here once customers start sharing their feedback"
-            icon={<MessageSquare className="w-full h-full text-muted-foreground/60" />}
-            size="lg"
-          />
-        )}
-        {!isLoading && filteredReviews.length > 0 && viewMode === 'grid' ? (
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  {/* Search */}
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search reviews..."
+                      value={filters.name || ''}
+                      onChange={(e) => dispatch(setFilters({ name: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Status Filter */}
+                  <Select 
+                    value={filters.status || "all"} 
+                    onValueChange={(value) => dispatch(setFilters({ status: value === "all" ? "" : value as typeof filters.status }))}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {reviewStatuses.map(status => (
+                        <SelectItem key={status} value={status}>
+                          {status === 'all' ? 'All Statuses' : status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* View Toggle */}
+                  <div className="flex border border-input rounded-lg overflow-hidden">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('grid')}
+                          className="rounded-none"
+                        >
+                          <Grid3X3 className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Grid view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'list' ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setViewMode('list')}
+                          className="rounded-none"
+                        >
+                          <List className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>List view</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Content */}
+            {isLoading ? (
+              <Loader variant="skeleton" message="Loading reviews..." />
+            ) : filteredReviews.length === 0 ? (
+              <NoData 
+                message="No reviews found"
+                description="Reviews will appear here once customers start sharing their feedback"
+                icon={<MessageSquare className="w-full h-full text-muted-foreground/60" />}
+                size="lg"
+              />
+            ) : (
+              <>
+                {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedReviews.map(review => (
               <Card key={review._id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
@@ -392,145 +377,149 @@ const ReviewsPage = () => {
               </Card>
             ))}
           </div>
-        ) : !isLoading ? (
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Review</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedReviews.map(review => (
-                  <TableRow key={review._id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-foreground line-clamp-1">{review.title}</p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{review.review}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-foreground">{review.name}</p>
-                        <p className="text-sm text-muted-foreground">{review.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {renderStars(review.rating)}
-                        <span className="text-sm font-medium ml-1">({review.rating})</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusColor(review.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
-                        {getStatusIcon(review.status)}
-                        <span className="ml-1">{review.status}</span>
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{new Date(review.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              onClick={() => openViewModal(review)}
-                              variant="ghost"
-                              size="icon"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>View review</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              onClick={() => openEditModal(review)}
-                              variant="ghost"
-                              size="icon"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Edit review</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              onClick={() => openDeleteModal(review)}
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Delete review</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        ) : null}
+                ) : (
+                  <Card>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Review</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Rating</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {paginatedReviews.map(review => (
+                          <TableRow key={review._id}>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium text-foreground line-clamp-1">{review.title}</p>
+                                <p className="text-sm text-muted-foreground line-clamp-2">{review.review}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium text-foreground">{review.name}</p>
+                                <p className="text-sm text-muted-foreground">{review.email}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                {renderStars(review.rating)}
+                                <span className="text-sm font-medium ml-1">({review.rating})</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusColor(review.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
+                                {getStatusIcon(review.status)}
+                                <span className="ml-1">{review.status}</span>
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{new Date(review.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      onClick={() => openViewModal(review)}
+                                      variant="ghost"
+                                      size="icon"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>View review</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      onClick={() => openEditModal(review)}
+                                      variant="ghost"
+                                      size="icon"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit review</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      onClick={() => openDeleteModal(review)}
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-destructive hover:bg-destructive/10"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete review</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Card>
+                )}
 
-        {/* Pagination */}
-        {!isLoading && totalPages > 1 && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredReviews.length)} of {filteredReviews.length} reviews
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Previous
-                  </Button>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <Button
-                        key={page}
-                        variant={currentPage === page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCurrentPage(page)}
-                        className="w-8 h-8 p-0"
-                      >
-                        {page}
-                      </Button>
-                    ))}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                {/* Pagination */}
+                {!isLoading && filteredReviews.length > 0 && totalPages > 1 && (
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-muted-foreground">
+                          Showing {startIndex + 1} to {Math.min(endIndex, filteredReviews.length)} of {filteredReviews.length} reviews
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                            Previous
+                          </Button>
+                          <div className="flex items-center gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                              <Button
+                                key={page}
+                                variant={currentPage === page ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setCurrentPage(page)}
+                                className="w-8 h-8 p-0"
+                              >
+                                {page}
+                              </Button>
+                            ))}
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                          >
+                            Next
+                            <ChevronRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
+          </>
         )}
 
         {/* View Review Modal */}

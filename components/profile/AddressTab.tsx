@@ -9,105 +9,115 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
+import { 
+  selectAddressData, 
+  selectAddressError, 
+  selectAddressLoading,
+  addNewAddress,
+  updateAddress,
+  deleteAddress,
+  setDefaultAddress,
+  Address
+} from '@/lib/redux/features/addressSlice'
+import { selectUser } from '@/lib/redux/features/authSlice'
 
-interface Address {
-  id: string
-  type: 'home' | 'work' | 'other'
-  name: string
-  street: string
-  city: string
-  state: string
-  zipCode: string
-  country: string
-  phone: string
-  isDefault: boolean
-}
+// Use the Address interface from addressSlice
+type AddressItem = Address['addresses'][0]
 
 interface AddressTabProps {
-  addresses: Address[]
-  onAddressChange: (addresses: Address[]) => void
+  addresses?: AddressItem[]
 }
 
-const AddressTab: React.FC<AddressTabProps> = ({
-  addresses,
-  onAddressChange
-}) => {
+const AddressTab: React.FC<AddressTabProps> = () => {
+  const dispatch = useAppDispatch()
+  const currentUser = useAppSelector(selectUser)
+  const addressData = useAppSelector(selectAddressData)
+  const loading = useAppSelector(selectAddressLoading)
+  const error = useAppSelector(selectAddressError)
+  
+  
   const [showAddDialog, setShowAddDialog] = useState(false)
-  const [editingAddress, setEditingAddress] = useState<Address | null>(null)
-  const [newAddress, setNewAddress] = useState<Partial<Address>>({
-    type: 'home',
+  const [editingAddress, setEditingAddress] = useState<AddressItem | null>(null)
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
+  const [newAddress, setNewAddress] = useState<Partial<AddressItem>>({
+    addressType: 'Home',
     name: '',
-    street: '',
+    address: '',
     city: '',
     state: '',
-    zipCode: '',
-    country: 'India',
+    pinCode: '',
     phone: '',
+    landMark: '',
     isDefault: false
   })
 
-  const handleAddAddress = () => {
-    if (editingAddress) {
+  const handleAddAddress = async () => {
+    if (!currentUser?._id) return
+
+    if (editingAddress && editingIndex !== null) {
       // Update existing address
-      const updatedAddresses = addresses.map(addr => 
-        addr.id === editingAddress.id ? { ...newAddress, id: editingAddress.id } as Address : addr
-      )
-      onAddressChange(updatedAddresses)
-      setEditingAddress(null)
+      const success = await dispatch(updateAddress(currentUser._id, editingIndex, newAddress as AddressItem))
+      if (success) {
+        setEditingAddress(null)
+        setEditingIndex(null)
+        setShowAddDialog(false)
+        resetForm()
+      }
     } else {
       // Add new address
-      const address: Address = {
-        ...newAddress,
-        id: Date.now().toString(),
-        isDefault: addresses.length === 0 || newAddress.isDefault || false
-      } as Address
-      
-      // If this is set as default, remove default from others
-      if (address.isDefault) {
-        const updatedAddresses = addresses.map(addr => ({ ...addr, isDefault: false }))
-        onAddressChange([...updatedAddresses, address])
-      } else {
-        onAddressChange([...addresses, address])
+      const success = await dispatch(addNewAddress(currentUser._id, newAddress as AddressItem))
+      if (success) {
+        setShowAddDialog(false)
+        resetForm()
       }
     }
-    
-    setNewAddress({
-      type: 'home',
-      name: '',
-      street: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      country: 'India',
-      phone: '',
-      isDefault: false
-    })
-    setShowAddDialog(false)
   }
 
-  const handleEditAddress = (address: Address) => {
+  const resetForm = () => {
+    setNewAddress({
+      addressType: 'Home',
+      name: '',
+      address: '',
+      city: '',
+      state: '',
+      pinCode: '',
+      phone: '',
+      landMark: '',
+      isDefault: false
+    })
+  }
+
+  const handleEditAddress = (address: AddressItem, index: number) => {
     setEditingAddress(address)
+    setEditingIndex(index)
     setNewAddress(address)
     setShowAddDialog(true)
   }
 
-  const handleDeleteAddress = (addressId: string) => {
-    onAddressChange(addresses.filter(addr => addr.id !== addressId))
+  const handleDeleteAddress = async (index: number) => {
+    if (!currentUser?._id) return
+    
+    const success = await dispatch(deleteAddress(currentUser._id, index))
+    if (success) {
+      console.log('Address deleted successfully')
+    }
   }
 
-  const handleSetDefault = (addressId: string) => {
-    const updatedAddresses = addresses.map(addr => ({
-      ...addr,
-      isDefault: addr.id === addressId
-    }))
-    onAddressChange(updatedAddresses)
+  const handleSetDefault = async (index: number) => {
+    if (!currentUser?._id) return
+    
+    const success = await dispatch(setDefaultAddress(currentUser._id, index))
+    if (success) {
+      console.log('Default address set successfully')
+    }
   }
 
   const getAddressTypeColor = (type: string) => {
     switch (type) {
-      case 'home': return 'bg-blue-100 text-blue-800'
-      case 'work': return 'bg-green-100 text-green-800'
-      case 'other': return 'bg-gray-100 text-gray-800'
+      case 'Home': return 'bg-blue-100 text-blue-800'
+      case 'Work': return 'bg-green-100 text-green-800'
+      case 'Other': return 'bg-gray-100 text-gray-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -122,87 +132,106 @@ const AddressTab: React.FC<AddressTabProps> = ({
         <Button 
           onClick={() => setShowAddDialog(true)}
           className="gap-2 bg-primary hover:bg-primary/90"
+          disabled={loading}
         >
           <Plus className="w-4 h-4" />
           Add Address
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {addresses.map((address) => (
-          <Card key={address.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-lg">{address.name}</CardTitle>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={getAddressTypeColor(address.type)}>
-                    {address.type.charAt(0).toUpperCase() + address.type.slice(1)}
-                  </Badge>
-                  {address.isDefault && (
-                    <Badge variant="default" className="bg-green-600">
-                      Default
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground mt-2">Loading addresses...</p>
+        </div>
+      )}
+
+      {/* Addresses Grid */}
+      {!loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {addressData?.addresses.map((address: AddressItem, index: number) => (
+            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    <CardTitle className="text-lg">{address.name}</CardTitle>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={getAddressTypeColor(address.addressType)}>
+                      {address.addressType}
                     </Badge>
-                  )}
+                    {address.isDefault && (
+                      <Badge variant="default" className="bg-green-600">
+                        Default
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-sm text-muted-foreground">
-                <p className="font-medium">{address.street}</p>
-                <p>{address.city}, {address.state} {address.zipCode}</p>
-                <p>{address.country}</p>
-                <p className="mt-2">Phone: {address.phone}</p>
-              </div>
-              
-              <div className="flex gap-2 pt-3">
-                {!address.isDefault && (
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-medium">{address.address}</p>
+                  <p>{address.city}, {address.state} {address.pinCode}</p>
+                  <p>{address.landMark}</p>
+                  <p className="mt-2">Phone: {address.phone}</p>
+                </div>
+                
+                <div className="flex gap-2 pt-3">
+                  {!address.isDefault && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSetDefault(index)}
+                      className="flex-1"
+                    >
+                      <Check className="w-4 h-4 mr-1" />
+                      Set Default
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleSetDefault(address.id)}
+                    onClick={() => handleEditAddress(address, index)}
                     className="flex-1"
                   >
-                    <Check className="w-4 h-4 mr-1" />
-                    Set Default
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
                   </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEditAddress(address)}
-                  className="flex-1"
-                >
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDeleteAddress(address.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        
-        {addresses.length === 0 && (
-          <div className="col-span-full text-center py-12">
-            <MapPin className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No addresses added</h3>
-            <p className="text-muted-foreground mb-4">Add your first address to get started</p>
-            <Button onClick={() => setShowAddDialog(true)} className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add Address
-            </Button>
-          </div>
-        )}
-      </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteAddress(index)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          
+          {(!addressData?.addresses || addressData.addresses[0] === undefined) && (
+            <div className="col-span-full text-center py-12">
+              <MapPin className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">No addresses added</h3>
+              <p className="text-muted-foreground mb-4">Add your first address to get started</p>
+              <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add Address
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add/Edit Address Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -229,25 +258,25 @@ const AddressTab: React.FC<AddressTabProps> = ({
               </div>
               <div>
                 <Label htmlFor="address-type">Address Type</Label>
-                <Select value={newAddress.type} onValueChange={(value: 'home' | 'work' | 'other') => setNewAddress({...newAddress, type: value})}>
+                <Select value={newAddress.addressType} onValueChange={(value: "Home" | "Work" | "Other") => setNewAddress({...newAddress, addressType: value})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="home">Home</SelectItem>
-                    <SelectItem value="work">Work</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="Home">Home</SelectItem>
+                    <SelectItem value="Work">Work</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             
             <div>
-              <Label htmlFor="street">Street Address</Label>
+              <Label htmlFor="address">Street Address</Label>
               <Input
-                id="street"
-                value={newAddress.street || ''}
-                onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
+                id="address"
+                value={newAddress.address || ''}
+                onChange={(e) => setNewAddress({...newAddress, address: e.target.value})}
                 placeholder="Enter street address"
               />
             </div>
@@ -272,24 +301,24 @@ const AddressTab: React.FC<AddressTabProps> = ({
                 />
               </div>
               <div>
-                <Label htmlFor="zipCode">ZIP Code</Label>
+                <Label htmlFor="pinCode">PIN Code</Label>
                 <Input
-                  id="zipCode"
-                  value={newAddress.zipCode || ''}
-                  onChange={(e) => setNewAddress({...newAddress, zipCode: e.target.value})}
-                  placeholder="ZIP Code"
+                  id="pinCode"
+                  value={newAddress.pinCode || ''}
+                  onChange={(e) => setNewAddress({...newAddress, pinCode: e.target.value})}
+                  placeholder="PIN Code"
                 />
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="country">Country</Label>
+                <Label htmlFor="landMark">Landmark</Label>
                 <Input
-                  id="country"
-                  value={newAddress.country || ''}
-                  onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
-                  placeholder="Country"
+                  id="landMark"
+                  value={newAddress.landMark || ''}
+                  onChange={(e) => setNewAddress({...newAddress, landMark: e.target.value})}
+                  placeholder="Landmark"
                 />
               </div>
               <div>

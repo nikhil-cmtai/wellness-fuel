@@ -5,36 +5,39 @@ import { ShoppingBag, Eye, Truck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useAppSelector } from '@/lib/redux/hooks'
+import { 
+  Order,
+  selectOrders,
+  selectOrderLoading,
+  selectOrderError,
+} from '@/lib/redux/features/orderSlice'
+import { selectUser } from '@/lib/redux/features/authSlice'
 
-interface Order {
-  id: string
-  orderNumber: string
-  date: string
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
-  total: number
-  items: number
-  trackingNumber?: string
-  estimatedDelivery?: string
-}
+const OrdersTab = () => {
+  const currentUser = useAppSelector(selectUser)
+  const allOrders = useAppSelector(selectOrders)
+  const loading = useAppSelector(selectOrderLoading)
+  const error = useAppSelector(selectOrderError)
 
-interface OrdersTabProps {
-  orders: Order[]
-  onViewOrder: (orderId: string) => void
-  onTrackOrder: (orderId: string) => void
-}
+  const handleViewOrder = (orderId: string) => {
+    console.log('Viewing order:', orderId)
+  }
 
-const OrdersTab: React.FC<OrdersTabProps> = ({
-  orders,
-  onViewOrder,
-  onTrackOrder
-}) => {
+  const handleTrackOrder = (orderId: string) => {
+    console.log('Tracking order:', orderId)
+  }
+
+  // Filter orders by current user
+  const orders = allOrders.filter(order => order.user === currentUser?._id)
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'delivered': return 'success'
-      case 'shipped': return 'info'
-      case 'processing': return 'warning'
-      case 'pending': return 'secondary'
-      case 'cancelled': return 'destructive'
+      case 'Delivered': return 'success'
+      case 'Shipped': return 'info'
+      case 'Processing': return 'warning'
+      case 'Pending': return 'secondary'
+      case 'Cancelled': return 'destructive'
+      case 'Returned': return 'destructive'
       default: return 'secondary'
     }
   }
@@ -50,29 +53,46 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
           <CardDescription>Track and manage your orders</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {orders.map((order) => (
-              <div key={order.id} className="border rounded-lg p-4 hover:bg-gray-50/50 transition-colors">
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <p className="text-red-800">{error}</p>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground mt-2">Loading orders...</p>
+            </div>
+          )}
+
+          {/* Orders List */}
+          {!loading && (
+            <div className="space-y-4">
+            {orders.map((order: Order) => (
+              <div key={order._id} className="border rounded-lg p-4 hover:bg-gray-50/50 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-4 mb-2">
                       <h3 className="font-semibold">{order.orderNumber}</h3>
                       <Badge variant={getStatusColor(order.status) as 'default' | 'secondary' | 'destructive'}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        {order.status}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-muted-foreground">
                       <div>
                         <p className="font-medium">Order Date</p>
-                        <p>{new Date(order.date).toLocaleDateString()}</p>
+                        <p>{new Date(order.createdAt || '').toLocaleDateString()}</p>
                       </div>
                       <div>
                         <p className="font-medium">Total Amount</p>
-                        <p className="font-semibold text-foreground">₹{order.total.toLocaleString()}</p>
+                        <p className="font-semibold text-foreground">₹{order.totalAmount.toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="font-medium">Items</p>
-                        <p>{order.items} item{order.items > 1 ? 's' : ''}</p>
+                        <p>{order.items.length} item{order.items.length > 1 ? 's' : ''}</p>
                       </div>
                       {order.trackingNumber && (
                         <div>
@@ -86,16 +106,16 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => onViewOrder(order.id)}
+                      onClick={() => handleViewOrder(order._id || '')}
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       View Details
                     </Button>
-                    {order.status === 'shipped' && (
+                    {order.status === 'Shipped' && (
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => onTrackOrder(order.id)}
+                        onClick={() => handleTrackOrder(order._id || '')}
                       >
                         <Truck className="w-4 h-4 mr-2" />
                         Track
@@ -112,11 +132,12 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
                 <p>No orders found yet.</p>
               </div>
             )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   )
 }
 
-export default OrdersTab
+export default OrdersTab;

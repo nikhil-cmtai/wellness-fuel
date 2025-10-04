@@ -106,7 +106,7 @@ export const fetchUserSessions = (userId: string) => async (dispatch: AppDispatc
   dispatch(setSessionLoading());
   try {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/sessions/getUserSessions/${userId}`
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/sessions/${userId}`
     );
     if (response.data?.success) {
       dispatch(setSessionsData(response.data.data));
@@ -121,26 +121,6 @@ export const fetchUserSessions = (userId: string) => async (dispatch: AppDispatc
   }
 };
 
-// Create new session
-export const createSession = (sessionData: Omit<Session, '_id' | 'createdAt'>) => async (dispatch: AppDispatch) => {
-  dispatch(setSessionLoading());
-  try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/sessions/createSession`,
-      sessionData
-    );
-    if (response.data?.success) {
-      dispatch(addSession(response.data.data));
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Failed to create session");
-    }
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setSessionError(errorMessage));
-    return false;
-  }
-};
 
 // End session
 export const endSession = (sessionId: string) => async (dispatch: AppDispatch) => {

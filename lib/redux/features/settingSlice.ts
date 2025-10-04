@@ -70,9 +70,9 @@ export interface Setting {
 // Define the API Setting type (from backend)
 interface ApiSetting {
   _id: string;
-  seoSetting: Setting['seoSetting'];
-  businessSetting: Setting['businessSetting'];
-  shippingSetting: Setting['shippingSetting'];
+  seoSetting: Setting['seoSetting'][];
+  businessSetting: Setting['businessSetting'][];
+  shippingSetting: Setting['shippingSetting'][];
   createdAt: string;
   updatedAt: string;
 }
@@ -151,9 +151,60 @@ export const {
 // Helper function to map API setting to our Setting interface
 const mapApiSettingToSetting = (apiSetting: ApiSetting): Setting => ({
   _id: apiSetting._id,
-  seoSetting: apiSetting.seoSetting,
-  businessSetting: apiSetting.businessSetting,
-  shippingSetting: apiSetting.shippingSetting,
+  seoSetting: apiSetting.seoSetting[0] || {
+    basicSetting: {
+      siteTitle: '',
+      metaDescription: '',
+      keywords: [],
+      twitterHandle: '',
+      googleAnalyticsId: ''
+    },
+    thirdPartySetting: {
+      googleTagManagerId: '',
+      hotjarId: '',
+      intercomAppId: '',
+      zendeskWidgetKey: '',
+      customScripts: ''
+    },
+    metaSetting: {
+      author: '',
+      robots: 'index, follow',
+      viewport: 'width=device-width, initial-scale=1',
+      themeColor: '',
+      customMetaTags: ''
+    }
+  },
+  businessSetting: apiSetting.businessSetting[0] || {
+    businessInformation: {
+      businessName: '',
+      businessEmail: '',
+      businessPhone: '',
+      website: '',
+      businessAddress: '',
+      gstNumber: '',
+      panNumber: '',
+      businessType: 'Private Limited',
+      foundedYear: new Date().getFullYear()
+    },
+    socialMediaSetting: {
+      socialMedia: {
+        facebook: '',
+        instagram: '',
+        twitter: '',
+        linkedin: ''
+      }
+    }
+  },
+  shippingSetting: apiSetting.shippingSetting[0] || {
+    defaultShippingRate: 50,
+    freeShippingThreshold: 1000,
+    shippingZones: [],
+    deliveryTimeframes: {
+      standard: '3-6 business days',
+      express: '1-2 business days',
+      overnight: 'Next day delivery'
+    }
+  },
   createdAt: apiSetting.createdAt,
   updatedAt: apiSetting.updatedAt,
 });
@@ -189,13 +240,83 @@ export const fetchSettingsData = () => async (dispatch: AppDispatch) => {
   }
 };
 
+// Fetch seo settings
+export const fetchSeoSettings = () => async (dispatch: AppDispatch) => {
+  dispatch(setSettingLoading());
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/settings/seo`);
+    if (response.data?.success) {
+      const mappedSetting = mapApiSettingToSetting(response.data.data);
+      dispatch(setSettingData(mappedSetting));
+      return true;
+    } else {
+      throw new Error(response.data?.message || "Failed to fetch seo settings");
+    }
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error);
+    dispatch(setSettingError(errorMessage));
+    return false;
+  }
+};
+
+// Fetch business settings
+export const fetchBusinessSettings = () => async (dispatch: AppDispatch) => {
+  dispatch(setSettingLoading());
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/settings/business`);
+    if (response.data?.success) {
+      const mappedSetting = mapApiSettingToSetting(response.data.data);
+      dispatch(setSettingData(mappedSetting));
+      return true;
+    } else {
+      throw new Error(response.data?.message || "Failed to fetch business settings");
+    }
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error);
+    dispatch(setSettingError(errorMessage));
+    return false;
+  }
+};
+
+// Fetch shipping settings
+export const fetchShippingSettings = () => async (dispatch: AppDispatch) => {
+  dispatch(setSettingLoading());
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/settings/shipping`);
+    if (response.data?.success) {
+      const mappedSetting = mapApiSettingToSetting(response.data.data);
+      dispatch(setSettingData(mappedSetting));
+      return true;
+    } else {
+      throw new Error(response.data?.message || "Failed to fetch shipping settings");
+    }
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error);
+    dispatch(setSettingError(errorMessage));
+    return false;
+  }
+};
+
 // Update settings
 export const updateSettings = (updatedData: Partial<Setting>) => async (dispatch: AppDispatch) => {
   dispatch(setSettingLoading());
   try {
+    // Convert object structure back to array structure for API
+    const apiData: Record<string, unknown> = {};
+    
+    if (updatedData.seoSetting) {
+      apiData.seoSetting = [updatedData.seoSetting];
+    }
+    if (updatedData.businessSetting) {
+      apiData.businessSetting = [updatedData.businessSetting];
+    }
+    if (updatedData.shippingSetting) {
+      apiData.shippingSetting = [updatedData.shippingSetting];
+    }
+    
     const response = await axios.put(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/settings`,
-      updatedData
+      apiData
     );
     
     if (response.data?.success) {
@@ -204,75 +325,6 @@ export const updateSettings = (updatedData: Partial<Setting>) => async (dispatch
       return true;
     } else {
       throw new Error(response.data?.message || "Failed to update settings");
-    }
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setSettingError(errorMessage));
-    return false;
-  }
-};
-
-// Update SEO settings
-export const updateSEOSettings = (seoData: Partial<Setting['seoSetting']>) => async (dispatch: AppDispatch) => {
-  dispatch(setSettingLoading());
-  try {
-    const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/settings/seo`,
-      seoData
-    );
-    
-    if (response.data?.success) {
-      const mappedSetting = mapApiSettingToSetting(response.data.data);
-      dispatch(setSettingData(mappedSetting));
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Failed to update SEO settings");
-    }
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setSettingError(errorMessage));
-    return false;
-  }
-};
-
-// Update business settings
-export const updateBusinessSettings = (businessData: Partial<Setting['businessSetting']>) => async (dispatch: AppDispatch) => {
-  dispatch(setSettingLoading());
-  try {
-    const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/settings/business`,
-      businessData
-    );
-    
-    if (response.data?.success) {
-      const mappedSetting = mapApiSettingToSetting(response.data.data);
-      dispatch(setSettingData(mappedSetting));
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Failed to update business settings");
-    }
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setSettingError(errorMessage));
-    return false;
-  }
-};
-
-// Update shipping settings
-export const updateShippingSettings = (shippingData: Partial<Setting['shippingSetting']>) => async (dispatch: AppDispatch) => {
-  dispatch(setSettingLoading());
-  try {
-    const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/settings/shipping`,
-      shippingData
-    );
-    
-    if (response.data?.success) {
-      const mappedSetting = mapApiSettingToSetting(response.data.data);
-      dispatch(setSettingData(mappedSetting));
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Failed to update shipping settings");
     }
   } catch (error: unknown) {
     const errorMessage = handleApiError(error);

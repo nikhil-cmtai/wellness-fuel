@@ -7,48 +7,17 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-
-interface UserProfile {
-  id: string
-  name: string
-  email: string
-  phone: string
-  avatar: string
-  dateOfBirth: string
-  gender: string
-  bloodGroup: string
-  emergencyContact: string
-  occupation: string
-  maritalStatus: string
-  preferences: {
-    newsletter: boolean
-    smsNotifications: boolean
-    emailNotifications: boolean
-    pushNotifications: boolean
-  }
-  membership: {
-    type: 'basic' | 'premium' | 'vip'
-    joinDate: string
-    points: number
-    level: string
-  }
-  stats: {
-    totalOrders: number
-    totalSpent: number
-    averageOrderValue: number
-    favoriteCategory: string
-    lastOrderDate: string
-  }
-}
+import { User as UserType } from '@/lib/redux/features/authSlice'
 
 interface ProfileHeaderProps {
-  profile: UserProfile
+  profile: UserType
   isEditing: boolean
   onEdit: () => void
   onSave: () => void
   onCancel: () => void
   onAvatarChange: (file: File) => void
   showEditButton?: boolean
+  currentUser?: UserType // Add currentUser for real data
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -58,19 +27,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onSave,
   onCancel,
   onAvatarChange,
-  showEditButton = true
+  showEditButton = true,
+  currentUser
 }) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const getMembershipColor = (type: string) => {
-    switch (type) {
-      case 'vip': return 'destructive'
-      case 'premium': return 'default'
-      case 'basic': return 'secondary'
-      default: return 'secondary'
-    }
-  }
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -163,12 +125,18 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-1 animate-pulse"></div>
                 <Avatar className="w-32 h-32 border-4 border-white shadow-2xl relative z-10">
                   <AvatarImage 
-                    src={previewImage || profile.avatar} 
-                    alt={profile.name}
+                    src={previewImage || profile?.imageUrl || '/api/placeholder/100/100'} 
+                    alt={currentUser ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() : `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim()}
                     className="object-cover"
                   />
                   <AvatarFallback className="text-3xl bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-                    {profile.name.split(' ').map(n => n[0]).join('')}
+                    {(currentUser ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}` : `${profile?.firstName || ''} ${profile?.lastName || ''}`)
+                      .trim()
+                      .split(' ')
+                      .filter(n => n.length > 0)
+                      .map(n => n[0])
+                      .join('')
+                      .toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 
@@ -197,9 +165,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               <div className="space-y-4">
                 <div>
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                    {profile.name}
+                    {currentUser ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() : `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim()}
                   </h1>
-                  <p className="text-lg text-gray-600 mt-1">{profile.email}</p>
+                  <p className="text-lg text-gray-600 mt-1">{currentUser?.email || profile?.email || 'No email'}</p>
                 </div>
                 
                 {/* Personal Details Grid */}
@@ -210,7 +178,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wide">Age</p>
-                      <p className="font-semibold text-gray-900">{getAge(profile.dateOfBirth)} years</p>
+                      <p className="font-semibold text-gray-900">
+                        {currentUser?.dateOfBirth ? getAge(currentUser.dateOfBirth) : profile?.dateOfBirth ? getAge(profile.dateOfBirth) : 'Not set'} years
+                      </p>
                     </div>
                   </div>
                   
@@ -219,8 +189,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       <Heart className="w-4 h-4 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Blood Group</p>
-                      <p className="font-semibold text-gray-900">{profile.bloodGroup || 'Not set'}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Role</p>
+                      <p className="font-semibold text-gray-900">{currentUser?.role || 'Customer'}</p>
                     </div>
                   </div>
                   
@@ -229,27 +199,27 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       <Briefcase className="w-4 h-4 text-purple-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Occupation</p>
-                      <p className="font-semibold text-gray-900">{profile.occupation || 'Not set'}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Bio</p>
+                      <p className="font-semibold text-gray-900">{currentUser?.bio || 'Not set'}</p>
                     </div>
                   </div>
                 </div>
               </div>
               
-              {/* Membership Badges */}
+              {/* User Status Badges */}
               <div className="flex flex-wrap items-center gap-3">
                 <Badge 
-                  variant={getMembershipColor(profile.membership.type) as 'default' | 'secondary' | 'destructive'}
+                  variant="default"
                   className="px-4 py-2 text-sm font-semibold shadow-lg border-0 bg-gradient-to-r from-blue-500 to-purple-600 text-white"
                 >
                   <User className="w-4 h-4 mr-2" />
-                  {profile.membership.type.toUpperCase()} Member
-                </Badge>
-                <Badge variant="outline" className="px-4 py-2 text-sm font-semibold border-2 border-yellow-300 text-yellow-700 bg-yellow-50">
-                  {profile.membership.level} Level
+                  {currentUser?.role || 'Customer'}
                 </Badge>
                 <Badge variant="outline" className="px-4 py-2 text-sm font-semibold border-2 border-green-300 text-green-700 bg-green-50">
-                  {profile.membership.points.toLocaleString()} Points
+                  {currentUser?.status === 'Active' ? 'Active' : 'Inactive'}
+                </Badge>
+                <Badge variant="outline" className="px-4 py-2 text-sm font-semibold border-2 border-blue-300 text-blue-700 bg-blue-50">
+                  {currentUser?.verified ? 'Verified' : 'Unverified'}
                 </Badge>
               </div>
               
