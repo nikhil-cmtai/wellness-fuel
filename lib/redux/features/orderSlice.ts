@@ -65,7 +65,7 @@ const initialState: OrderState = {
 
 // Create the slice
 const orderSlice = createSlice({
-  name: "order",
+  name: "order",    
   initialState,
   reducers: {
     setOrdersData: (state, action: PayloadAction<Order[]>) => {
@@ -302,4 +302,4 @@ export const selectOrderError = (state: { order: OrderState }) => state.order.er
 export const selectOrderFilters = (state: { order: OrderState }) => state.order.filters;
 
 // Export the reducer
-export default orderSlice.reducer;
+export default orderSlice.reducer;  

@@ -21,6 +21,9 @@ import {
   ShoppingBag,
   BarChart2,
   ThumbsUp,
+  Ticket,
+  MessageSquare,
+  Mail,
 } from 'lucide-react'
 import Image from 'next/image'
 
@@ -43,7 +46,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
     { name: 'Blogs', href: '/dashboard/blogs', icon: BookOpen },
     { name: 'Categories', href: '/dashboard/categories', icon: FolderKanban },
     { name: 'Products', href: '/dashboard/products', icon: Package },
+    { name: 'Coupons', href: '/dashboard/coupons', icon: Ticket },
+      { name: 'Popups', href: '/dashboard/popups', icon: MessageSquare },
     { name: 'Leads', href: '/dashboard/leads', icon: TrendingUp },
+    { name: 'Newsletter', href: '/dashboard/newsletter', icon: Mail },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
     { name: 'Reviews', href: '/dashboard/reviews', icon: ThumbsUp },
     { name: 'Reports', href: '/dashboard/reports', icon: BarChart2 },

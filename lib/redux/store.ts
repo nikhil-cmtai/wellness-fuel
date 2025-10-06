@@ -10,6 +10,9 @@ import orderReducer from "./features/orderSlice";
 import settingReducer from "./features/settingSlice";
 import authReducer from "./features/authSlice";
 import sessionReducer from "./features/sessionSlice";
+import popupReducer from "./features/popupSlice";
+import couponReducer from "./features/couponSlice";
+import newsletterReducer from "./features/newsletterSlice";
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +27,9 @@ export const store = configureStore({
     settings: settingReducer,
     auth: authReducer,
     session: sessionReducer,
+    popups: popupReducer,
+    coupons: couponReducer,
+    newsletters: newsletterReducer,
   },
 });
 
