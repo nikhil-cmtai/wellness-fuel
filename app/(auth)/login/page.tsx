@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Eye, EyeOff, Lock, UserPlus, KeyRound, ArrowRight, Loader2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import { loginUser, selectAuthError, selectAuthLoading } from "@/lib/redux/features/authSlice";
+import { loginUser, selectAuthError, selectAuthLoading, setUser } from "@/lib/redux/features/authSlice";
 import { storeAuthData, isAuthenticated, fetchUserDetails, updateUserRole, getDashboardForRole } from "@/lib/utils/auth";
 
 const LoginPage = () => {
@@ -52,7 +52,7 @@ const LoginPage = () => {
       console.log('Login result:', result);
       
       // Check if login was successful
-      if (result && result.message === "login" && result.session) {
+      if (result && result.message === "login successfully" && result.session) {
         const { session } = result;
         console.log('Login successful, session:', session);
         
@@ -65,6 +65,9 @@ const LoginPage = () => {
           console.log('User details:', userDetails);
           
           if (userDetails && userDetails.role) {
+            // Set user in Redux store
+            dispatch(setUser(userDetails));
+            
             // Update user role in cookies and localStorage
             updateUserRole(userDetails.role);
             console.log('Updated user role to:', userDetails.role);

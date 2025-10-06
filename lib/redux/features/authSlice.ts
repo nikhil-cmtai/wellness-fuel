@@ -148,8 +148,9 @@ export const loginUser = (email: string, password: string) => async (dispatch: A
       password,
     });
 
-    if (response.data?.message === "login" && response.data?.session) {
-      dispatch(setUser(response.data.session.user));
+    if (response.data?.message === "login successfully" && response.data?.session) {
+      // Don't set user here as session.user is just the user ID
+      // The full user details will be fetched in the login page
       return response.data;
     } else {
       throw new Error(response.data?.message || "Login failed");
