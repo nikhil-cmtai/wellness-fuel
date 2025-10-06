@@ -17,7 +17,9 @@ import {
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { getUserFromCookie, logout } from '@/lib/auth'
+import { logout } from '@/lib/auth'
+import { useAppSelector } from '@/lib/redux/hooks'
+import { selectUser } from '@/lib/redux/features/authSlice'
 
 interface Breadcrumb {
   name: string
@@ -33,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
   const pathname = usePathname()
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
-  const [user] = React.useState(getUserFromCookie())
+  const currentUser = useAppSelector(selectUser)
 
   React.useEffect(() => {
     setMounted(true)
@@ -158,17 +160,25 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
           {/* User Profile */}
           <div className="flex items-center space-x-1 sm:space-x-2 pl-1 sm:pl-2 border-l border-border">
             <Avatar className="w-6 h-6 sm:w-7 sm:h-7">
-              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarImage src={currentUser?.imageUrl || "https://github.com/shadcn.png"} />
               <AvatarFallback className="text-xs">
-                {user?.name?.charAt(0) || 'U'}
+                {mounted ? (
+                  currentUser?.firstName && currentUser?.lastName 
+                    ? `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
+                    : currentUser?.firstName?.charAt(0)?.toUpperCase() || 'U'
+                ) : 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="hidden lg:block">
               <p className="text-sm font-medium text-foreground">
-                {user?.name || 'User'}
+                {mounted ? (
+                  currentUser?.firstName && currentUser?.lastName
+                    ? `${currentUser.firstName} ${currentUser.lastName}`
+                    : currentUser?.firstName || 'User'
+                ) : 'User'}
               </p>
               <p className="text-xs text-muted-foreground">
-                {user?.email || 'user@example.com'}
+                {mounted ? (currentUser?.email || 'user@example.com') : 'user@example.com'}
               </p>
             </div>
             <button
