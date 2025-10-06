@@ -103,8 +103,7 @@ const NewsletterPage = () => {
 
   const handleToggleStatus = async (newsletterId: string, currentStatus: "Subscribed" | "Unsubscribed") => {
     try {
-      const newStatus = currentStatus === "Subscribed" ? "Unsubscribed" : "Subscribed"
-      await dispatch(updateNewsletterStatus(newsletterId, newStatus))
+      await dispatch(updateNewsletterStatus(newsletterId))
       dispatch(fetchNewslettersData())
     } catch (error) {
       console.error('Error updating newsletter status:', error)
@@ -325,7 +324,7 @@ const NewsletterPage = () => {
             ) : (
               <>
                 {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {newsletters.map(newsletter => (
                       <Card key={newsletter._id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                         <CardContent className="p-6 flex-1 flex flex-col">

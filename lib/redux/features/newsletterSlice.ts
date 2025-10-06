@@ -189,11 +189,10 @@ export const createNewsletter = (email: string) => async (dispatch: AppDispatch)
 };
 
 // Update newsletter status (subscribe/unsubscribe)
-export const updateNewsletterStatus = (newsletterId: string, status: "Subscribed" | "Unsubscribed") => async (dispatch: AppDispatch) => {
+export const updateNewsletterStatus = (newsletterId: string) => async (dispatch: AppDispatch) => {
   try {
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/newsletters/updateStatus/${newsletterId}`,
-      { status }
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/newsletters/${newsletterId}`,
     );
     if (response.data?.success) {
       dispatch(setNewsletterLoading());
