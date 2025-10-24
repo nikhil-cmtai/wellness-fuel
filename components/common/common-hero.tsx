@@ -26,12 +26,12 @@ const CommonHero: React.FC<CommonHeroProps> = ({
   showBreadcrumbs = true
 }) => {
   return (
-    <section className="relative py-20 overflow-hidden bg-gradient-to-br from-white via-slate-50 to-green-100">
+    <section className="relative py-20 overflow-hidden bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
       {/* Enhanced Animated Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Primary Green Blob - Top Right */}
+        {/* Blue Blob - Top Right */}
         <motion.div
-          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-[#bed16b]/8 to-[#a8c55a]/8 rounded-full blur-3xl"
+          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/8 to-blue-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360],
@@ -43,9 +43,9 @@ const CommonHero: React.FC<CommonHeroProps> = ({
           }}
         />
 
-        {/* Secondary Orange Blob - Bottom Left */}
+        {/* Indigo Blob - Bottom Left */}
         <motion.div
-          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-[#ea8f39]/8 to-[#d67d2a]/8 rounded-full blur-3xl"
+          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-indigo-500/8 to-indigo-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1.1, 1, 1.1],
             rotate: [360, 180, 0],
@@ -58,9 +58,9 @@ const CommonHero: React.FC<CommonHeroProps> = ({
           }}
         />
 
-        {/* Accent Green Blob - Top Left */}
+        {/* Cyan Blob - Top Left */}
         <motion.div
-          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-[#a8c55a]/6 to-[#bed16b]/6 rounded-full blur-2xl"
+          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-cyan-400/6 to-blue-500/6 rounded-full blur-2xl"
           animate={{
             scale: [1, 1.1, 1],
             x: [0, 20, 0],
@@ -74,9 +74,9 @@ const CommonHero: React.FC<CommonHeroProps> = ({
           }}
         />
 
-        {/* Primary Orange Blob - Bottom Right */}
+        {/* Sky Blue Blob - Bottom Right */}
         <motion.div
-          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-[#d67d2a]/6 to-[#ea8f39]/6 rounded-full blur-2xl"
+          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-sky-400/6 to-blue-600/6 rounded-full blur-2xl"
           animate={{
             scale: [1.1, 1, 1.1],
             x: [0, -25, 0],
@@ -90,9 +90,9 @@ const CommonHero: React.FC<CommonHeroProps> = ({
           }}
         />
 
-        {/* Center Accent Blob */}
+        {/* Center Blue Blob */}
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#bed16b]/4 to-[#ea8f39]/4 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/4 to-indigo-500/4 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             rotate: [0, -180, -360],
@@ -107,7 +107,7 @@ const CommonHero: React.FC<CommonHeroProps> = ({
 
         {/* Small Floating Particles */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-3 h-3 bg-[#bed16b] rounded-full"
+          className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-500 rounded-full"
           animate={{
             y: [0, -20, 0],
             opacity: [0.5, 1, 0.5],
@@ -122,7 +122,7 @@ const CommonHero: React.FC<CommonHeroProps> = ({
         />
 
         <motion.div
-          className="absolute top-3/4 right-1/4 w-2 h-2 bg-[#ea8f39] rounded-full"
+          className="absolute top-3/4 right-1/4 w-2 h-2 bg-indigo-500 rounded-full"
           animate={{
             y: [0, -25, 0],
             opacity: [0.3, 1, 0.3],
@@ -137,7 +137,7 @@ const CommonHero: React.FC<CommonHeroProps> = ({
         />
 
         <motion.div
-          className="absolute top-1/3 right-1/3 w-1 h-1 bg-[#a8c55a] rounded-full"
+          className="absolute top-1/3 right-1/3 w-1 h-1 bg-cyan-400 rounded-full"
           animate={{
             y: [0, -15, 0],
             opacity: [0.7, 1, 0.7],
@@ -171,7 +171,7 @@ const CommonHero: React.FC<CommonHeroProps> = ({
               >
                 <motion.a
                   href="/"
-                  className="flex items-center text-slate-600 hover:text-[#ea8f39] transition-colors"
+                  className="flex items-center text-slate-600 hover:text-primary transition-colors"
                   whileHover={{ scale: 1.05 }}
                 >
                   <Home className="w-4 h-4 mr-1" />
@@ -183,13 +183,13 @@ const CommonHero: React.FC<CommonHeroProps> = ({
                     {item.href ? (
                       <motion.a
                         href={item.href}
-                        className="text-slate-600 hover:text-[#ea8f39] transition-colors"
+                        className="text-slate-600 hover:text-primary transition-colors"
                         whileHover={{ scale: 1.05 }}
                       >
                         {item.label}
                       </motion.a>
                     ) : (
-                      <span className="text-slate-900 font-medium">{item.label}</span>
+                      <span className="text-slate-900 dark:text-white font-medium">{item.label}</span>
                     )}
                   </React.Fragment>
                 ))}
@@ -203,7 +203,7 @@ const CommonHero: React.FC<CommonHeroProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              <span className="text-slate-900 dark:text-white">{title}</span>
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-lg">{title}</span>
             </motion.h1>
 
             {/* Description */}
@@ -224,14 +224,14 @@ const CommonHero: React.FC<CommonHeroProps> = ({
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               <motion.button
-                className="px-8 py-4 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/50 hover:shadow-2xl hover:shadow-blue-600/60 transition-all duration-300"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Get Started
               </motion.button>
               <motion.button
-                className="px-8 py-4 border-2 border-slate-300 text-slate-700 font-semibold rounded-xl hover:border-[#ea8f39] hover:text-[#ea8f39] transition-all duration-300"
+                className="px-8 py-4 border-2 border-blue-500/50 dark:border-indigo-500/50 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-600 dark:hover:border-indigo-400 font-semibold rounded-full shadow-lg backdrop-blur-sm bg-white/70 dark:bg-slate-800/70 transition-all duration-300"
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -266,7 +266,7 @@ const CommonHero: React.FC<CommonHeroProps> = ({
 
             {/* Floating Elements */}
             <motion.div
-              className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full opacity-20"
+              className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full opacity-20"
               animate={{
                 scale: [1, 1.1, 1],
                 rotate: [0, 180, 360],
@@ -278,7 +278,7 @@ const CommonHero: React.FC<CommonHeroProps> = ({
               }}
             />
             <motion.div
-              className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-r from-[#ea8f39] to-[#bed16b] rounded-full opacity-20"
+              className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-20"
               animate={{
                 scale: [1.1, 1, 1.1],
                 rotate: [360, 180, 0],

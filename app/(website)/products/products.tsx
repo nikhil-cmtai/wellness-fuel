@@ -294,7 +294,7 @@ const ProductsPage = () => {
 
   const ProductCard = ({ product }: { product: Product }) => (
     <motion.div
-      className={`bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
+      className={`bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 ${
         viewMode === "list" ? "flex-row" : ""
       }`}
       initial={{ opacity: 0, y: 20 }}
@@ -310,7 +310,7 @@ const ProductsPage = () => {
           sizes={viewMode === "list" ? "192px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
         />
         {product.badge && (
-          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white border-0">
+          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg">
             {product.badge}
           </Badge>
         )}
@@ -322,11 +322,11 @@ const ProductsPage = () => {
       </div>
       
       <div className={`p-6 flex flex-col flex-grow ${viewMode === "list" ? "flex-1" : ""}`}>
-        <p className="text-sm text-slate-600 mb-1">{product.category}</p>
-        <h3 className="text-lg font-bold text-slate-900 mb-2 flex-grow">{product.name}</h3>
+        <p className="text-sm text-blue-600 dark:text-blue-400 mb-1 font-semibold">{product.category}</p>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 flex-grow">{product.name}</h3>
         
         {viewMode === "grid" && (
-          <p className="text-sm text-slate-600 mb-3 line-clamp-2">{product.description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">{product.description}</p>
         )}
         
         <div className="flex items-center gap-2 mb-3">
@@ -337,9 +337,9 @@ const ProductsPage = () => {
         </div>
         
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-2xl font-bold text-[#ea8f39]">₹{product.price}</span>
+          <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">₹{product.price}</span>
           {product.originalPrice && (
-            <span className="text-lg text-slate-500 line-through">₹{product.originalPrice}</span>
+            <span className="text-lg text-slate-500 dark:text-slate-400 line-through">₹{product.originalPrice}</span>
           )}
         </div>
         
@@ -347,7 +347,7 @@ const ProductsPage = () => {
           <Button
             onClick={() => addToCart(product)}
             disabled={!product.inStock}
-            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:opacity-90 text-white font-semibold rounded-xl shadow-md transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/50 transition-all"
           >
             <ShoppingCart className="w-4 h-4" />
             {product.inStock ? "Add to Cart" : "Out of Stock"}
@@ -371,7 +371,7 @@ const ProductsPage = () => {
   );
 
   return (
-    <div className="bg-gradient-to-br from-white via-slate-50 to-green-100 min-h-screen">
+    <div className="bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 min-h-screen">
       <CommonHero
         title="Our Products"
         description="Discover our premium collection of wellness products designed to support your health journey."
@@ -383,7 +383,7 @@ const ProductsPage = () => {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Search and Filter Bar */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -393,7 +393,7 @@ const ProductsPage = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-3 rounded-xl border-2 focus:border-[#ea8f39]"
+                className="pl-10 pr-4 py-3 rounded-xl border-2 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600"
               />
             </div>
             
@@ -402,7 +402,7 @@ const ProductsPage = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#ea8f39] focus:outline-none"
+                className="px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 focus:border-blue-500 focus:outline-none dark:bg-slate-700 dark:text-white"
               >
                 {sortOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -484,12 +484,12 @@ const ProductsPage = () => {
         <div className="flex gap-8">
           {/* Sidebar Filters */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-8">
-              <h3 className="text-lg font-bold text-slate-900 mb-6">Filters</h3>
+            <div className="bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 p-6 sticky top-8">
+              <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-6">Filters</h3>
               
               {/* Category Filter */}
               <div className="mb-6">
-                <h4 className="font-semibold text-slate-700 mb-3">Category</h4>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-3">Category</h4>
                 <div className="space-y-2">
                   {categories.map(category => (
                     <button
@@ -497,8 +497,8 @@ const ProductsPage = () => {
                       onClick={() => setSelectedCategory(category)}
                       className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                         selectedCategory === category
-                          ? "bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white"
-                          : "text-slate-600 hover:bg-slate-100"
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700"
                       }`}
                     >
                       {category}
@@ -509,7 +509,7 @@ const ProductsPage = () => {
               
               {/* Price Range */}
               <div className="mb-6">
-                <h4 className="font-semibold text-slate-700 mb-3">Price Range</h4>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-3">Price Range</h4>
                 <div className="space-y-3">
                   <input
                     type="range"
@@ -517,9 +517,9 @@ const ProductsPage = () => {
                     max="50"
                     value={priceRange[1]}
                     onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                    className="w-full"
+                    className="w-full accent-blue-600"
                   />
-                  <div className="flex justify-between text-sm text-slate-600">
+                  <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
                     <span>₹{priceRange[0]}</span>
                     <span>₹{priceRange[1]}</span>
                   </div>
@@ -546,7 +546,7 @@ const ProductsPage = () => {
           <div className="flex-1">
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
-              <p className="text-slate-600">
+              <p className="text-slate-600 dark:text-slate-400">
                 Showing {startIndex + 1}-{Math.min(endIndex, filteredAndSortedProducts.length)} of {filteredAndSortedProducts.length} products
               </p>
             </div>
@@ -566,15 +566,15 @@ const ProductsPage = () => {
             {currentProducts.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">No products found</h3>
-                <p className="text-slate-600 mb-6">Try adjusting your search or filter criteria</p>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">No products found</h3>
+                <p className="text-slate-600 dark:text-slate-400 mb-6">Try adjusting your search or filter criteria</p>
                 <Button
                   onClick={() => {
                     setSearchTerm("");
                     setSelectedCategory("All Categories");
                     setPriceRange([0, 50]);
                   }}
-                  className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white rounded-xl"
+                  className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white rounded-full shadow-xl shadow-blue-500/50"
                 >
                   Clear Filters
                 </Button>
@@ -601,7 +601,7 @@ const ProductsPage = () => {
                     onClick={() => handlePageChange(page)}
                     className={`rounded-xl ${
                       currentPage === page 
-                        ? "bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white border-0" 
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg" 
                         : ""
                     }`}
                   >

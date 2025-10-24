@@ -61,7 +61,7 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center mb-6 group">
               <Image 
-                src="/logo.png" 
+                src="/logo.jpeg" 
                 alt="Wellness Fuel" 
                 width={140} 
                 height={45} 
@@ -76,15 +76,15 @@ const Footer = () => {
             {/* Contact Info */}
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-3 text-slate-300">
-                <Phone className="w-4 h-4 text-[#ea8f39]" />
+                <Phone className="w-4 h-4 text-primary" />
                 <span>+1 (555) 123-4567</span>
               </div>
               <div className="flex items-center gap-3 text-slate-300">
-                <Mail className="w-4 h-4 text-[#ea8f39]" />
+                <Mail className="w-4 h-4 text-primary" />
                 <span>hello@wellnessfuel.com</span>
               </div>
               <div className="flex items-center gap-3 text-slate-300">
-                <MapPin className="w-4 h-4 text-[#ea8f39]" />
+                <MapPin className="w-4 h-4 text-primary" />
                 <span>123 Health Street, Wellness City, WC 12345</span>
               </div>
             </div>
@@ -95,7 +95,7 @@ const Footer = () => {
                 <Link
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 bg-slate-700 hover:bg-gradient-to-r hover:from-[#bed16b] hover:to-[#ea8f39] rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110"
+                  className="w-10 h-10 bg-slate-700 hover:bg-primary rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110"
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />
@@ -112,7 +112,7 @@ const Footer = () => {
                 <li key={link.label}>
                   <Link 
                     href={link.href}
-                    className="text-slate-300 hover:text-[#ea8f39] transition-colors duration-300"
+                    className="text-slate-300 hover:text-primary transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -129,7 +129,7 @@ const Footer = () => {
                 <li key={link.label}>
                   <Link 
                     href={link.href}
-                    className="text-slate-300 hover:text-[#ea8f39] transition-colors duration-300"
+                    className="text-slate-300 hover:text-primary transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -146,7 +146,7 @@ const Footer = () => {
                 <li key={link.label}>
                   <Link 
                     href={link.href}
-                    className="text-slate-300 hover:text-[#ea8f39] transition-colors duration-300"
+                    className="text-slate-300 hover:text-primary transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -160,7 +160,7 @@ const Footer = () => {
         <div className="border-t border-slate-700 mt-12 pt-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -170,7 +170,7 @@ const Footer = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                 <Award className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -180,7 +180,7 @@ const Footer = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -197,8 +197,8 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-slate-400 text-sm">
-              <span>&copy; {currentYear} Wellness Fuel. All rights reserved. Developed by <a href="https://github.com/cmtai" className="text-[#ea8f39] hover:text-[#bed16b] transition-colors duration-300">CMTAI</a></span>
-              <Heart className="w-4 h-4 text-[#ea8f39] fill-current" />
+              <span>&copy; {currentYear} Wellness Fuel. All rights reserved. Developed by <a href="https://github.com/cmtai" className="text-primary hover:text-primary/80 transition-colors duration-300">CMTAI</a></span>
+              <Heart className="w-4 h-4 text-primary fill-current" />
             </div>
             
             <div className="flex flex-wrap gap-6 text-sm">
@@ -206,7 +206,7 @@ const Footer = () => {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="text-slate-400 hover:text-[#ea8f39] transition-colors duration-300"
+                  className="text-slate-400 hover:text-primary transition-colors duration-300"
                 >
                   {link.label}
                 </Link>

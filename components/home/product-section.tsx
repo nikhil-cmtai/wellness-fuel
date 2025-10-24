@@ -144,9 +144,9 @@ const ProductSection = () => {
     <section className="py-20 relative overflow-hidden">
       {/* Enhanced Animated Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Primary Green Blob - Top Right */}
+        {/* Blue Blob - Top Right */}
         <motion.div
-          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-[#bed16b]/8 to-[#a8c55a]/8 rounded-full blur-3xl"
+          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/8 to-blue-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360],
@@ -158,9 +158,9 @@ const ProductSection = () => {
           }}
         />
 
-        {/* Secondary Orange Blob - Bottom Left */}
+        {/* Indigo Blob - Bottom Left */}
         <motion.div
-          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-[#ea8f39]/8 to-[#d67d2a]/8 rounded-full blur-3xl"
+          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-indigo-500/8 to-indigo-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1.1, 1, 1.1],
             rotate: [360, 180, 0],
@@ -173,9 +173,9 @@ const ProductSection = () => {
           }}
         />
 
-        {/* Accent Green Blob - Top Left */}
+        {/* Cyan Blob - Top Left */}
         <motion.div
-          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-[#a8c55a]/6 to-[#bed16b]/6 rounded-full blur-2xl"
+          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-cyan-400/6 to-blue-500/6 rounded-full blur-2xl"
           animate={{
             scale: [1, 1.1, 1],
             x: [0, 20, 0],
@@ -189,9 +189,9 @@ const ProductSection = () => {
           }}
         />
 
-        {/* Primary Orange Blob - Bottom Right */}
+        {/* Sky Blue Blob - Bottom Right */}
         <motion.div
-          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-[#d67d2a]/6 to-[#ea8f39]/6 rounded-full blur-2xl"
+          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-sky-400/6 to-blue-600/6 rounded-full blur-2xl"
           animate={{
             scale: [1.1, 1, 1.1],
             x: [0, -25, 0],
@@ -205,9 +205,9 @@ const ProductSection = () => {
           }}
         />
 
-        {/* Center Accent Blob */}
+        {/* Center Blue Blob */}
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#bed16b]/4 to-[#ea8f39]/4 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/4 to-indigo-500/4 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             rotate: [0, -180, -360],
@@ -291,10 +291,7 @@ const ProductSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <span className="text-slate-900 dark:text-white">Our Curated </span>
-            <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent">
-              Products
-            </span>
+            <span className="text-foreground">Our Curated <span className="text-primary">Products</span></span>
           </motion.h2>
 
           <motion.div 
@@ -303,7 +300,7 @@ const ProductSection = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <div className="h-1 w-24 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full shadow-lg"></div>
+            <div className="h-1 w-24 bg-primary rounded-full shadow-lg"></div>
           </motion.div>
 
           <motion.p 
@@ -448,8 +445,8 @@ const ProductSection = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.4, delay: 2.2 + index * 0.1 + featureIndex * 0.1 }}
                     >
-                      <motion.div 
-                        className="w-5 h-5 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center flex-shrink-0"
+                        <motion.div 
+                        className="w-5 h-5 bg-primary rounded-full flex items-center justify-center flex-shrink-0"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ duration: 0.3, delay: 2.4 + index * 0.1 + featureIndex * 0.1 }}
@@ -482,7 +479,7 @@ const ProductSection = () => {
                           animate={{ scale: 1 }}
                           transition={{ duration: 0.4, delay: 2.8 + index * 0.1 }}
                         >
-                          <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent">
+                          <span className="text-primary">
                             {product.price}
                           </span>
                         </motion.span>
@@ -500,11 +497,7 @@ const ProductSection = () => {
                     transition={{ duration: 0.5, delay: 3 + index * 0.1 }}
                   >
                     <Button
-                      className="w-full py-3 font-bold rounded-xl transition-all duration-300 relative overflow-hidden bg-white text-black border-2 border-transparent bg-clip-padding hover:scale-105 hover:border-gradient-to-r hover:from-[#bed16b] hover:to-[#ea8f39] hover:bg-white focus:outline-none"
-                      style={{
-                        borderImage: 'linear-gradient(to right, #bed16b, #ea8f39) 1',
-                        borderImageSlice: 1,
-                      }}
+                      className="w-full py-3 font-bold rounded-xl transition-all duration-300 border-2 border-primary hover:bg-primary hover:text-primary-foreground focus:outline-none"
                     >
                       <span className="relative z-10 flex items-center justify-center">
                         View Details
@@ -519,7 +512,7 @@ const ProductSection = () => {
         </div>
 
         <motion.div className="flex justify-center">    
-          <Button className="px-10 py-4 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+          <Button className="px-10 py-4 bg-primary hover:bg-primary/90 text-primary-foreground text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
             Explore All Products
             <ArrowRight className="ml-2 w-4 h-4" />
           </Button>

@@ -37,7 +37,8 @@ const publicRoutes = [
   '/book-appointment',
   '/api',
   '/_next',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/public'
 ]
 
 export function middleware(request: NextRequest) {

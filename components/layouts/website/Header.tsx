@@ -21,6 +21,7 @@ const Header = () => {
   const [isClient, setIsClient] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -67,26 +68,37 @@ const Header = () => {
   
   const handleLogoError = () => {
     setLogoError(true);
+    setLogoLoaded(true);
+  };
+
+  const handleLogoLoad = () => {
+    setLogoLoaded(true);
   };
 
   return (
-    <header className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 shadow-md sticky top-0 z-50">
+    <header className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 shadow-xs sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-24">
           {/* Logo Section with Fallback */}
           <Link href="/" className="flex items-center group">
               {!logoError ? (
-                <Image
-                  src="/logo.png"
-                  alt="Wellness Fuel"
-                  width={120}
-                  height={40}
-                  priority
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  onError={handleLogoError}
-                />
+                <>
+                  {!logoLoaded && (
+                    <div className="w-[120px] h-[40px] bg-slate-200 dark:bg-slate-700 animate-pulse rounded"></div>
+                  )}
+                  <Image
+                    src="/logo.svg"
+                    alt="Wellness Fuel"
+                    width={180}
+                    height={60}
+                    priority
+                    className={`transition-transform duration-300 group-hover:scale-105 ${!logoLoaded ? 'hidden' : 'block'}`}
+                    onError={handleLogoError}
+                    onLoad={handleLogoLoad}
+                  />
+                </>
               ) : (
-                <div className="text-2xl font-bold bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-105">
+                <div className="text-2xl font-bold text-primary transition-transform duration-300 group-hover:scale-105">
                   Wellness Fuel
                 </div>
               )}
@@ -100,13 +112,13 @@ const Header = () => {
                 href={item.href}
                 className={`relative px-3 py-2 text-sm font-semibold transition-all duration-300 rounded-lg group ${
                   isActive(item.href)
-                    ? "text-[#ea8f39] bg-[#bed16b]/10"
-                    : "text-slate-700 dark:text-slate-300 hover:text-[#ea8f39] hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? "text-primary bg-primary/10"
+                    : "text-slate-700 dark:text-slate-300 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
                 {item.label}
                 {isActive(item.href) && (
-                  <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-[#ea8f39] text-2xl font-light leading-none">∞</span>
+                  <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-primary text-2xl font-light leading-none">∞</span>
                 )}
               </Link>
             ))}
@@ -115,7 +127,7 @@ const Header = () => {
           {/* CTA and User Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Book Appointment CTA */}
-            <Button className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <Button className="hidden lg:flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
               <Calendar className="w-4 h-4" />
               Book Appointment
             </Button>
@@ -130,7 +142,7 @@ const Header = () => {
                 <Link href="/cart" aria-label="Shopping Cart">
                     <Button variant="ghost" size="icon" className="rounded-full relative text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
                         <ShoppingCart className="w-5 h-5" />
-                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#ea8f39] text-white text-[10px] font-bold">2</span>
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">2</span>
                     </Button>
                 </Link>
             </div>
@@ -187,7 +199,7 @@ const Header = () => {
                   href={item.href}
                   className={`px-4 py-2 text-base font-semibold transition-colors rounded-lg ${
                     isActive(item.href)
-                      ? "text-[#ea8f39] bg-[#bed16b]/10"
+                      ? "text-primary bg-primary/10"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -207,7 +219,7 @@ const Header = () => {
 
               <div className="px-2 pt-4">
                 <Button
-                  className="w-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white font-semibold rounded-full shadow-lg"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full shadow-lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Calendar className="w-4 h-4 mr-2" />

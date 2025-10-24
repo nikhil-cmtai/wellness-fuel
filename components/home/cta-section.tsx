@@ -19,7 +19,7 @@ const CTASection = () => {
         <div className="absolute top-32 right-20 w-32 h-32 bg-[#ea8f39] rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
         <div className="absolute bottom-20 left-1/4 w-36 h-36 bg-[#bed16b] rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
         <div className="absolute bottom-10 right-1/3 w-28 h-28 bg-[#ea8f39] rounded-full blur-3xl animate-pulse" style={{ animationDelay: '6s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full blur-3xl animate-pulse" style={{ animationDelay: '8s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary rounded-full blur-3xl animate-pulse" style={{ animationDelay: '8s' }}></div>
       </div>
 
       {/* Grid Pattern Overlay */}
@@ -37,7 +37,7 @@ const CTASection = () => {
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
               Ready to Transform Your
               <br />
-              <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent">
+              <span className="text-primary">
                 Health Journey?
               </span>
             </h2>
@@ -58,7 +58,7 @@ const CTASection = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Button className="px-10 py-4 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+              <Button className="px-10 py-4 bg-primary hover:from-[#a8c55a] hover:to-[#d67d2a] text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
                 <Calendar className="mr-2 w-5 h-5" />
                 Book Your First Appointment
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -74,42 +74,42 @@ const CTASection = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Book Appointment */}
             <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Calendar className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-4">Book Appointment</h3>
               <p className="text-slate-600 mb-6 leading-relaxed">
                 Schedule a consultation with our expert doctors at your convenience.
               </p>
-              <Button className="w-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-bold rounded-full transition-all duration-300 shadow-lg">
+              <Button className="w-full bg-primary hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-bold rounded-full transition-all duration-300 shadow-lg">
                 Schedule Now
               </Button>
             </div>
 
             {/* Emergency Care */}
             <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Phone className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-4">Emergency Care</h3>
               <p className="text-slate-600 mb-6 leading-relaxed">
                 Get immediate medical assistance with our 24/7 emergency support.
               </p>
-              <Button className="w-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-bold rounded-full transition-all duration-300 shadow-lg">
+              <Button className="w-full bg-primary hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-bold rounded-full transition-all duration-300 shadow-lg">
                 Call Emergency
               </Button>
             </div>
 
             {/* Live Chat */}
             <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <MessageCircle className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-4">Live Chat</h3>
               <p className="text-slate-600 mb-6 leading-relaxed">
                 Chat with our medical professionals for quick health advice and support.
               </p>
-              <Button className="w-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-bold rounded-full transition-all duration-300 shadow-lg">
+              <Button className="w-full bg-primary hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-bold rounded-full transition-all duration-300 shadow-lg">
                 Start Chat
               </Button>
             </div>

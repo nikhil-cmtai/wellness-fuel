@@ -203,7 +203,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
         <ProfileHeader
@@ -229,40 +229,40 @@ const UserProfile = () => {
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex justify-center">
-            <TabsList className="inline-flex bg-white shadow-lg border rounded-xl p-1 overflow-x-auto">
+            <TabsList className="inline-flex bg-white dark:bg-slate-800/90 shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 rounded-xl p-1 overflow-x-auto">
               <TabsTrigger 
                 value="overview" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 whitespace-nowrap transition-all"
               >
                 Overview
               </TabsTrigger>
               <TabsTrigger 
                 value="orders"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 whitespace-nowrap transition-all"
               >
                 Orders
               </TabsTrigger>
               <TabsTrigger 
                 value="addresses"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 whitespace-nowrap transition-all"
               >
                 Addresses
               </TabsTrigger>
               <TabsTrigger 
                 value="appointments"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 whitespace-nowrap transition-all"
               >
                 Appointments
               </TabsTrigger>
               <TabsTrigger 
                 value="prescriptions"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 whitespace-nowrap transition-all"
               >
                 Prescriptions
               </TabsTrigger>
               <TabsTrigger 
                 value="security"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-4 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 whitespace-nowrap transition-all"
               >
                 Security
               </TabsTrigger>

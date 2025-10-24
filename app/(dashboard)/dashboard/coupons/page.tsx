@@ -38,7 +38,6 @@ import {
   createCoupon,
   updateCoupon,
   deleteCoupon,
-  updateCouponStatus,
   Coupon
 } from '@/lib/redux/features/couponSlice'
 

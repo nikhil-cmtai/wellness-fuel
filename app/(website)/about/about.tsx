@@ -267,7 +267,7 @@ const AboutPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-white via-slate-50 to-green-100 min-h-screen">
+    <div className="bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 min-h-screen">
       {/* Hero Section */}
       <CommonHero
         title="About Wellness Fuel"
@@ -282,12 +282,12 @@ const AboutPage: React.FC = () => {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
-            className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-r from-[#bed16b]/5 to-[#ea8f39]/5 rounded-full blur-3xl"
+            className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-full blur-3xl"
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-[#ea8f39]/5 to-[#bed16b]/5 rounded-full blur-3xl"
+            className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full blur-3xl"
             animate={{ scale: [1.1, 1, 1.1] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           />
@@ -303,10 +303,10 @@ const AboutPage: React.FC = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-2xl flex items-center justify-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40">
                   <Target className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-slate-900">Our Mission</h2>
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent">Our Mission</h2>
               </div>
               <p className="text-xl text-slate-600 leading-relaxed">
                 To democratize access to personalized healthcare by connecting individuals with expert guidance, 
@@ -314,16 +314,16 @@ const AboutPage: React.FC = () => {
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-[#bed16b] mt-1 flex-shrink-0" />
-                  <p className="text-slate-600">Make quality healthcare accessible to everyone, everywhere</p>
+                  <CheckCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                  <p className="text-slate-600 dark:text-slate-400">Make quality healthcare accessible to everyone, everywhere</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-[#bed16b] mt-1 flex-shrink-0" />
-                  <p className="text-slate-600">Provide personalized, evidence-based wellness solutions</p>
+                  <CheckCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                  <p className="text-slate-600 dark:text-slate-400">Provide personalized, evidence-based wellness solutions</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-[#bed16b] mt-1 flex-shrink-0" />
-                  <p className="text-slate-600">Build a community that supports and inspires healthy living</p>
+                  <CheckCircle className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                  <p className="text-slate-600 dark:text-slate-400">Build a community that supports and inspires healthy living</p>
                 </div>
               </div>
             </motion.div>
@@ -336,28 +336,28 @@ const AboutPage: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-[#ea8f39] to-[#bed16b] rounded-2xl flex items-center justify-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/40">
                   <Eye className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-slate-900">Our Vision</h2>
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 bg-clip-text text-transparent">Our Vision</h2>
               </div>
               <p className="text-xl text-slate-600 leading-relaxed">
                 To create a world where everyone has the tools, knowledge, and support they need to live their healthiest, 
                 most vibrant life. We envision a future where preventive healthcare is the norm, not the exception.
               </p>
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">By 2030, we aim to:</h3>
-                <ul className="space-y-2 text-slate-600">
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/30">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">By 2030, we aim to:</h3>
+                <ul className="space-y-2 text-slate-600 dark:text-slate-400">
                   <li className="flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-[#ea8f39]" />
+                    <ArrowRight className="w-4 h-4 text-blue-600" />
                     Serve 1 million+ users worldwide
                   </li>
                   <li className="flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-[#ea8f39]" />
+                    <ArrowRight className="w-4 h-4 text-blue-600" />
                     Partner with 1000+ healthcare professionals
                   </li>
                   <li className="flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-[#ea8f39]" />
+                    <ArrowRight className="w-4 h-4 text-blue-600" />
                     Expand to 50+ countries globally
                   </li>
                 </ul>
@@ -376,25 +376,25 @@ const AboutPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Our Impact in Numbers</h2>
-            <p className="text-xl text-slate-600">Making a real difference in people&apos;s lives</p>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-4">Our Impact in Numbers</h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400">Making a real difference in people&apos;s lives</p>
           </motion.div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
-                className="text-center p-8 bg-white rounded-2xl shadow-lg border border-slate-200"
+                className="text-center p-8 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 dark:from-slate-800/90 dark:via-blue-950/30 dark:to-indigo-950/30 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ scale: 1.05, y: -5 }}
+                whileHover={{ scale: 1.05, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.3)" }}
               >
-                <div className="w-16 h-16 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/40">
                   <div className="text-white">{stat.icon}</div>
                 </div>
-                <div className="text-4xl font-bold text-slate-900 mb-2">{stat.number}</div>
-                <div className="text-lg text-slate-600">{stat.label}</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 bg-clip-text text-transparent mb-2">{stat.number}</div>
+                <div className="text-lg text-blue-900 dark:text-blue-100 font-bold">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -411,7 +411,7 @@ const AboutPage: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h2 className="text-4xl font-bold text-slate-900 mb-6">Our Story</h2>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-6">Our Story</h2>
               <p className="text-lg text-slate-600 leading-relaxed">
                 Wellness Fuel was born from a simple yet powerful idea: everyone deserves access to personalized, 
                 credible, and holistic health guidance. In a world filled with conflicting information and 
@@ -424,12 +424,12 @@ const AboutPage: React.FC = () => {
                 thousands of individuals build sustainable, healthy habits for life.
               </p>
               <div className="flex items-center gap-4 pt-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40">
                   <HeartPulse className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900">Founded with Purpose</h3>
-                  <p className="text-slate-600">Making healthcare accessible and personalized</p>
+                  <h3 className="font-semibold text-slate-900 dark:text-white">Founded with Purpose</h3>
+                  <p className="text-slate-600 dark:text-slate-400">Making healthcare accessible and personalized</p>
                 </div>
             </div>
             </motion.div>
@@ -451,7 +451,7 @@ const AboutPage: React.FC = () => {
                   onError={handleStoryImageError}
                 />
               ) : (
-                  <div className="w-full h-96 bg-gradient-to-br from-[#bed16b] to-[#ea8f39] flex items-center justify-center">
+                  <div className="w-full h-96 bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
                   <div className="text-white text-center p-8">
                     <HeartPulse className="w-16 h-16 mx-auto mb-4" />
                     <h3 className="text-2xl font-bold">Our Story</h3>
@@ -464,7 +464,7 @@ const AboutPage: React.FC = () => {
               
               {/* Floating Elements */}
               <motion.div
-                className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full opacity-20"
+                className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full opacity-20"
                 animate={{
                   scale: [1, 1.1, 1],
                   rotate: [0, 180, 360],
@@ -476,7 +476,7 @@ const AboutPage: React.FC = () => {
                 }}
               />
               <motion.div
-                className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-r from-[#ea8f39] to-[#bed16b] rounded-full opacity-20"
+                className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-20"
                 animate={{
                   scale: [1.1, 1, 1.1],
                   rotate: [360, 180, 0],
@@ -502,26 +502,26 @@ const AboutPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Our Core Values</h2>
-            <p className="text-xl text-slate-600">The principles that guide everything we do</p>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-4">Our Core Values</h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400">The principles that guide everything we do</p>
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {coreValues.map((value, index) => (
               <motion.div
                 key={value.title}
-                className="group relative bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden"
+                className="group relative bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02, y: -5 }}
+                whileHover={{ scale: 1.02, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.3)" }}
               >
                 <div className="p-8">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${value.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-16 h-16 bg-gradient-to-r ${value.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                     <div className="text-white">{value.icon}</div>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-4">{value.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{value.description}</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{value.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{value.description}</p>
               </div>
               </motion.div>
             ))}
@@ -538,13 +538,13 @@ const AboutPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Our Journey</h2>
-            <p className="text-xl text-slate-600">Key milestones in our growth and impact</p>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-4">Our Journey</h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400">Key milestones in our growth and impact</p>
           </motion.div>
           
           <div className="relative">
             {/* Timeline Line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-[#bed16b] to-[#ea8f39] rounded-full"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-blue-600 via-indigo-500 to-cyan-500 rounded-full shadow-lg"></div>
             
             <div className="space-y-16">
               {milestones.map((milestone, index) => (
@@ -556,22 +556,22 @@ const AboutPage: React.FC = () => {
                   transition={{ duration: 0.8, delay: index * 0.2 }}
                 >
                   <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+                    <div className="bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 p-6">
                       <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-xl flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/40">
                           <div className="text-white">{milestone.icon}</div>
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-slate-900">{milestone.title}</h3>
-                          <p className="text-lg font-semibold text-[#ea8f39]">{milestone.year}</p>
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-white">{milestone.title}</h3>
+                          <p className="text-lg font-semibold text-blue-600">{milestone.year}</p>
                         </div>
                       </div>
-                      <p className="text-slate-600">{milestone.description}</p>
+                      <p className="text-slate-600 dark:text-slate-400">{milestone.description}</p>
                     </div>
                   </div>
                   
                   {/* Timeline Dot */}
-                  <div className="relative z-10 w-6 h-6 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="relative z-10 w-6 h-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full border-4 border-white dark:border-slate-900 shadow-lg shadow-blue-500/40"></div>
                   
                   <div className="w-1/2"></div>
                 </motion.div>
@@ -590,19 +590,19 @@ const AboutPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Meet Our Team</h2>
-            <p className="text-xl text-slate-600">The passionate minds behind Wellness Fuel</p>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-4">Meet Our Team</h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400">The passionate minds behind Wellness Fuel</p>
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {teamMembers.map((member, index) => (
               <motion.div
                 key={member.name}
-                className="group bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden"
+                className="group bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02, y: -5 }}
+                whileHover={{ scale: 1.02, y: -5, boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.3)" }}
               >
                 <div className="relative h-64 w-full">
                   {!teamImageErrors[member.name] ? (
@@ -615,7 +615,7 @@ const AboutPage: React.FC = () => {
                       onError={() => handleTeamImageError(member.name)}
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#bed16b] to-[#ea8f39] flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
                       <span className="text-white text-4xl font-bold">
                         {member.name.split(" ").map((n: string) => n[0]).join("")}
                       </span>
@@ -649,28 +649,28 @@ const AboutPage: React.FC = () => {
                 </div>
                 
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-slate-900 mb-1">{member.name}</h3>
-                  <p className="text-lg font-semibold text-[#ea8f39] mb-3">{member.role}</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{member.name}</h3>
+                  <p className="text-lg font-semibold text-blue-600 mb-3">{member.role}</p>
                   
                   <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <Briefcase className="w-4 h-4" />
                       <span>{member.experience}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <GraduationCap className="w-4 h-4" />
                       <span className="line-clamp-1">{member.education}</span>
                     </div>
                   </div>
                   
-                  <p className="text-slate-600 text-sm mb-4 line-clamp-3">{member.bio}</p>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-3">{member.bio}</p>
                   
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-slate-900">Key Achievements:</h4>
+                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Key Achievements:</h4>
                     <ul className="space-y-1">
                       {member.achievements.slice(0, 2).map((achievement, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-xs text-slate-600">
-                          <Star className="w-3 h-3 text-[#ea8f39] flex-shrink-0" />
+                        <li key={idx} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                          <Star className="w-3 h-3 text-blue-600 flex-shrink-0" />
                           <span>{achievement}</span>
                         </li>
                       ))}
@@ -694,8 +694,8 @@ const AboutPage: React.FC = () => {
               transition={{ duration: 0.8 }}
             >
               <div>
-                <h2 className="text-4xl font-bold text-slate-900 mb-4">Get in Touch</h2>
-                <p className="text-xl text-slate-600">
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-4">Get in Touch</h2>
+                <p className="text-xl text-slate-600 dark:text-slate-400">
                   Have questions about our services or want to join our team? 
                   We&apos;d love to hear from you.
                 </p>
@@ -703,32 +703,32 @@ const AboutPage: React.FC = () => {
               
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/40">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">Email Us</h3>
-                    <p className="text-slate-600">hello@wellnessfuel.com</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">Email Us</h3>
+                    <p className="text-slate-600 dark:text-slate-400">hello@wellnessfuel.com</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#ea8f39] to-[#bed16b] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/40">
                     <Phone className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">Call Us</h3>
-                    <p className="text-slate-600">+1 (555) 123-4567</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">Call Us</h3>
+                    <p className="text-slate-600 dark:text-slate-400">+1 (555) 123-4567</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/40">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">Visit Us</h3>
-                    <p className="text-slate-600">123 Wellness Street, Health City, HC 12345</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">Visit Us</h3>
+                    <p className="text-slate-600 dark:text-slate-400">123 Wellness Street, Health City, HC 12345</p>
                   </div>
                 </div>
               </div>
@@ -736,14 +736,14 @@ const AboutPage: React.FC = () => {
               <div className="flex gap-4">
                 <Link
                   href="/contact"
-                  className="px-8 py-4 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/50 hover:shadow-2xl hover:shadow-blue-600/60 transition-all duration-300 flex items-center gap-2"
                 >
                   <MessageCircle className="w-5 h-5" />
                   Contact Us
                 </Link>
             <Link
                   href="/careers"
-                  className="px-8 py-4 border-2 border-slate-300 text-slate-700 font-semibold rounded-xl hover:border-[#ea8f39] hover:text-[#ea8f39] transition-all duration-300 flex items-center gap-2"
+                  className="px-8 py-4 border-2 border-blue-500/50 dark:border-indigo-500/50 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-600 dark:hover:border-indigo-400 font-semibold rounded-full shadow-lg transition-all duration-300 flex items-center gap-2 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm"
                 >
                   <User className="w-5 h-5" />
                   Join Our Team
@@ -757,7 +757,7 @@ const AboutPage: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="bg-gradient-to-r from-[#bed16b]/80 to-[#ea8f39]/80 rounded-2xl p-8 md:p-12 text-center shadow-2xl">
+              <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 rounded-2xl p-8 md:p-12 text-center shadow-2xl shadow-blue-500/50">
                 <h3 className="text-3xl font-bold text-white mb-4">Ready to Start Your Journey?</h3>
                 <p className="text-lg text-white/90 mb-8">
                   Join thousands of others who are transforming their lives with Wellness Fuel. 
@@ -766,14 +766,14 @@ const AboutPage: React.FC = () => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
                     href="/products"
-                    className="px-8 py-4 bg-white text-slate-800 font-semibold rounded-xl shadow-lg hover:bg-slate-100 transition-all duration-300 flex items-center justify-center gap-2"
+                    className="px-8 py-4 bg-white text-blue-700 font-semibold rounded-full shadow-xl hover:bg-slate-100 transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105"
                   >
                     <Activity className="w-5 h-5" />
                     Explore Our Products
                   </Link>
                   <Link
                     href="/our-doctors"
-                    className="px-8 py-4 border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-slate-800 transition-all duration-300 flex items-center justify-center gap-2"
+                    className="px-8 py-4 border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-blue-700 transition-all duration-300 flex items-center justify-center gap-2 backdrop-blur-sm transform hover:scale-105"
                   >
                     <Users className="w-5 h-5" />
                     Meet Our Doctors

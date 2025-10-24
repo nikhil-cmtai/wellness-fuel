@@ -39,9 +39,9 @@ const AboutSection = () => {
     <section className="py-20 relative overflow-hidden">
       {/* Enhanced Animated Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Primary Green Blob - Top Right */}
+        {/* Blue Blob - Top Right */}
         <motion.div
-          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-[#bed16b]/8 to-[#a8c55a]/8 rounded-full blur-3xl"
+          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/8 to-blue-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360],
@@ -53,9 +53,9 @@ const AboutSection = () => {
           }}
         />
 
-        {/* Secondary Orange Blob - Bottom Left */}
+        {/* Indigo Blob - Bottom Left */}
         <motion.div
-          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-[#ea8f39]/8 to-[#d67d2a]/8 rounded-full blur-3xl"
+          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-indigo-500/8 to-indigo-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1.1, 1, 1.1],
             rotate: [360, 180, 0],
@@ -68,9 +68,9 @@ const AboutSection = () => {
           }}
         />
 
-        {/* Accent Green Blob - Top Left */}
+        {/* Cyan Blob - Top Left */}
         <motion.div
-          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-[#a8c55a]/6 to-[#bed16b]/6 rounded-full blur-2xl"
+          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-cyan-400/6 to-blue-500/6 rounded-full blur-2xl"
           animate={{
             scale: [1, 1.1, 1],
             x: [0, 20, 0],
@@ -84,9 +84,9 @@ const AboutSection = () => {
           }}
         />
 
-        {/* Primary Orange Blob - Bottom Right */}
+        {/* Sky Blue Blob - Bottom Right */}
         <motion.div
-          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-[#d67d2a]/6 to-[#ea8f39]/6 rounded-full blur-2xl"
+          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-sky-400/6 to-blue-600/6 rounded-full blur-2xl"
           animate={{
             scale: [1.1, 1, 1.1],
             x: [0, -25, 0],
@@ -100,9 +100,9 @@ const AboutSection = () => {
           }}
         />
 
-        {/* Center Accent Blob */}
+        {/* Center Blue Blob */}
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#bed16b]/4 to-[#ea8f39]/4 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/4 to-indigo-500/4 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             rotate: [0, -180, -360],
@@ -130,8 +130,7 @@ const AboutSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="text-slate-900 dark:text-white">About</span>
-            <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent ml-4">Wellness Fuel</span>
+            <span className="text-foreground">About <span className="text-primary">Wellness Fuel</span></span>
           </motion.h2>
           <motion.p 
             className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed font-normal"
@@ -196,7 +195,7 @@ const AboutSection = () => {
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.3, delay: 1.6 + index * 0.1 }}
                   >
-                    <CheckCircle className="w-5 h-5 text-[#ea8f39] flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
                   </motion.div>
                   <span className="text-slate-700 dark:text-slate-300">{item}</span>
                 </motion.div>
@@ -208,7 +207,7 @@ const AboutSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.8 }}
             >
-              <Button className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <Button className="bg-gradient-to-r from-primary via-indigo-600 to-cyan-600 hover:from-primary/90 hover:via-indigo-600/90 hover:to-cyan-600/90 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 Learn More About Us
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -240,7 +239,7 @@ const AboutSection = () => {
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.2 + index * 0.1 }}
                 >
-                  <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent">
+                  <span className="text-primary">
                     {stat.number}
                   </span>
                 </motion.div>
@@ -272,15 +271,13 @@ const AboutSection = () => {
                 transition={{ duration: 0.2 }}
               >
                 {/* Gradient border */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-2xl p-0.5">
+                <div className="absolute inset-0 bg-primary rounded-2xl p-0.5">
                   <div className="w-full h-full bg-white dark:bg-slate-800 rounded-2xl"></div>
                 </div>
-                <feature.icon className="w-8 h-8 text-black dark:text-white relative z-10" />
+                <feature.icon className="w-8 h-8 text-primary relative z-10" />
               </motion.div>
-              <h4 className="text-xl font-semibold mb-3">
-                <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent">
-                  {feature.title}
-                </span>
+              <h4 className="text-xl font-semibold mb-3 text-foreground">
+                {feature.title}
               </h4>
               <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 {feature.description}

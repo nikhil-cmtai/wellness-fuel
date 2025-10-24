@@ -169,7 +169,7 @@ const DoctorsSection: React.FC = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Primary Green Blob - Top Right */}
         <motion.div
-          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-[#bed16b]/8 to-[#a8c55a]/8 rounded-full blur-3xl"
+          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/8 to-blue-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360],
@@ -183,7 +183,7 @@ const DoctorsSection: React.FC = () => {
 
         {/* Secondary Orange Blob - Bottom Left */}
         <motion.div
-          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-[#ea8f39]/8 to-[#d67d2a]/8 rounded-full blur-3xl"
+          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-indigo-500/8 to-indigo-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1.1, 1, 1.1],
             rotate: [360, 180, 0],
@@ -198,7 +198,7 @@ const DoctorsSection: React.FC = () => {
 
         {/* Accent Green Blob - Top Left */}
         <motion.div
-          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-[#a8c55a]/6 to-[#bed16b]/6 rounded-full blur-2xl"
+          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-cyan-400/6 to-blue-500/6 rounded-full blur-2xl"
           animate={{
             scale: [1, 1.1, 1],
             x: [0, 20, 0],
@@ -214,7 +214,7 @@ const DoctorsSection: React.FC = () => {
 
         {/* Primary Orange Blob - Bottom Right */}
         <motion.div
-          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-[#d67d2a]/6 to-[#ea8f39]/6 rounded-full blur-2xl"
+          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-sky-400/6 to-blue-600/6 rounded-full blur-2xl"
           animate={{
             scale: [1.1, 1, 1.1],
             x: [0, -25, 0],
@@ -230,7 +230,7 @@ const DoctorsSection: React.FC = () => {
 
         {/* Center Accent Blob */}
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#bed16b]/4 to-[#ea8f39]/4 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/4 to-indigo-500/4 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             rotate: [0, -180, -360],
@@ -304,10 +304,7 @@ const DoctorsSection: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="text-slate-900 dark:text-white">Meet Our</span>
-            <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent ml-4">
-              Expert Doctors
-            </span>
+            <span className="text-foreground">Meet Our <span className="text-primary">Expert Doctors</span></span>
           </motion.h2>
           <motion.p 
             className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed"
@@ -344,7 +341,7 @@ const DoctorsSection: React.FC = () => {
                       onError={() => handleImageError(doctor.id)}
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-slate-700 shadow-lg">
+                    <div className="w-full h-full bg-primary rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-slate-700 shadow-lg">
                       {doctor.fallbackInitials}
                     </div>
                   )}
@@ -468,7 +465,7 @@ const DoctorsSection: React.FC = () => {
                 transition={{ duration: 0.4, delay: 1.7 + index * 0.1 }}
               >
                 <div className="flex gap-2">
-                  <Button className="flex-1 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white py-2 text-md font-semibold rounded-full">
+                  <Button className="flex-1 bg-primary text-white py-2 text-md font-semibold rounded-full">
                     <Calendar className="w-4 h-4 mr-1" />
                     Book
                   </Button>

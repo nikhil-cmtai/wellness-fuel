@@ -74,7 +74,7 @@ const Contact = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
       {/* Header */}
       <CommonHero
         title="Contact Us"
@@ -99,14 +99,14 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           {/* Contact Information */}
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-8">
               Get in Touch
             </h2>
             
             <div className="space-y-8 mb-12">
               {contactInfo.map((info, index) => (
                 <div key={index} className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/40">
                     <info.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -147,7 +147,7 @@ const Contact = () => {
 
           {/* Contact Form */}
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-8">
               Send us a Message
             </h2>
             
@@ -164,7 +164,7 @@ const Contact = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-[#ea8f39] focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                     placeholder="Your full name"
                   />
                 </div>
@@ -179,7 +179,7 @@ const Contact = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-[#ea8f39] focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -196,7 +196,7 @@ const Contact = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-[#ea8f39] focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                     placeholder="+1 (555) 123-4567"
                   />
                 </div>
@@ -210,7 +210,7 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-[#ea8f39] focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
                   >
                     <option value="">Select a subject</option>
                     {subjects.map((subject, index) => (
@@ -238,7 +238,7 @@ const Contact = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white py-3 text-lg font-semibold rounded-full shadow-xl shadow-blue-500/50 hover:shadow-2xl hover:shadow-blue-600/60 transition-all duration-300 transform hover:scale-105"
               >
                 <Send className="mr-2 w-5 h-5" />
                 Send Message
@@ -249,13 +249,13 @@ const Contact = () => {
 
         {/* Google Map */}
         <div className="mt-16">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8 text-center">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-8 text-center">
             Find Us
           </h2>
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden">
             <div className="h-96 bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
               <div className="text-center">
-                <MapPin className="w-16 h-16 text-[#ea8f39] mx-auto mb-4" />
+                <MapPin className="w-16 h-16 text-blue-600 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
                   Wellness Fuel Headquarters
                 </h3>
@@ -265,7 +265,7 @@ const Contact = () => {
                 <p className="text-sm text-slate-500 dark:text-slate-500">
                   Google Maps integration would be implemented here
                 </p>
-                <Button className="mt-4 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white">
+                <Button className="mt-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white rounded-full shadow-xl shadow-blue-500/50">
                   <MapPin className="mr-2 w-4 h-4" />
                   Get Directions
                 </Button>
@@ -276,41 +276,41 @@ const Contact = () => {
 
         {/* Additional Information */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-lg">
-            <MessageCircle className="w-12 h-12 text-[#ea8f39] mx-auto mb-4" />
+          <div className="text-center p-6 bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30">
+            <MessageCircle className="w-12 h-12 text-blue-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
               Live Chat
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               Chat with our support team in real-time
             </p>
-            <Button variant="outline" className="border-[#ea8f39] text-[#ea8f39] hover:bg-[#ea8f39] hover:text-white">
+            <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full">
               Start Chat
             </Button>
           </div>
 
-          <div className="text-center p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-lg">
-            <Phone className="w-12 h-12 text-[#ea8f39] mx-auto mb-4" />
+          <div className="text-center p-6 bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30">
+            <Phone className="w-12 h-12 text-blue-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
               Call Center
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               Speak directly with our healthcare professionals
             </p>
-            <Button variant="outline" className="border-[#ea8f39] text-[#ea8f39] hover:bg-[#ea8f39] hover:text-white">
+            <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full">
               Call Now
             </Button>
           </div>
 
-          <div className="text-center p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-lg">
-            <Mail className="w-12 h-12 text-[#ea8f39] mx-auto mb-4" />
+          <div className="text-center p-6 bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30">
+            <Mail className="w-12 h-12 text-blue-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
               Email Support
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               Get detailed responses within 24 hours
             </p>
-            <Button variant="outline" className="border-[#ea8f39] text-[#ea8f39] hover:bg-[#ea8f39] hover:text-white">
+            <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full">
               Send Email
             </Button>
           </div>

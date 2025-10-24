@@ -167,14 +167,14 @@ const OurDoctorsPage: React.FC = () => {
           { label: "Our Doctors", href: "/our-doctors" },
         ]}
       />
-      <section className="relative pt-24 pb-16 text-center overflow-hidden bg-slate-50 dark:bg-slate-900/50">
+      <section className="relative pt-24 pb-16 text-center overflow-hidden bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4">
-            <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-lg">
               Meet Our Expert Doctors
             </span>
           </h1>
-          <p className="max-w-3xl mx-auto text-lg text-slate-600 dark:text-slate-300">
+          <p className="max-w-3xl mx-auto text-lg text-slate-600 dark:text-slate-400">
             Connect with certified healthcare professionals who are passionate
             about your wellness journey. Our doctors specialize in holistic and
             natural healing approaches.
@@ -187,22 +187,22 @@ const OurDoctorsPage: React.FC = () => {
         <div className="container max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
             <div className="p-6">
-              <div className="text-3xl font-bold text-[#ea8f39] mb-2">50+</div>
-              <div className="text-slate-600 dark:text-slate-300">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">50+</div>
+              <div className="text-slate-600 dark:text-slate-400">
                 Expert Doctors
               </div>
             </div>
             <div className="p-6">
-              <div className="text-3xl font-bold text-[#ea8f39] mb-2">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
                 10,000+
               </div>
-              <div className="text-slate-600 dark:text-slate-300">
+              <div className="text-slate-600 dark:text-slate-400">
                 Happy Patients
               </div>
             </div>
             <div className="p-6">
-              <div className="text-3xl font-bold text-[#ea8f39] mb-2">15+</div>
-              <div className="text-slate-600 dark:text-slate-300">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">15+</div>
+              <div className="text-slate-600 dark:text-slate-400">
                 Years Experience
               </div>
             </div>
@@ -216,7 +216,7 @@ const OurDoctorsPage: React.FC = () => {
           {doctorsData.map((doctor: Doctor) => (
             <div
               key={doctor.id}
-              className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+              className="bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2"
             >
               {/* Doctor Image */}
               <div className="relative h-64 w-full">
@@ -230,7 +230,7 @@ const OurDoctorsPage: React.FC = () => {
                     onError={() => handleImageError(doctor.id)}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#bed16b] to-[#ea8f39] flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
                     <div className="text-white text-center">
                       <div className="text-6xl font-bold mb-2">
                         {doctor.fallbackInitials}
@@ -250,13 +250,13 @@ const OurDoctorsPage: React.FC = () => {
               {/* Doctor Info */}
               <div className="p-6">
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-card-foreground mb-1">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
                     {doctor.name}
                   </h3>
-                  <p className="text-[#ea8f39] font-semibold">
+                  <p className="text-blue-600 dark:text-blue-400 font-semibold">
                     {doctor.specialization}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     {doctor.qualification}
                   </p>
                 </div>
@@ -271,16 +271,16 @@ const OurDoctorsPage: React.FC = () => {
 
                 {/* Experience & Location */}
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Award className="w-4 h-4 text-[#bed16b]" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <Award className="w-4 h-4 text-blue-600" />
                     <span>{doctor.experience} years experience</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4 text-[#bed16b]" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <MapPin className="w-4 h-4 text-blue-600" />
                     <span>{doctor.location}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="w-4 h-4 text-[#bed16b]" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <Clock className="w-4 h-4 text-blue-600" />
                     <span>{doctor.availability}</span>
                   </div>
                 </div>
@@ -309,20 +309,20 @@ const OurDoctorsPage: React.FC = () => {
 
                 {/* Consultation Fee */}
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium">Consultation Fee:</span>
-                  <span className="text-lg font-bold text-[#ea8f39]">
+                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Consultation Fee:</span>
+                  <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     ₹{doctor.consultationFee}
                   </span>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] hover:from-[#a8c55a] hover:to-[#d67d2a] text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105">
+                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/50 transition-all duration-300 transform hover:scale-105">
                     <Calendar className="w-4 h-4" />
                     Book Consultation
                   </button>
-                  <button className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                    <Phone className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  <button className="p-2 rounded-full bg-blue-50 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors border border-blue-200 dark:border-slate-600">
+                    <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   </button>
                 </div>
               </div>
@@ -332,22 +332,22 @@ const OurDoctorsPage: React.FC = () => {
       </main>
 
       {/* CTA Section */}
-      <section className="py-16 bg-slate-50 dark:bg-slate-900/50">
+      <section className="py-16 bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-4">
             Can&apos;t Find the Right Doctor?
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">
+          <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
             Our wellness experts can help you find the perfect healthcare
             professional for your specific needs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-3 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] text-white font-semibold rounded-full hover:from-[#a8c55a] hover:to-[#d67d2a] transition-all duration-300 transform hover:scale-105">
+            <button className="px-8 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/50 transition-all duration-300 transform hover:scale-105">
               Get Personalized Recommendations
             </button>
             <Link
               href="/contact"
-              className="px-8 py-3 border-2 border-[#bed16b] text-[#bed16b] font-semibold rounded-full hover:bg-[#bed16b] hover:text-white transition-all duration-300"
+              className="px-8 py-3 border-2 border-blue-500/50 dark:border-indigo-500/50 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-600 dark:hover:border-indigo-400 font-semibold rounded-full shadow-lg backdrop-blur-sm bg-white/70 dark:bg-slate-800/70 transition-all duration-300"
             >
               Contact Support
             </Link>

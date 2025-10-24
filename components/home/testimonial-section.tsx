@@ -105,7 +105,7 @@ const TestimonialSection: React.FC = () => {
       <Star
         key={index}
         className={`w-5 h-5 ${
-          index < rating ? "text-[#ea8f39] fill-current" : "text-gray-300"
+          index < rating ? "text-primary fill-current" : "text-gray-300"
         }`}
       />
     ));
@@ -117,7 +117,7 @@ const TestimonialSection: React.FC = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Primary Green Blob - Top Right */}
         <motion.div
-          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-[#bed16b]/8 to-[#a8c55a]/8 rounded-full blur-3xl"
+          className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/8 to-blue-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360],
@@ -131,7 +131,7 @@ const TestimonialSection: React.FC = () => {
 
         {/* Secondary Orange Blob - Bottom Left */}
         <motion.div
-          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-[#ea8f39]/8 to-[#d67d2a]/8 rounded-full blur-3xl"
+          className="absolute bottom-20 left-20 w-72 h-72 bg-gradient-to-r from-indigo-500/8 to-indigo-400/5 rounded-full blur-3xl"
           animate={{
             scale: [1.1, 1, 1.1],
             rotate: [360, 180, 0],
@@ -146,7 +146,7 @@ const TestimonialSection: React.FC = () => {
 
         {/* Accent Green Blob - Top Left */}
         <motion.div
-          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-[#a8c55a]/6 to-[#bed16b]/6 rounded-full blur-2xl"
+          className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-cyan-400/6 to-blue-500/6 rounded-full blur-2xl"
           animate={{
             scale: [1, 1.1, 1],
             x: [0, 20, 0],
@@ -162,7 +162,7 @@ const TestimonialSection: React.FC = () => {
 
         {/* Primary Orange Blob - Bottom Right */}
         <motion.div
-          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-[#d67d2a]/6 to-[#ea8f39]/6 rounded-full blur-2xl"
+          className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-sky-400/6 to-blue-600/6 rounded-full blur-2xl"
           animate={{
             scale: [1.1, 1, 1.1],
             x: [0, -25, 0],
@@ -178,7 +178,7 @@ const TestimonialSection: React.FC = () => {
 
         {/* Center Accent Blob */}
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#bed16b]/4 to-[#ea8f39]/4 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-500/4 to-indigo-500/4 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             rotate: [0, -180, -360],
@@ -193,7 +193,7 @@ const TestimonialSection: React.FC = () => {
 
         {/* Small Floating Particles */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-3 h-3 bg-[#bed16b] rounded-full"
+          className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-500 rounded-full"
           animate={{
             y: [0, -20, 0],
             opacity: [0.5, 1, 0.5],
@@ -208,7 +208,7 @@ const TestimonialSection: React.FC = () => {
         />
 
         <motion.div
-          className="absolute top-3/4 right-1/4 w-2 h-2 bg-[#ea8f39] rounded-full"
+          className="absolute top-3/4 right-1/4 w-2 h-2 bg-indigo-500 rounded-full"
           animate={{
             y: [0, -25, 0],
             opacity: [0.3, 1, 0.3],
@@ -223,7 +223,7 @@ const TestimonialSection: React.FC = () => {
         />
 
         <motion.div
-          className="absolute top-1/3 right-1/3 w-1 h-1 bg-[#a8c55a] rounded-full"
+          className="absolute top-1/3 right-1/3 w-1 h-1 bg-cyan-400 rounded-full"
           animate={{
             y: [0, -15, 0],
             opacity: [0.7, 1, 0.7],
@@ -252,10 +252,7 @@ const TestimonialSection: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="text-slate-900 dark:text-white">What Our</span>
-            <span className="bg-gradient-to-r from-[#bed16b] to-[#ea8f39] bg-clip-text text-transparent ml-4">
-              Patients Say
-            </span>
+            <span className="text-foreground">What Our <span className="text-primary">Patients Say</span></span>
           </motion.h2>
           <motion.p 
             className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed"
@@ -276,19 +273,19 @@ const TestimonialSection: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#ea8f39]">4.9/5</div>
+              <div className="text-2xl font-bold text-primary">4.9/5</div>
               <div className="text-sm text-slate-600 dark:text-slate-400">
                 Average Rating
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#ea8f39]">10,000+</div>
+              <div className="text-2xl font-bold text-primary">10,000+</div>
               <div className="text-sm text-slate-600 dark:text-slate-400">
                 Happy Patients
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#ea8f39]">50+</div>
+              <div className="text-2xl font-bold text-primary">50+</div>
               <div className="text-sm text-slate-600 dark:text-slate-400">
                 Expert Doctors
               </div>
@@ -326,7 +323,7 @@ const TestimonialSection: React.FC = () => {
                 transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
               >
                 {/* Quote Icon - Behind Card */}
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-gradient-to-r from-[#bed16b] to-[#ea8f39] rounded-full flex items-center justify-center shadow-lg -z-10">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg -z-10">
                   <Quote className="w-4 h-4 text-white" />
                 </div>
 
@@ -359,7 +356,7 @@ const TestimonialSection: React.FC = () => {
                           onError={() => handleImageError(testimonial.id)}
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-full h-full bg-primary flex items-center justify-center text-white font-semibold text-sm">
                           {testimonial.fallbackInitials}
                         </div>
                       )}
@@ -400,7 +397,7 @@ const TestimonialSection: React.FC = () => {
                 className="flex-shrink-0 w-80 h-64 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col justify-between relative"
               >
                 {/* Quote Icon - Behind Card */}
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-gradient-to-r from-[#ea8f39] to-[#bed16b] rounded-full flex items-center justify-center shadow-lg -z-10">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center shadow-lg -z-10">
                   <Quote className="w-4 h-4 text-white" />
                 </div>
 
@@ -433,7 +430,7 @@ const TestimonialSection: React.FC = () => {
                           onError={() => handleImageError(testimonial.id)}
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-[#bed16b] to-[#ea8f39] flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-full h-full bg-primary flex items-center justify-center text-white font-semibold text-sm">
                           {testimonial.fallbackInitials}
                         </div>
                       )}
