@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -15,13 +15,13 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import LOGO_URL from '../../../public/logo.jpeg'
 
 const Header = () => {
   const [user, setUser] = useState(getUserFromCookie());
   const [isClient, setIsClient] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  const [logoLoaded, setLogoLoaded] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -68,40 +68,30 @@ const Header = () => {
   
   const handleLogoError = () => {
     setLogoError(true);
-    setLogoLoaded(true);
-  };
-
-  const handleLogoLoad = () => {
-    setLogoLoaded(true);
   };
 
   return (
     <header className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 shadow-xs sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-24">
+        <div className="flex items-center justify-between h-28">
           {/* Logo Section with Fallback */}
           <Link href="/" className="flex items-center group">
-              {!logoError ? (
-                <>
-                  {!logoLoaded && (
-                    <div className="w-[120px] h-[40px] bg-slate-200 dark:bg-slate-700 animate-pulse rounded"></div>
-                  )}
-                  <Image
-                    src="/logo.svg"
-                    alt="Wellness Fuel"
-                    width={180}
-                    height={60}
-                    priority
-                    className={`transition-transform duration-300 group-hover:scale-105 ${!logoLoaded ? 'hidden' : 'block'}`}
-                    onError={handleLogoError}
-                    onLoad={handleLogoLoad}
-                  />
-                </>
-              ) : (
-                <div className="text-2xl font-bold text-primary transition-transform duration-300 group-hover:scale-105">
-                  Wellness Fuel
-                </div>
-              )}
+            {!logoError ? (
+              <div className="w-[120px] h-[40px] flex items-center">
+                <Image  
+                  src={LOGO_URL}
+                  alt="Wellness Fuel"
+                  width={120}
+                  height={40}
+                  className="transition-all duration-300 group-hover:scale-105 object-contain"
+                  onError={handleLogoError}
+                />
+              </div>
+            ) : (
+              <div className="text-xl font-bold text-primary transition-transform duration-300 group-hover:scale-105">
+                Wellness Fuel
+              </div>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

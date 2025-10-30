@@ -6,6 +6,7 @@ import { ArrowRight, Play, Star, Sparkles, Heart, Users, CheckCircle, TrendingUp
 import { getUserFromCookie } from "@/lib/auth";
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import HERO_IMAGE from '../../public/hero.jpg';
 
 const HeroSection = () => {
   const user = getUserFromCookie();
@@ -231,7 +232,7 @@ const HeroSection = () => {
                 {/* Main Hero Image */}
                 <div className="w-full h-full">
                   <Image
-                    src="/hero.jpg"
+                    src={HERO_IMAGE}
                     alt="Hero"
                     fill
                     className="object-cover w-full h-full"

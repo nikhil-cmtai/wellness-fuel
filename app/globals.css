@@ -1,76 +1,76 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Wellness Fuel Brand Colors according to logo */
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 221 57% 16%;
+    --foreground: 217 30% 15%; /* Charcoal/Slate, matches logo text */
 
     --card: 0 0% 100%;
-    --card-foreground: 221 57% 16%;
+    --card-foreground: 217 30% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 221 57% 16%;
+    --popover-foreground: 217 30% 15%;
 
-    --primary: 221 44% 41%;              /* Facebook Blue #1877F2 */
-    --primary-foreground: 0 0% 100%;     /* White */
+    --primary: 212 62% 55%;   /* Wellness Fuel blue, matching logo border */
+    --primary-foreground: 0 0% 100%;     /* White for contrast */
 
-    --secondary: 207 78% 55%;            /* Lighter Blue #42A5F5 */
-    --secondary-foreground: 221 57% 16%; /* Dark Blue Text */
+    --secondary: 217 19% 80%; /* Light variant for backgrounds, v pale blue */
+    --secondary-foreground: 217 30% 15%; /* For text on light blue bg */
 
-    --muted: 212 33% 89%;                /* Soft blue gray */
-    --muted-foreground: 210 8% 45%;
+    --muted: 217 19% 90%;    /* Soft blue gray */
+    --muted-foreground: 217 15% 35%;
 
-    --accent: 204 100% 84%;              /* Blue Accent #A7C7FC */
-    --accent-foreground: 221 57% 16%;
+    --accent: 210 60% 65%;    /* Accent blue for sunbeam lines */
+    --accent-foreground: 217 30% 15%;
 
-    --destructive: 0 81% 63%;            /* Red for destructive */
+    --destructive: 0 81% 63%;            /* Standard red for errors/warnings */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 19% 85%;
-    --input: 215 19% 85%;
-    --ring: 221 44% 41%;
+    --border: 212 62% 55%;   /* Use main blue for borders (like logo ring) */
+    --input: 217 19% 80%;
+    --ring: 212 62% 55%;
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 221 57% 7%;             /* Very dark blue */
-    --foreground: 0 0% 100%;              /* White */
+    --background: 217 40% 10%;            /* Deep, soft blue for dark mode bg */
+    --foreground: 0 0% 100%;              /* White for text */
 
-    --card: 224 39% 16%;
+    --card: 217 30% 16%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 224 39% 16%;
+    --popover: 217 30% 16%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 221 100% 54%;              /* Brighter blue for dark mode, #1877F2 */
+    --primary: 212 62% 55%;              /* Consistent blue for both modes */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 207 84% 70%;             /* Lighter blue */
-    --secondary-foreground: 221 57% 16%;
+    --secondary: 217 19% 24%;            /* Dark pale blue */
+    --secondary-foreground: 210 25% 88%;
 
-    --muted: 217 19% 24%;                 /* Very dark blue gray */
-    --muted-foreground: 205 14% 67%;
+    --muted: 217 15% 22%;                /* Very dark blue gray */
+    --muted-foreground: 210 10% 70%;
 
-    --accent: 204 100% 84%;
-    --accent-foreground: 221 57% 16%;
+    --accent: 210 60% 65%;               
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 81% 63%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 216 15% 28%;
-    --input: 216 15% 28%;
-    --ring: 221 100% 54%;
+    --border: 212 62% 55%;
+    --input: 217 19% 24%;
+    --ring: 212 62% 55%;
   }
 }
 
 @layer base {
   * {
     border-color: hsl(var(--border));
-
   }
   body {
     background-color: hsl(var(--background));

@@ -38,7 +38,7 @@ const publicRoutes = [
   '/api',
   '/_next',
   '/favicon.ico',
-  '/public'
+  '/public/*'
 ]
 
 export function middleware(request: NextRequest) {
