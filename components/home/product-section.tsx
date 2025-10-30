@@ -490,21 +490,6 @@ const ProductSection = () => {
                     </div>
                   </div>
 
-                  {/* Enhanced CTA Button */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 3 + index * 0.1 }}
-                  >
-                    <Button
-                      className="w-full py-3 font-bold rounded-xl transition-all duration-300 border-2 border-primary hover:bg-primary hover:text-primary-foreground focus:outline-none"
-                    >
-                      <span className="relative z-10 flex items-center justify-center">
-                        View Details
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </span>
-                    </Button>
-                  </motion.div>
                 </motion.div>
               </div>
             </motion.div>
