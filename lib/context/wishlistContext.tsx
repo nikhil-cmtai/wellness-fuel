@@ -1,10 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { toast } from "sonner"; // Import toast for notifications
+import { toast } from "sonner";
 
 export interface WishlistItem {
-  id: number;
+  id: string; // CHANGED from number to string
   name: string;
   price: number;
   imageUrl: string;
@@ -13,7 +13,7 @@ export interface WishlistItem {
 interface WishlistContextType {
   wishlistItems: WishlistItem[];
   toggleWishlistItem: (product: WishlistItem) => void;
-  isInWishlist: (productId: number) => boolean;
+  isInWishlist: (productId: string) => boolean; // CHANGED from number to string
   wishlistCount: number;
 }
 
@@ -37,7 +37,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const isInWishlist = (productId: number) => {
+  const isInWishlist = (productId: string) => {
     return wishlistItems.some((item) => item.id === productId);
   };
 

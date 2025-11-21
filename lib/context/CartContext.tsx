@@ -5,7 +5,7 @@ import { toast } from "sonner"; // Import toast for notifications
 
 // Define the shape of a cart item
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -16,8 +16,8 @@ export interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, newQuantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, newQuantity: number) => void;
   cartCount: number;
   cartTotal: number; // <-- Added cartTotal
 }
@@ -43,7 +43,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setCartItems((prevItems) => {
       const itemToRemove = prevItems.find((item) => item.id === productId);
       if (itemToRemove) {
@@ -53,7 +53,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const updateQuantity = (productId: number, newQuantity: number) => {
+  const updateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeFromCart(productId);
     } else {

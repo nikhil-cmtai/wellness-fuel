@@ -25,8 +25,8 @@ import CommonHero from "@/components/common/common-hero";
 // Redux Imports
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
-  fetchProductsData, // UPDATED: Using the generic fetch action
-  setFilters, // UPDATED: To filter by status 'active'
+  fetchProductsData,
+  setFilters,
   selectProductsData,
   selectProductsLoading,
 } from "@/lib/redux/features/productSlice";
@@ -87,15 +87,13 @@ const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(9);
 
-  // Fetch Data on Mount (Exactly like ProductSection/Admin logic)
+  // Fetch Data on Mount
   useEffect(() => {
-    // 1. Set Status to 'active' so we don't get archived/draft products
     dispatch(setFilters({ status: "active" }));
-    // 2. Fetch data using the main endpoint
     dispatch(fetchProductsData());
   }, [dispatch]);
 
-  // 1. Transform Redux Data to UI Format
+  // Transform Redux Data to UI Format
   const formattedProducts: UIProduct[] = useMemo(() => {
     if (!reduxProducts || reduxProducts.length === 0) return [];
 
@@ -103,7 +101,6 @@ const ProductsPage = () => {
       const currentPrice = p.price.amount;
       const mrp = p.price.mrp || currentPrice;
 
-      // Determine Badge
       let badge = null;
       if (p.stockQuantity < 10 && p.stockQuantity > 0) badge = "Low Stock";
       else if (p.stockQuantity === 0) badge = "Out of Stock";
@@ -115,7 +112,6 @@ const ProductsPage = () => {
         category: p.category,
         price: currentPrice,
         originalPrice: mrp > currentPrice ? mrp : undefined,
-        // Handle image fallbacks
         imageUrl:
           p.imageUrl ||
           (p.images && p.images.length > 0 ? p.images[0] : "/placeholder.png"),
@@ -128,7 +124,6 @@ const ProductsPage = () => {
       };
     });
 
-    // Update Max Price for slider dynamically
     const highestPrice = Math.max(...products.map((p) => p.price), 1000);
     if (highestPrice !== maxPrice && highestPrice > 0) {
       setMaxPrice(highestPrice);
@@ -136,12 +131,11 @@ const ProductsPage = () => {
     }
 
     return products;
-  }, [reduxProducts]);
+  }, [reduxProducts, maxPrice]);
 
-  // 2. Filter and Sort Products (Client Side)
+  // Filter and Sort Products
   const filteredAndSortedProducts = useMemo(() => {
     const filtered = formattedProducts.filter((product) => {
-      // Search Logic
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -149,19 +143,16 @@ const ProductsPage = () => {
           tag.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-      // Category Logic
       const matchesCategory =
         selectedCategory === "All Categories" ||
         product.category === selectedCategory;
 
-      // Price Logic
       const matchesPrice =
         product.price >= priceRange[0] && product.price <= priceRange[1];
 
       return matchesSearch && matchesCategory && matchesPrice;
     });
 
-    // Sort Logic
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "name-asc":
@@ -182,7 +173,7 @@ const ProductsPage = () => {
     return filtered;
   }, [searchTerm, selectedCategory, sortBy, priceRange, formattedProducts]);
 
-  // 3. Pagination Logic
+  // Pagination Logic
   const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -193,7 +184,6 @@ const ProductsPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Helper to render stars
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
@@ -281,11 +271,11 @@ const ProductsPage = () => {
           <Button
             onClick={() =>
               addToCart({
+                // FIXED: Changed 'productId' to 'id' and 'image' to 'imageUrl'
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                image: product.imageUrl,
-                quantity: 1,
+                imageUrl: product.imageUrl,
               })
             }
             disabled={!product.inStock}
@@ -297,14 +287,11 @@ const ProductsPage = () => {
           <Button
             onClick={() =>
               toggleWishlistItem({
+                // FIXED: Only passing id, name, price, imageUrl. Changed 'productId' to 'id'.
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                image: product.imageUrl,
-                originalPrice: product.originalPrice,
-                rating: product.rating,
-                reviews: product.reviews,
-                inStock: product.inStock,
+                imageUrl: product.imageUrl,
               })
             }
             variant="outline"
@@ -325,14 +312,17 @@ const ProductsPage = () => {
     </motion.div>
   );
 
+  // ... (rest of the return statement remains exactly the same as previous code)
   return (
     <div className="bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 min-h-screen">
       <CommonHero
         title="Our Products"
         description="Discover our premium collection of wellness products designed to support your health journey."
         image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?q=80&w=800&auto=format&fit=crop"
-        breadcrumbs={[{ label: "Products" }]}
-      />      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        breadcrumbs={[{ label: "Products", href: "/products" }]}
+      />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Search and Filter Bar */}
         <div className="bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
@@ -390,6 +380,7 @@ const ProductsPage = () => {
               </Button>
             </div>
           </div>
+
           {/* Mobile Filters */}
           {showFilters && (
             <motion.div
@@ -400,13 +391,13 @@ const ProductsPage = () => {
             >
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Category
                   </label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#ea8f39] focus:outline-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 focus:border-blue-500 focus:outline-none dark:bg-slate-700 dark:text-white"
                   >
                     {categories.map((category) => (
                       <option key={category} value={category}>
@@ -417,7 +408,7 @@ const ProductsPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Price Range: ₹{priceRange[0]} - ₹{priceRange[1]}
                   </label>
                   <input
@@ -428,7 +419,7 @@ const ProductsPage = () => {
                     onChange={(e) =>
                       setPriceRange([priceRange[0], parseInt(e.target.value)])
                     }
-                    className="w-full"
+                    className="w-full accent-blue-600"
                   />
                 </div>
               </div>

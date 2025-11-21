@@ -18,6 +18,7 @@ import appointmentReducer from "./features/appointmentSlice";
 import prescriptionReducer from "./features/prescriptionSlice";
 import reportReducer from "./features/reportSlice";
 import dashboardReducer from "./features/dashboardSlice";
+import patientReducer from "./features/patientSlice";
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ export const store = configureStore({
     prescriptions: prescriptionReducer,
     reports: reportReducer,
     dashboard: dashboardReducer, 
+    patients: patientReducer,
   },
 });
 

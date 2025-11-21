@@ -65,16 +65,17 @@ import {
 // Redux Imports
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
-  fetchUsersData,
-  selectUsersData,
-  selectUsersLoading,
-  selectUsersError,
-  setFilters,
-  updateUser,
-  deleteUser,
-  createUser,
-  User,
-} from "@/lib/redux/features/userSlice";
+  fetchPatients,
+  fetchPatientStats,
+  selectPatientsData,
+  selectPatientsLoading,
+  selectPatientsError,
+  selectPatientStats,
+  createPatient,
+  updatePatientRecord,
+  deletePatientRecord,
+  exportPatientsList,
+} from "@/lib/redux/features/patientSlice";
 
 // Patient UI interface
 interface PatientUI {
@@ -103,9 +104,10 @@ interface PatientUI {
 
 const PatientsPage = () => {
   const dispatch = useAppDispatch();
-  const rawUsers = useAppSelector(selectUsersData);
-  const isLoading = useAppSelector(selectUsersLoading);
-  const error = useAppSelector(selectUsersError);
+  const rawPatients = useAppSelector(selectPatientsData);
+  const isLoading = useAppSelector(selectPatientsLoading);
+  const error = useAppSelector(selectPatientsError);
+  const patientStats = useAppSelector(selectPatientStats);
 
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const [searchTerm, setSearchTerm] = useState("");
@@ -122,53 +124,53 @@ const PatientsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
-  // Fetch patients (customers) on mount
+  // Fetch patients on mount
   useEffect(() => {
-    dispatch(setFilters({ role: "Customer" }));
-    dispatch(fetchUsersData());
+    dispatch(fetchPatients());
+    dispatch(fetchPatientStats());
   }, [dispatch]);
 
   // Map Redux users to PatientUI
-  const patients: PatientUI[] = rawUsers
-    .filter((user) => user.role === "Customer")
-    .map((user: User) => ({
-      id: user._id,
-      name: `${user.firstName} ${user.lastName}`,
-      email: user.email,
-      phone: user.phone,
-      avatar: user.imageUrl || "",
-      status: user.status || "active",
-      totalVisits: 0,
-      totalFees: 0,
-      lastVisit: user.updatedAt,
-      joinDate: user.createdAt,
-      location: user.location || "Not specified",
-      patientType: user.patientType || "new",
-      age: user.age || 0,
-      bloodGroup: user.bloodGroup || "Unknown",
-      medicalHistory: user.medicalHistory || [],
-      currentMedications: user.currentMedications || [],
-      allergies: user.allergies || [],
-      emergencyContact: user.emergencyContact || "",
-      insuranceProvider: user.insuranceProvider || "None",
-      tags: user.tags || [],
-      notes: user.note || "",
-    }));
+  const patients: PatientUI[] = rawPatients.map((patient) => ({
+    id: patient._id,
+    name: `${patient.firstName} ${patient.lastName}`.trim(),
+    email: patient.email,
+    phone: patient.phone,
+    avatar: patient.avatar || "",
+    status: patient.status || "active",
+    totalVisits: patient.totalVisits || 0,
+    totalFees: patient.totalFees || 0,
+    lastVisit: patient.lastVisit || patient.updatedAt,
+    joinDate: patient.createdAt,
+    location: patient.location || "Not specified",
+    patientType: patient.patientType || "new",
+    age: patient.age || 0,
+    bloodGroup: patient.bloodGroup || "Unknown",
+    medicalHistory: patient.medicalHistory || [],
+    currentMedications: patient.currentMedications || [],
+    allergies: patient.allergies || [],
+    emergencyContact: patient.emergencyContact || "",
+    insuranceProvider: patient.insuranceProvider || "None",
+    tags: patient.tags || [],
+    notes: patient.note || "",
+  }));
 
   // Filter and sort patients
   const filteredPatients = patients
     .filter((patient) => {
+      const normalizedStatus = (patient.status || "").toLowerCase();
+      const normalizedType = (patient.patientType || "").toLowerCase();
       const matchesSearch =
         patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.phone.includes(searchTerm) ||
         patient.bloodGroup.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus =
-        statusFilter === "all" || patient.status === statusFilter;
+        statusFilter === "all" || normalizedStatus === statusFilter;
       const matchesType =
-        patientTypeFilter === "all" ||
-        patient.patientType === patientTypeFilter;
+        patientTypeFilter === "all" || normalizedType === patientTypeFilter;
       return matchesSearch && matchesStatus && matchesType;
     })
     .sort((a, b) => {
@@ -235,8 +237,10 @@ const PatientsPage = () => {
 
   const handleDeletePatient = async (patientId: string) => {
     if (confirm("Are you sure you want to delete this patient?")) {
-      await dispatch(deleteUser(patientId));
-      dispatch(fetchUsersData());
+      const success = await dispatch(deletePatientRecord(patientId));
+      if (success) {
+        dispatch(fetchPatientStats());
+      }
     }
   };
 
@@ -260,11 +264,11 @@ const PatientsPage = () => {
       patientType: formData.get("patientType") as string,
     };
 
-    const success = await dispatch(createUser(newPatient));
+    const success = await dispatch(createPatient(newPatient));
     setIsSubmitting(false);
     if (success) {
       setIsAddModalOpen(false);
-      dispatch(fetchUsersData());
+      dispatch(fetchPatientStats());
     }
   };
 
@@ -302,13 +306,45 @@ const PatientsPage = () => {
         .filter(Boolean),
     };
 
-    const success = await dispatch(updateUser(selectedPatient.id, updatedData));
+    const success = await dispatch(
+      updatePatientRecord(selectedPatient.id, updatedData)
+    );
     setIsSubmitting(false);
     if (success) {
       setIsEditModalOpen(false);
-      dispatch(fetchUsersData());
+      dispatch(fetchPatientStats());
     }
   };
+
+  const handleExportPatients = async () => {
+    setIsExporting(true);
+    try {
+      const blob = await exportPatientsList();
+      if (blob) {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `patients-${new Date().toISOString()}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const totalPatientsCount = patientStats?.totalPatients ?? patients.length;
+  const activePatientsCount =
+    patientStats?.activePatients ??
+    patients.filter((p) => p.status.toLowerCase() === "active").length;
+  const vipPatientsCount =
+    patientStats?.vipPatients ??
+    patients.filter((p) => p.patientType.toLowerCase() === "vip").length;
+  const newPatientsCount =
+    patientStats?.newPatients ??
+    patients.filter((p) => p.patientType.toLowerCase() === "new").length;
 
   return (
     <TooltipProvider>
@@ -322,9 +358,18 @@ const PatientsPage = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <Download className="w-4 h-4" />
-              Export Records
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleExportPatients}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {isExporting ? "Exporting..." : "Export Records"}
             </Button>
             <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
               <UserPlus className="w-4 h-4" />
@@ -343,7 +388,7 @@ const PatientsPage = () => {
                     Total Patients
                   </p>
                   <p className="text-2xl font-bold text-foreground">
-                    {patients.length}
+                    {totalPatientsCount}
                   </p>
                   <p className="text-sm text-emerald-600 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" />
@@ -362,17 +407,12 @@ const PatientsPage = () => {
                     Active Patients
                   </p>
                   <p className="text-2xl font-bold text-foreground">
-                    {patients.filter((p) => p.status === "active").length}
+                    {activePatientsCount}
                   </p>
                   <p className="text-sm text-blue-600 flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
-                    {patients.length > 0
-                      ? Math.round(
-                          (patients.filter((p) => p.status === "active")
-                            .length /
-                            patients.length) *
-                            100
-                        )
+                    {totalPatientsCount > 0
+                      ? Math.round((activePatientsCount / totalPatientsCount) * 100)
                       : 0}
                     % of total
                   </p>
@@ -387,7 +427,7 @@ const PatientsPage = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">VIP Patients</p>
                   <p className="text-2xl font-bold text-foreground">
-                    {patients.filter((p) => p.patientType === "vip").length}
+                    {vipPatientsCount}
                   </p>
                   <p className="text-sm text-purple-600 flex items-center gap-1">
                     <Star className="w-3 h-3" />
@@ -404,7 +444,7 @@ const PatientsPage = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">New Patients</p>
                   <p className="text-2xl font-bold text-foreground">
-                    {patients.filter((p) => p.patientType === "new").length}
+                    {newPatientsCount}
                   </p>
                   <p className="text-sm text-orange-600 flex items-center gap-1">
                     <Heart className="w-3 h-3" />
@@ -521,7 +561,7 @@ const PatientsPage = () => {
                   {error}
                 </p>
                 <Button
-                  onClick={() => dispatch(fetchUsersData())}
+                  onClick={() => dispatch(fetchPatients())}
                   variant="outline"
                 >
                   Try Again
@@ -1086,9 +1126,9 @@ const PatientsPage = () => {
                         <Textarea
                           id="editMedicalHistory"
                           name="medicalHistory"
-                          defaultValue={selectedPatient.medicalHistory.join(
-                            ", "
-                          )}
+                          defaultValue={
+                            selectedPatient.medicalHistory?.join(", ") || ""
+                          }
                           placeholder="Diabetes, Hypertension, etc."
                         />
                       </div>
@@ -1099,9 +1139,9 @@ const PatientsPage = () => {
                         <Textarea
                           id="editMedications"
                           name="currentMedications"
-                          defaultValue={selectedPatient.currentMedications.join(
-                            ", "
-                          )}
+                          defaultValue={
+                            selectedPatient.currentMedications?.join(", ") || ""
+                          }
                           placeholder="Metformin 500mg, Aspirin 75mg, etc."
                         />
                       </div>
@@ -1112,7 +1152,9 @@ const PatientsPage = () => {
                         <Textarea
                           id="editAllergies"
                           name="allergies"
-                          defaultValue={selectedPatient.allergies.join(", ")}
+                          defaultValue={
+                            selectedPatient.allergies?.join(", ") || ""
+                          }
                           placeholder="Penicillin, Peanuts, etc."
                         />
                       </div>
