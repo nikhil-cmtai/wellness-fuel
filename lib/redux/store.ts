@@ -13,6 +13,11 @@ import sessionReducer from "./features/sessionSlice";
 import popupReducer from "./features/popupSlice";
 import couponReducer from "./features/couponSlice";
 import newsletterReducer from "./features/newsletterSlice";
+import notesReducer from "./features/notesSlice";
+import appointmentReducer from "./features/appointmentSlice";
+import prescriptionReducer from "./features/prescriptionSlice";
+import reportReducer from "./features/reportSlice";
+import dashboardReducer from "./features/dashboardSlice";
 
 export const store = configureStore({
   reducer: {
@@ -30,6 +35,11 @@ export const store = configureStore({
     popups: popupReducer,
     coupons: couponReducer,
     newsletters: newsletterReducer,
+    notes: notesReducer,
+    appointments: appointmentReducer,
+    prescriptions: prescriptionReducer,
+    reports: reportReducer,
+    dashboard: dashboardReducer, 
   },
 });
 

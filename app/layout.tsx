@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/lib/redux/provider";
+import PromoPopup from "@/components/home/promo-popup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
         <ReduxProvider>
           {children}
+          <PromoPopup />
         </ReduxProvider>
       </body>
     </html>

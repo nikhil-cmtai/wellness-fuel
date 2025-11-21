@@ -87,9 +87,9 @@ const ReviewsPage = () => {
     setCurrentPage(1)
   }, [filters])
 
-  const handleUpdateReviewStatus = async (reviewId: string, _newStatus: "Pending" | "Approved" | "Rejected") => {
+  const handleUpdateReviewStatus = async (reviewId: string, newStatus: "Pending" | "Approved" | "Rejected") => {
     try {
-      await dispatch(updateReviewStatus(reviewId))
+      await dispatch(updateReviewStatus(reviewId, newStatus))
       await dispatch(fetchReviewsData())
       setShowEditModal(false)
     } catch (error) {

@@ -1,104 +1,145 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Star, Quote, CheckCircle, Heart } from "lucide-react";
-import { motion } from 'framer-motion';
+import { Star, Quote, CheckCircle, Heart, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import {
+  fetchTestimonialsReviews,
+  selectTestimonialsData,
+  selectTestimonialsError,
+  selectTestimonialsLoading,
+} from "@/lib/redux/features/reviewSlice";
 
 // Define interface for Testimonial
 interface Testimonial {
-  id: number;
+  id: number | string;
   name: string;
   role: string;
   imageUrl: string;
   fallbackInitials: string;
   rating: number;
   text: string;
-  location: string;
+  location?: string;
   verified: boolean;
 }
 
+const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+const fallbackTestimonials: Testimonial[] = [
+  {
+    id: 1,
+    name: "Sarah Johnson",
+    role: "Patient",
+    imageUrl:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b1c7?q=80&w=400&auto=format&fit=crop",
+    fallbackInitials: "SJ",
+    rating: 5,
+    text: "Wellness Fuel transformed my healthcare experience. The doctors are incredibly knowledgeable and the platform is so easy to use. I can get medical advice anytime, anywhere.",
+    location: "New York, NY",
+    verified: true,
+  },
+  {
+    id: 2,
+    name: "Dr. Michael Chen",
+    role: "Cardiologist",
+    imageUrl:
+      "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=400&auto=format&fit=crop",
+    fallbackInitials: "MC",
+    rating: 5,
+    text: "As a healthcare provider, I love how this platform streamlines patient care. The telemedicine features are excellent and help me reach more patients effectively.",
+    location: "Los Angeles, CA",
+    verified: true,
+  },
+  {
+    id: 3,
+    name: "Emily Rodriguez",
+    role: "Patient",
+    imageUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop",
+    fallbackInitials: "ER",
+    rating: 5,
+    text: "The personalized wellness programs have been life-changing. I've never felt more supported in my health journey. Highly recommend to anyone looking for quality healthcare.",
+    location: "Miami, FL",
+    verified: true,
+  },
+  {
+    id: 4,
+    name: "Dr. Lisa Thompson",
+    role: "Family Medicine",
+    imageUrl:
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400&auto=format&fit=crop",
+    fallbackInitials: "LT",
+    rating: 5,
+    text: "This platform has revolutionized how I practice medicine. The patient management tools are intuitive and the 24/7 support system is outstanding.",
+    location: "Seattle, WA",
+    verified: true,
+  },
+  {
+    id: 5,
+    name: "James Wilson",
+    role: "Patient",
+    imageUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop",
+    fallbackInitials: "JW",
+    rating: 5,
+    text: "The emergency care coordination saved my life. The response time was incredible and the follow-up care was comprehensive. I'm forever grateful.",
+    location: "Chicago, IL",
+    verified: true,
+  },
+  {
+    id: 6,
+    name: "Dr. Amanda Foster",
+    role: "Mental Health Specialist",
+    imageUrl:
+      "https://images.unsplash.com/photo-1582750433449-648ed127bb54?q=80&w=400&auto=format&fit=crop",
+    fallbackInitials: "AF",
+    rating: 5,
+    text: "The mental health resources and support system are exceptional. It's wonderful to see technology being used to make mental healthcare more accessible.",
+    location: "Boston, MA",
+    verified: true,
+  },
+];
+
 const TestimonialSection: React.FC = () => {
-  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+  const dispatch = useAppDispatch();
+  const remoteTestimonials = useAppSelector(selectTestimonialsData);
+  const testimonialsLoading = useAppSelector(selectTestimonialsLoading);
+  const testimonialsError = useAppSelector(selectTestimonialsError);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
-  const handleImageError = (testimonialId: number): void => {
-    setImageErrors((prev) => ({ ...prev, [testimonialId]: true }));
+  useEffect(() => {
+    dispatch(fetchTestimonialsReviews(8));
+  }, [dispatch]);
+
+  const normalizedTestimonials = useMemo(() => {
+    if (!remoteTestimonials.length) return [];
+    return remoteTestimonials.map((review) => ({
+      id: review._id,
+      name: review.name,
+      role: review.title || "Patient",
+      imageUrl: review.images?.[0] || "",
+      fallbackInitials: getInitials(review.name),
+      rating: review.rating || 5,
+      text: review.review,
+      location: review.email,
+      verified: review.status === "Approved",
+    }));
+  }, [remoteTestimonials]);
+
+  const testimonials =
+    normalizedTestimonials.length > 0 ? normalizedTestimonials : fallbackTestimonials;
+
+  const handleImageError = (testimonialId: number | string): void => {
+    setImageErrors((prev) => ({ ...prev, [String(testimonialId)]: true }));
   };
-
-  const testimonials: Testimonial[] = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      role: "Patient",
-      imageUrl:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b1c7?q=80&w=400&auto=format&fit=crop",
-      fallbackInitials: "SJ",
-      rating: 5,
-      text: "Wellness Fuel transformed my healthcare experience. The doctors are incredibly knowledgeable and the platform is so easy to use. I can get medical advice anytime, anywhere.",
-      location: "New York, NY",
-      verified: true,
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      role: "Cardiologist",
-      imageUrl:
-        "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=400&auto=format&fit=crop",
-      fallbackInitials: "MC",
-      rating: 5,
-      text: "As a healthcare provider, I love how this platform streamlines patient care. The telemedicine features are excellent and help me reach more patients effectively.",
-      location: "Los Angeles, CA",
-      verified: true,
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      role: "Patient",
-      imageUrl:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop",
-      fallbackInitials: "ER",
-      rating: 5,
-      text: "The personalized wellness programs have been life-changing. I've never felt more supported in my health journey. Highly recommend to anyone looking for quality healthcare.",
-      location: "Miami, FL",
-      verified: true,
-    },
-    {
-      id: 4,
-      name: "Dr. Lisa Thompson",
-      role: "Family Medicine",
-      imageUrl:
-        "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400&auto=format&fit=crop",
-      fallbackInitials: "LT",
-      rating: 5,
-      text: "This platform has revolutionized how I practice medicine. The patient management tools are intuitive and the 24/7 support system is outstanding.",
-      location: "Seattle, WA",
-      verified: true,
-    },
-    {
-      id: 5,
-      name: "James Wilson",
-      role: "Patient",
-      imageUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop",
-      fallbackInitials: "JW",
-      rating: 5,
-      text: "The emergency care coordination saved my life. The response time was incredible and the follow-up care was comprehensive. I'm forever grateful.",
-      location: "Chicago, IL",
-      verified: true,
-    },
-    {
-      id: 6,
-      name: "Dr. Amanda Foster",
-      role: "Mental Health Specialist",
-      imageUrl:
-        "https://images.unsplash.com/photo-1582750433449-648ed127bb54?q=80&w=400&auto=format&fit=crop",
-      fallbackInitials: "AF",
-      rating: 5,
-      text: "The mental health resources and support system are exceptional. It's wonderful to see technology being used to make mental healthcare more accessible.",
-      location: "Boston, MA",
-      verified: true,
-    },
-  ];
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
@@ -293,6 +334,18 @@ const TestimonialSection: React.FC = () => {
           </motion.div>
         </motion.div>
 
+        {testimonialsError && (
+          <p className="text-center text-sm text-red-500 mt-4 mb-8">
+            {testimonialsError}
+          </p>
+        )}
+
+        {testimonialsLoading && (
+          <div className="flex items-center justify-center mb-8 text-primary">
+            <Loader2 className="w-6 h-6 animate-spin" />
+          </div>
+        )}
+
         {/* Testimonials Marquee */}
         <div className="relative overflow-hidden mb-16 space-y-8">
           {/* First Row - Left to Right */}
@@ -346,7 +399,7 @@ const TestimonialSection: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-lg">
-                      {!imageErrors[testimonial.id] ? (
+                      {!imageErrors[String(testimonial.id)] ? (
                         <Image
                           src={testimonial.imageUrl}
                           alt={`Portrait of ${testimonial.name}`}
@@ -420,7 +473,7 @@ const TestimonialSection: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-lg">
-                      {!imageErrors[testimonial.id] ? (
+                      {!imageErrors[String(testimonial.id)] ? (
                         <Image
                           src={testimonial.imageUrl}
                           alt={`Portrait of ${testimonial.name}`}

@@ -1,6 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AppDispatch } from "../store";
+import { AppDispatch, RootState } from "../store";
 import axios from "axios";
+
+const sanitizeBaseUrl = (url?: string) => {
+    if (!url) return "";
+    return url.endsWith("/") ? url.slice(0, -1) : url;
+};
+
+const API_BASE_URL = `${sanitizeBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL)}/reviews`;
 
 // Define the Review type
 export interface Review {
@@ -33,8 +40,11 @@ interface ApiReview {
 // Define the state structure
 interface ReviewState {
     data: Review[];
+    publicTestimonials: Review[];
     isLoading: boolean;
+    isTestimonialsLoading: boolean;
     error: string | null;
+    testimonialsError: string | null;
     selectedReview: Review | null;
     filters: {
         status: "Pending" | "Approved" | "Rejected" | "";
@@ -45,8 +55,11 @@ interface ReviewState {
 // Initial state
 const initialState: ReviewState = {
     data: [],
+    publicTestimonials: [],
     isLoading: false,
+    isTestimonialsLoading: false,
     error: null,
+    testimonialsError: null,
     selectedReview: null,
     filters: {
         status: "",
@@ -83,6 +96,19 @@ const reviewSlice = createSlice({
         clearSelectedReview: (state) => {
             state.selectedReview = null;
         },
+        setTestimonialsLoading: (state) => {
+            state.isTestimonialsLoading = true;
+            state.testimonialsError = null;
+        },
+        setTestimonialsData: (state, action: PayloadAction<Review[]>) => {
+            state.publicTestimonials = action.payload;
+            state.isTestimonialsLoading = false;
+            state.testimonialsError = null;
+        },
+        setTestimonialsError: (state, action: PayloadAction<string>) => {
+            state.isTestimonialsLoading = false;
+            state.testimonialsError = action.payload;
+        },
     },
 });
 
@@ -94,6 +120,9 @@ export const {
     setSelectedReview,
     setFilters,
     clearSelectedReview,
+    setTestimonialsLoading,
+    setTestimonialsData,
+    setTestimonialsError,
 } = reviewSlice.actions;
 
 // Helper function to map API review to our Review interface
@@ -122,26 +151,20 @@ const handleApiError = (error: unknown) => {
 };
 
 // Fetch reviews with filters
-export const fetchReviewsData = () => async (dispatch: AppDispatch, getState: () => { reviews: ReviewState }) => {
+export const fetchReviewsData = () => async (dispatch: AppDispatch, getState: () => RootState) => {
     dispatch(setReviewLoading());
     try {
         const { filters } = getState().reviews;
-        const queryParams = new URLSearchParams();
+        const params: Record<string, string> = {};
 
-        // Add filter parameters if they exist
         if (filters.status) {
-            queryParams.append('status', filters.status);
+            params.status = filters.status;
         }
         if (filters.name) {
-            queryParams.append('name', filters.name);
+            params.search = filters.name;
         }
 
-        const queryString = queryParams.toString();
-        const url = queryString ?
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews?${queryString}` :
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews`;
-
-        const response = await axios.get(url);
+        const response = await axios.get(API_BASE_URL, { params });
 
         if (response.data?.success && Array.isArray(response.data.data)) {
             const mappedReviews = response.data.data.map((review: ApiReview) => mapApiReviewToReview(review));
@@ -161,9 +184,7 @@ export const fetchReviewsData = () => async (dispatch: AppDispatch, getState: ()
 export const fetchReviewById = (reviewId: string) => async (dispatch: AppDispatch) => {
     dispatch(setReviewLoading());
     try {
-        const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews/getReviewById/${reviewId}`
-        );
+        const response = await axios.get(`${API_BASE_URL}/${reviewId}`);
         if (response.data?.success) {
             const review = response.data.data;
             const mappedReview = mapApiReviewToReview(review);
@@ -183,11 +204,15 @@ export const fetchReviewById = (reviewId: string) => async (dispatch: AppDispatc
 export const fetchLatestReviews = () => async (dispatch: AppDispatch) => {
     dispatch(setReviewLoading());
     try {
-        const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews/getLatestReviews`
-        );
-        if (response.data?.success) {
-            const mappedReviews = response.data.data.reviews.map((review: ApiReview) => mapApiReviewToReview(review));
+        const response = await axios.get(API_BASE_URL, {
+            params: {
+                status: "Approved",
+                limit: 5,
+                sort: "desc",
+            },
+        });
+        if (response.data?.success && Array.isArray(response.data.data)) {
+            const mappedReviews = response.data.data.map((review: ApiReview) => mapApiReviewToReview(review));
             dispatch(setReviewData(mappedReviews));
         } else {
             throw new Error(response.data?.message || "Failed to fetch latest reviews");
@@ -203,15 +228,11 @@ export const fetchLatestReviews = () => async (dispatch: AppDispatch) => {
 // Add a new review
 export const createReview = (newReview: FormData) => async (dispatch: AppDispatch) => {
     try {
-        const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews/newReview`,
-            newReview,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
-        );
+        const response = await axios.post(API_BASE_URL, newReview, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         if (response.data?.success) {
             dispatch(setReviewLoading());
             return true;
@@ -228,9 +249,12 @@ export const createReview = (newReview: FormData) => async (dispatch: AppDispatc
 };
 
 // Update review status
-export const updateReviewStatus = (reviewId: string) => async (dispatch: AppDispatch) => {
+export const updateReviewStatus = (
+    reviewId: string,
+    status: "Pending" | "Approved" | "Rejected"
+) => async (dispatch: AppDispatch) => {
     try {
-        const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews/updateReviewStatus/${reviewId}`);
+        const response = await axios.patch(`${API_BASE_URL}/${reviewId}/status`, { status });
         if (response.data?.success) {
             dispatch(setReviewLoading());
             return true;
@@ -246,15 +270,11 @@ export const updateReviewStatus = (reviewId: string) => async (dispatch: AppDisp
 // Edit a review
 export const updateReview = (reviewId: string, updatedData: FormData) => async (dispatch: AppDispatch) => {
     try {
-        const response = await axios.put(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews/updateReview/${reviewId}`,
-            updatedData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
-        );
+        const response = await axios.put(`${API_BASE_URL}/${reviewId}`, updatedData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         if (response.data?.success) {
             dispatch(setReviewLoading());
             return true;
@@ -271,9 +291,7 @@ export const updateReview = (reviewId: string, updatedData: FormData) => async (
 // Delete a review
 export const deleteReview = (reviewId: string) => async (dispatch: AppDispatch) => {
     try {
-        const response = await axios.delete(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/reviews/deleteReview/${reviewId}`
-        );
+        const response = await axios.delete(`${API_BASE_URL}/${reviewId}`);
         if (response.data?.success) {
             dispatch(setReviewLoading());
             return true;
@@ -287,12 +305,39 @@ export const deleteReview = (reviewId: string) => async (dispatch: AppDispatch) 
     }
 };
 
+// Public testimonials fetcher
+export const fetchTestimonialsReviews = (limit = 6) => async (dispatch: AppDispatch) => {
+    dispatch(setTestimonialsLoading());
+    try {
+        const response = await axios.get(API_BASE_URL, {
+            params: {
+                status: "Approved",
+                limit,
+                sort: "desc",
+            },
+        });
+        if (response.data?.success && Array.isArray(response.data.data)) {
+            const mappedReviews = response.data.data.map((review: ApiReview) => mapApiReviewToReview(review));
+            dispatch(setTestimonialsData(mappedReviews));
+            return true;
+        }
+        throw new Error(response.data?.message || "Failed to fetch testimonials");
+    } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setTestimonialsError(errorMessage));
+        return false;
+    }
+};
+
 // Selectors
-export const selectReviewsData = (state: { reviews: ReviewState }) => state.reviews.data;
-export const selectReviewsLoading = (state: { reviews: ReviewState }) => state.reviews.isLoading;
-export const selectReviewsError = (state: { reviews: ReviewState }) => state.reviews.error;
-export const selectSelectedReview = (state: { reviews: ReviewState }) => state.reviews.selectedReview;
-export const selectReviewsFilters = (state: { reviews: ReviewState }) => state.reviews.filters;
+export const selectReviewsData = (state: RootState) => state.reviews.data;
+export const selectReviewsLoading = (state: RootState) => state.reviews.isLoading;
+export const selectReviewsError = (state: RootState) => state.reviews.error;
+export const selectSelectedReview = (state: RootState) => state.reviews.selectedReview;
+export const selectReviewsFilters = (state: RootState) => state.reviews.filters;
+export const selectTestimonialsData = (state: RootState) => state.reviews.publicTestimonials;
+export const selectTestimonialsLoading = (state: RootState) => state.reviews.isTestimonialsLoading;
+export const selectTestimonialsError = (state: RootState) => state.reviews.testimonialsError;
 
 // Export the reducer
 export default reviewSlice.reducer;

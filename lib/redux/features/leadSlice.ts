@@ -344,7 +344,7 @@ export const fetchLatestLeads = () => async (dispatch: AppDispatch) => {
 export const createLead = (newLead: Partial<Lead>) => async (dispatch: AppDispatch) => {
   try {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/leads/newLead`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/leads/`,
       newLead
     );
     if (response.data?.success) {
@@ -361,7 +361,6 @@ export const createLead = (newLead: Partial<Lead>) => async (dispatch: AppDispat
     return false;
   }
 };
-
 // Update lead status
 export const updateLeadStatus = (leadId: string, status: string) => async (dispatch: AppDispatch) => {
   try {
@@ -379,7 +378,6 @@ export const updateLeadStatus = (leadId: string, status: string) => async (dispa
     dispatch(setLeadError(errorMessage));
   }
 };
-
 // Update lead priority
 export const updateLeadPriority = (leadId: string, priority: string) => async (dispatch: AppDispatch) => {
   try {

@@ -1,66 +1,114 @@
 "use client"
 import React, { useState } from 'react'
-import { Phone, Mail, MapPin, Clock, MessageCircle, Send } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  MessageCircle,
+  Send,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import CommonHero from "@/components/common/common-hero";
 
+// Redux Imports
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { createLead, selectLeadsLoading } from "@/lib/redux/features/leadSlice";
+
 const Contact = () => {
+  const dispatch = useAppDispatch();
+  const isLoading = useAppSelector(selectLeadsLoading);
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
-  })
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    })
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Prepare data object matching your Lead interface
+    const newLeadData = {
+      ...formData,
+      status: "New", // Default status for web inquiries
+      priority: "Medium", // Default priority
+      source: "Website Contact Form",
+      estimatedValue: 0,
+    };
+
+    try {
+      // Dispatch the createLead action
+      const success = await dispatch(createLead(newLeadData));
+
+      if (success) {
+        alert("Message sent successfully! Our team will contact you soon.");
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        alert("Failed to send message. Please try again later.");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("An unexpected error occurred.");
+    }
+  };
 
   const contactInfo = [
     {
       icon: Phone,
       title: "Phone",
       details: ["+1 (555) 123-4567", "+1 (555) 987-6543"],
-      description: "Call us for immediate assistance"
+      description: "Call us for immediate assistance",
     },
     {
       icon: Mail,
       title: "Email",
       details: ["hello@wellnessfuel.com", "support@wellnessfuel.com"],
-      description: "Send us an email anytime"
+      description: "Send us an email anytime",
     },
     {
       icon: MapPin,
       title: "Address",
-      details: ["123 Health Street", "Wellness City, WC 12345", "United States"],
-      description: "Visit our main office"
+      details: [
+        "123 Health Street",
+        "Wellness City, WC 12345",
+        "United States",
+      ],
+      description: "Visit our main office",
     },
     {
       icon: Clock,
       title: "Business Hours",
-      details: ["Mon - Fri: 8:00 AM - 8:00 PM", "Sat: 9:00 AM - 6:00 PM", "Sun: 10:00 AM - 4:00 PM"],
-      description: "We're here to help you"
-    }
-  ]
+      details: [
+        "Mon - Fri: 8:00 AM - 8:00 PM",
+        "Sat: 9:00 AM - 6:00 PM",
+        "Sun: 10:00 AM - 4:00 PM",
+      ],
+      description: "We're here to help you",
+    },
+  ];
 
   const subjects = [
     "General Inquiry",
@@ -70,8 +118,8 @@ const Contact = () => {
     "Emergency Care",
     "Pharmacy Services",
     "Feedback",
-    "Other"
-  ]
+    "Other",
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
@@ -80,19 +128,18 @@ const Contact = () => {
         title="Contact Us"
         description="Get in touch with our team. We're here to help you with all your healthcare needs."
         image="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?q=80&w=800&auto=format&fit=crop"
-        breadcrumbs={[
-          { label: "Contact Us", href: "/contact" },
-        ]}
+        breadcrumbs={[{ label: "Contact Us", href: "/contact" }]}
       />
-      <div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Contact Us
-          </h1>
-          <p className="text-xl text-white/90 max-w-3xl mx-auto">
-            Get in touch with our team. We&apos;re here to help you with all your healthcare needs.
-          </p>
-        </div>
+
+      {/* Intro Text */}
+      <div className="pt-12 text-center px-4">
+        <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          We'd Love to Hear From You
+        </h1>
+        <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+          Whether you have a question about features, pricing, need a demo, or
+          anything else, our team is ready to answer all your questions.
+        </p>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -102,7 +149,7 @@ const Contact = () => {
             <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-8">
               Get in Touch
             </h2>
-            
+
             <div className="space-y-8 mb-12">
               {contactInfo.map((info, index) => (
                 <div key={index} className="flex items-start gap-4">
@@ -115,7 +162,10 @@ const Contact = () => {
                     </h3>
                     <div className="space-y-1 mb-2">
                       {info.details.map((detail, detailIndex) => (
-                        <p key={detailIndex} className="text-slate-600 dark:text-slate-400">
+                        <p
+                          key={detailIndex}
+                          className="text-slate-600 dark:text-slate-400"
+                        >
                           {detail}
                         </p>
                       ))}
@@ -134,7 +184,8 @@ const Contact = () => {
                 Emergency Contact
               </h3>
               <p className="text-red-700 dark:text-red-300 mb-3">
-                For medical emergencies, please call 911 or visit your nearest emergency room.
+                For medical emergencies, please call 911 or visit your nearest
+                emergency room.
               </p>
               <div className="flex items-center gap-2">
                 <Phone className="w-5 h-5 text-red-600" />
@@ -150,11 +201,14 @@ const Contact = () => {
             <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-8">
               Send us a Message
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                  >
                     Full Name *
                   </label>
                   <input
@@ -164,12 +218,16 @@ const Contact = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    disabled={isLoading}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white disabled:opacity-50"
                     placeholder="Your full name"
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                  >
                     Email Address *
                   </label>
                   <input
@@ -179,7 +237,8 @@ const Contact = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    disabled={isLoading}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white disabled:opacity-50"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -187,7 +246,10 @@ const Contact = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                  >
                     Phone Number
                   </label>
                   <input
@@ -196,12 +258,16 @@ const Contact = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    disabled={isLoading}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white disabled:opacity-50"
                     placeholder="+1 (555) 123-4567"
                   />
                 </div>
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label
+                    htmlFor="subject"
+                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                  >
                     Subject *
                   </label>
                   <select
@@ -210,18 +276,24 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white"
+                    disabled={isLoading}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:text-white disabled:opacity-50"
                   >
                     <option value="">Select a subject</option>
                     {subjects.map((subject, index) => (
-                      <option key={index} value={subject}>{subject}</option>
+                      <option key={index} value={subject}>
+                        {subject}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                >
                   Message *
                 </label>
                 <textarea
@@ -230,18 +302,29 @@ const Contact = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   required
+                  disabled={isLoading}
                   rows={6}
-                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-[#ea8f39] focus:border-transparent dark:bg-slate-800 dark:text-white"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-[#ea8f39] focus:border-transparent dark:bg-slate-800 dark:text-white disabled:opacity-50"
                   placeholder="Tell us how we can help you..."
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white py-3 text-lg font-semibold rounded-full shadow-xl shadow-blue-500/50 hover:shadow-2xl hover:shadow-blue-600/60 transition-all duration-300 transform hover:scale-105"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white py-3 text-lg font-semibold rounded-full shadow-xl shadow-blue-500/50 hover:shadow-2xl hover:shadow-blue-600/60 transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
               >
-                <Send className="mr-2 w-5 h-5" />
-                Send Message
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Sending...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Send className="w-5 h-5" />
+                    Send Message
+                  </div>
+                )}
               </Button>
             </form>
           </div>
@@ -284,7 +367,10 @@ const Contact = () => {
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               Chat with our support team in real-time
             </p>
-            <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full">
+            <Button
+              variant="outline"
+              className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full"
+            >
               Start Chat
             </Button>
           </div>
@@ -297,7 +383,10 @@ const Contact = () => {
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               Speak directly with our healthcare professionals
             </p>
-            <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full">
+            <Button
+              variant="outline"
+              className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full"
+            >
               Call Now
             </Button>
           </div>
@@ -310,14 +399,17 @@ const Contact = () => {
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               Get detailed responses within 24 hours
             </p>
-            <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full">
+            <Button
+              variant="outline"
+              className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full"
+            >
               Send Email
             </Button>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Contact

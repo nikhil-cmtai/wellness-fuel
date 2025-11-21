@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
 import axios from "axios";
 
-// Define the User type
 export interface User {
   _id: string;
   firstName: string;
@@ -19,16 +18,12 @@ export interface User {
   address?: string;
   bio?: string;
   imageUrl?: string;
-  
-  // Doctor specific fields
   hospital?: string;
   experience?: number;
   consultationFee?: number;
   specialization?: string;
   location?: string;
   qualifications?: string;
-  
-  // Influencer specific fields
   platform?: string;
   followers?: number;
   category?: string;
@@ -36,11 +31,7 @@ export interface User {
   commissionRate?: number;
   availability?: string;
   note?: string;
-  
-  // Customer specific fields
   customerType?: string;
-  
-  // Common fields
   isActive: boolean;
   language?: string[];
   occupation?: string;
@@ -48,12 +39,10 @@ export interface User {
   age?: number;
   maritalStatus?: "Single" | "Married" | "Divorced" | "Widowed";
   twoFactorEnabled: boolean;
-  
   createdAt: string;
   updatedAt: string;
 }
 
-// Define the API User type (from backend)
 interface ApiUser {
   _id: string;
   firstName: string;
@@ -70,15 +59,12 @@ interface ApiUser {
   address?: string;
   bio?: string;
   imageUrl?: string;
-  // Doctor specific fields
   hospital?: string;
   experience?: number;
   consultationFee?: number;
   specialization?: string;
   location?: string;
   qualifications?: string;
-  
-  // Influencer specific fields
   platform?: string;
   followers?: number;
   category?: string;
@@ -86,11 +72,7 @@ interface ApiUser {
   commissionRate?: number;
   availability?: string;
   note?: string;
-  
-  // Customer specific fields
   customerType?: string;
-  
-  // Common fields
   isActive: boolean;
   language?: string[];
   occupation?: string;
@@ -98,14 +80,12 @@ interface ApiUser {
   age?: number;
   maritalStatus?: "Single" | "Married" | "Divorced" | "Widowed";
   twoFactorEnabled: boolean;
-  
   createdAt: string;
   updatedAt: string;
 }
 
-// Define the User state
 interface UserState {
-    data: User[];
+  data: User[];
   isLoading: boolean;
   error: string | null;
   selectedUser: User | null;
@@ -121,10 +101,9 @@ interface UserState {
   };
 }
 
-// Initial state
 const initialState: UserState = {
   data: [],
-isLoading: false,
+  isLoading: false,
   error: null,
   selectedUser: null,
   filters: {
@@ -139,12 +118,14 @@ isLoading: false,
   },
 };
 
-// Create the slice
 const userSlice = createSlice({
   name: "users",
   initialState,
-  reducers: {   
-    setUserData: (state, action: PayloadAction<{ data: User[]; total: number }>) => {
+  reducers: {
+    setUserData: (
+      state,
+      action: PayloadAction<{ data: User[]; total: number }>
+    ) => {
       state.data = action.payload.data;
       state.pagination.total = action.payload.total;
       state.isLoading = false;
@@ -152,7 +133,7 @@ const userSlice = createSlice({
     },
     setUserLoading: (state) => {
       state.isLoading = true;
-      state.error = null;   
+      state.error = null;
     },
     setUserError: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
@@ -163,30 +144,37 @@ const userSlice = createSlice({
       state.isLoading = false;
       state.error = null;
     },
-    setFilters: (state, action: PayloadAction<Partial<UserState['filters']>>) => {
+    setFilters: (
+      state,
+      action: PayloadAction<Partial<UserState["filters"]>>
+    ) => {
       state.filters = { ...state.filters, ...action.payload };
-      state.pagination.page = 1; // Reset to first page when filters change
+      state.pagination.page = 1;
     },
-    setPagination: (state, action: PayloadAction<Partial<UserState['pagination']>>) => {
+    setPagination: (
+      state,
+      action: PayloadAction<Partial<UserState["pagination"]>>
+    ) => {
       state.pagination = { ...state.pagination, ...action.payload };
     },
     clearSelectedUser: (state) => {
       state.selectedUser = null;
     },
     updateUserInList: (state, action: PayloadAction<User>) => {
-      const index = state.data.findIndex(user => user._id === action.payload._id);
+      const index = state.data.findIndex(
+        (user) => user._id === action.payload._id
+      );
       if (index !== -1) {
         state.data[index] = action.payload;
       }
     },
     removeUserFromList: (state, action: PayloadAction<string>) => {
-      state.data = state.data.filter(user => user._id !== action.payload);
+      state.data = state.data.filter((user) => user._id !== action.payload);
       state.pagination.total = state.pagination.total - 1;
     },
   },
 });
 
-// Export actions
 export const {
   setUserData,
   setUserLoading,
@@ -199,7 +187,6 @@ export const {
   removeUserFromList,
 } = userSlice.actions;
 
-// Helper function to map API user to our User interface
 const mapApiUserToUser = (apiUser: ApiUser): User => ({
   _id: apiUser._id,
   firstName: apiUser.firstName,
@@ -217,15 +204,12 @@ const mapApiUserToUser = (apiUser: ApiUser): User => ({
   address: apiUser.address,
   bio: apiUser.bio,
   imageUrl: apiUser.imageUrl,
-  // Doctor specific fields
   hospital: apiUser.hospital,
   experience: apiUser.experience,
   consultationFee: apiUser.consultationFee,
   specialization: apiUser.specialization,
   location: apiUser.location,
   qualifications: apiUser.qualifications,
-  
-  // Influencer specific fields
   platform: apiUser.platform,
   followers: apiUser.followers,
   category: apiUser.category,
@@ -233,23 +217,17 @@ const mapApiUserToUser = (apiUser: ApiUser): User => ({
   commissionRate: apiUser.commissionRate,
   availability: apiUser.availability,
   note: apiUser.note,
-  
-  // Customer specific fields
   customerType: apiUser.customerType,
-  
-  // Common fields
   isActive: apiUser.isActive,
   language: apiUser.language || [],
   occupation: apiUser.occupation,
   age: apiUser.age,
   maritalStatus: apiUser.maritalStatus,
   twoFactorEnabled: apiUser.twoFactorEnabled,
-  
   createdAt: apiUser.createdAt,
   updatedAt: apiUser.updatedAt,
 });
 
-// Error handler utility
 const handleApiError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message || error.message;
@@ -257,107 +235,34 @@ const handleApiError = (error: unknown) => {
   if (error instanceof Error) {
     return error.message;
   }
-  return 'An unexpected error occurred';
+  return "An unexpected error occurred";
 };
 
-// Fetch users with filters and pagination
-export const fetchUsersData = () => async (dispatch: AppDispatch, getState: () => { users: UserState }) => {
-  dispatch(setUserLoading());
-  try {
-    const { filters, pagination } = getState().users;
-    const queryParams = new URLSearchParams();
-    
-    // Add pagination parameters
-    queryParams.append('page', pagination.page.toString());
-    queryParams.append('limit', pagination.limit.toString());
-
-    // Add filter parameters if they exist
-    if (filters.status && filters.status !== 'All') {
-      queryParams.append('status', filters.status);
-    }
-    if (filters.role && filters.role !== 'All') {
-      queryParams.append('role', filters.role);
-    }
-    if (filters.search) {
-      queryParams.append('search', filters.search);
-    }
-
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/?${queryParams}`
-    );
-
-    if (response.data?.success) {
-      // Map API response to our User interface
-      const mappedUsers = response.data.data.map((user: ApiUser) => mapApiUserToUser(user));
-
-      dispatch(setUserData({
-        data: mappedUsers,
-        total: response.data.pagination.total,
-      }));
-    } else {
-      throw new Error(response.data?.message || "Failed to fetch users");
-    }
-    return true;
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setUserError(errorMessage));
-    return false;
-  }
-};
-
-// Fetch active users
-export const fetchActiveUsers = () => async (dispatch: AppDispatch, getState: () => { users: UserState }) => {
-  dispatch(setUserLoading());
-  try {
-    const { filters, pagination } = getState().users;
-    const queryParams = new URLSearchParams();
-    
-    // Add pagination parameters
-    queryParams.append('page', pagination.page.toString());
-    queryParams.append('limit', pagination.limit.toString());
-
-    // Add filter parameters if they exist
-    if (filters.status && filters.status !== '') {
-      queryParams.append('status', filters.status);
-    }
-    if (filters.search) {
-      queryParams.append('search', filters.search);
-    }
-
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/getActiveUsers?${queryParams}`);
-    if (response.data?.success) {
-      // Map API response to our User interface
-      const mappedUsers = response.data.data.map((user: ApiUser) => mapApiUserToUser(user));
-
-      dispatch(setUserData({
-        data: mappedUsers,
-        total: response.data.pagination.total,
-      }));
-    } else {
-      throw new Error(response.data?.message || "Failed to fetch users");
-    }
-    return true;
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setUserError(errorMessage));
-    return false;
-  }
-};
-
-// Fetch user by ID
-export const fetchUserById = (userId: string) => async (dispatch: AppDispatch) => {
+// ==========================================
+// FIXED: Fetch Doctors Function
+// ==========================================
+export const fetchDoctors = () => async (dispatch: AppDispatch) => {
   dispatch(setUserLoading());
   try {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/getUserById/${userId}`
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/?role=Doctor&limit=50`
     );
+
     if (response.data?.success) {
-      const user = response.data.data;
-      const mappedUser = mapApiUserToUser(user);
-      dispatch(setSelectedUser(mappedUser));
+      const mappedUsers = response.data.data.map((user: ApiUser) =>
+        mapApiUserToUser(user)
+      );
+      const total = response.data.pagination ? response.data.pagination.total : mappedUsers.length;
+
+      dispatch(
+        setUserData({
+          data: mappedUsers,
+          total: total,
+        })
+      );
       return true;
     } else {
-      throw new Error(response.data?.message || "Failed to fetch user");
+      throw new Error(response.data?.message || "Failed to fetch doctors");
     }
   } catch (error: unknown) {
     const errorMessage = handleApiError(error);
@@ -366,89 +271,209 @@ export const fetchUserById = (userId: string) => async (dispatch: AppDispatch) =
   }
 };
 
-// Add a new user
-export const createUser = (newUser: Partial<User>) => async (dispatch: AppDispatch) => {
-  try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/newUser`,
-      newUser
-    );
-    if (response.data?.success) {
-      dispatch(setUserLoading());
+export const fetchUsersData =
+  () => async (dispatch: AppDispatch, getState: () => { users: UserState }) => {
+    dispatch(setUserLoading());
+    try {
+      const { filters, pagination } = getState().users;
+      const queryParams = new URLSearchParams();
+
+      queryParams.append("page", pagination.page.toString());
+      queryParams.append("limit", pagination.limit.toString());
+
+      if (filters.status && filters.status !== "All") {
+        queryParams.append("status", filters.status);
+      }
+      if (filters.role && filters.role !== "All") {
+        queryParams.append("role", filters.role);
+      }
+      if (filters.search) {
+        queryParams.append("search", filters.search);
+      }
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/?${queryParams}`
+      );
+
+      if (response.data?.success) {
+        const mappedUsers = response.data.data.map((user: ApiUser) =>
+          mapApiUserToUser(user)
+        );
+
+        dispatch(
+          setUserData({
+            data: mappedUsers,
+            total: response.data.pagination.total,
+          })
+        );
+      } else {
+        throw new Error(response.data?.message || "Failed to fetch users");
+      }
       return true;
-    } else {
-      const errorMessage = response.data?.message || "Failed to create user";
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
       dispatch(setUserError(errorMessage));
       return false;
     }
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setUserError(errorMessage));
-    return false;
-  }
-};
+  };
 
-// Update user status
-export const updateUserStatus = (userId: string, status: string) => async (dispatch: AppDispatch) => {
-  try {
-    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/updateUserStatus/${userId}`, {
-      status
-    });
-    if (response.data?.success) {
-      dispatch(setUserLoading());
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Failed to update user status");
-    }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-    dispatch(setUserError(errorMessage));
-  }
-};
+export const fetchActiveUsers =
+  () => async (dispatch: AppDispatch, getState: () => { users: UserState }) => {
+    dispatch(setUserLoading());
+    try {
+      const { filters, pagination } = getState().users;
+      const queryParams = new URLSearchParams();
 
-// Update user role
-export const updateUserRole = (userId: string, role: string) => async (dispatch: AppDispatch) => {
-  try {
-    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/updateUserRole/${userId}`, {
-      role
-    });
-    if (response.data?.success) {
-      dispatch(setUserLoading());
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Failed to update user role");
-    }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-    dispatch(setUserError(errorMessage));
-  }
-};
+      queryParams.append("page", pagination.page.toString());
+      queryParams.append("limit", pagination.limit.toString());
 
-// Edit a user
-export const updateUser = (userId: string, updatedData: Partial<User>) => async (dispatch: AppDispatch) => {
-  try {
-    const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${userId}`,
-      updatedData
-    );
-    if (response.data?.success) {
-      if (response.data.data) {
-        const mappedUser = mapApiUserToUser(response.data.data);
-        dispatch(updateUserInList(mappedUser));
+      if (filters.status && filters.status !== "") {
+        queryParams.append("status", filters.status);
       }
-      dispatch(setUserLoading());
-      return true;
-    } else {
-      throw new Error(response.data?.message || "Failed to update user");
-    }
-  } catch (error: unknown) {
-    const errorMessage = handleApiError(error);
-    dispatch(setUserError(errorMessage));
-    return false;
-  }
-};
+      if (filters.search) {
+        queryParams.append("search", filters.search);
+      }
 
-// Delete a user
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/getActiveUsers?${queryParams}`
+      );
+      if (response.data?.success) {
+        const mappedUsers = response.data.data.map((user: ApiUser) =>
+          mapApiUserToUser(user)
+        );
+
+        dispatch(
+          setUserData({
+            data: mappedUsers,
+            total: response.data.pagination.total,
+          })
+        );
+      } else {
+        throw new Error(response.data?.message || "Failed to fetch users");
+      }
+      return true;
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      dispatch(setUserError(errorMessage));
+      return false;
+    }
+  };
+
+export const fetchUserById =
+  (userId: string) => async (dispatch: AppDispatch) => {
+    dispatch(setUserLoading());
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/getUserById/${userId}`
+      );
+      if (response.data?.success) {
+        const user = response.data.data;
+        const mappedUser = mapApiUserToUser(user);
+        dispatch(setSelectedUser(mappedUser));
+        return true;
+      } else {
+        throw new Error(response.data?.message || "Failed to fetch user");
+      }
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      dispatch(setUserError(errorMessage));
+      return false;
+    }
+  };
+
+export const createUser =
+  (newUser: Partial<User>) => async (dispatch: AppDispatch) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/newUser`,
+        newUser
+      );
+      if (response.data?.success) {
+        dispatch(setUserLoading());
+        return true;
+      } else {
+        const errorMessage = response.data?.message || "Failed to create user";
+        dispatch(setUserError(errorMessage));
+        return false;
+      }
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      dispatch(setUserError(errorMessage));
+      return false;
+    }
+  };
+
+export const updateUserStatus =
+  (userId: string, status: string) => async (dispatch: AppDispatch) => {
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/updateUserStatus/${userId}`,
+        {
+          status,
+        }
+      );
+      if (response.data?.success) {
+        dispatch(setUserLoading());
+        return true;
+      } else {
+        throw new Error(
+          response.data?.message || "Failed to update user status"
+        );
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      dispatch(setUserError(errorMessage));
+    }
+  };
+
+export const updateUserRole =
+  (userId: string, role: string) => async (dispatch: AppDispatch) => {
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/updateUserRole/${userId}`,
+        {
+          role,
+        }
+      );
+      if (response.data?.success) {
+        dispatch(setUserLoading());
+        return true;
+      } else {
+        throw new Error(response.data?.message || "Failed to update user role");
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      dispatch(setUserError(errorMessage));
+    }
+  };
+
+export const updateUser =
+  (userId: string, updatedData: Partial<User>) =>
+  async (dispatch: AppDispatch) => {
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${userId}`,
+        updatedData
+      );
+      if (response.data?.success) {
+        if (response.data.data) {
+          const mappedUser = mapApiUserToUser(response.data.data);
+          dispatch(updateUserInList(mappedUser));
+        }
+        dispatch(setUserLoading());
+        return true;
+      } else {
+        throw new Error(response.data?.message || "Failed to update user");
+      }
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      dispatch(setUserError(errorMessage));
+      return false;
+    }
+  };
+
 export const deleteUser = (userId: string) => async (dispatch: AppDispatch) => {
   try {
     const response = await axios.delete(
@@ -466,8 +491,6 @@ export const deleteUser = (userId: string) => async (dispatch: AppDispatch) => {
     return false;
   }
 };
-
-// Selectors
 export const selectUsersData = (state: { users: UserState }) => state.users.data;
 export const selectUsersLoading = (state: { users: UserState }) => state.users.isLoading;
 export const selectUsersError = (state: { users: UserState }) => state.users.error;
@@ -475,5 +498,4 @@ export const selectSelectedUser = (state: { users: UserState }) => state.users.s
 export const selectUsersFilters = (state: { users: UserState }) => state.users.filters;
 export const selectUsersPagination = (state: { users: UserState }) => state.users.pagination;
 
-// Export the reducer
 export default userSlice.reducer;

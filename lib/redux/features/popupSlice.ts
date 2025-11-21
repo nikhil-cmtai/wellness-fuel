@@ -1,6 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AppDispatch } from "../store";
+import { AppDispatch, RootState } from "../store";
 import axios from "axios";
+
+const sanitizeBaseUrl = (url?: string) => {
+  if (!url) return "";
+  return url.endsWith("/") ? url.slice(0, -1) : url;
+};
+
+const API_BASE_URL = `${sanitizeBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL)}/popups`;
 
 export interface Field {
   fieldName: string;
@@ -8,7 +15,6 @@ export interface Field {
   isRequired: boolean;
 }
 
-// Define the Popup type
 export interface Popup {
   _id: string;
   name: string;
@@ -24,7 +30,6 @@ export interface Popup {
   showCloseIcon: boolean;
   fields: Field[];
   status: "active" | "inactive";
-  // Color options
   backgroundColor: string;
   textColor: string;
   buttonColor: string;
@@ -34,7 +39,6 @@ export interface Popup {
   updatedAt: string;
 }
 
-// Define the API Popup type (from backend)
 interface ApiPopup {
   _id: string;
   name: string;
@@ -49,7 +53,7 @@ interface ApiPopup {
   badgeVisible: boolean;
   showCloseIcon: boolean;
   fields: Field[];
-  status: "active" | "inactive";
+  status: string;
   backgroundColor: string;
   textColor: string;
   buttonColor: string;
@@ -59,7 +63,6 @@ interface ApiPopup {
   updatedAt: string;
 }
 
-// Define the state structure
 interface PopupState {
   data: Popup[];
   isLoading: boolean;
@@ -71,7 +74,6 @@ interface PopupState {
   };
 }
 
-// Initial state
 const initialState: PopupState = {
   data: [],
   isLoading: false,
@@ -83,7 +85,6 @@ const initialState: PopupState = {
   },
 };
 
-// Helper function to map API popup to our Popup interface
 const mapApiPopupToPopup = (apiPopup: ApiPopup): Popup => ({
   _id: apiPopup._id,
   name: apiPopup.name,
@@ -98,7 +99,7 @@ const mapApiPopupToPopup = (apiPopup: ApiPopup): Popup => ({
   badgeVisible: apiPopup.badgeVisible,
   showCloseIcon: apiPopup.showCloseIcon,
   fields: apiPopup.fields,
-  status: apiPopup.status,
+  status: apiPopup.status.toLowerCase() as "active" | "inactive",
   backgroundColor: apiPopup.backgroundColor,
   textColor: apiPopup.textColor,
   buttonColor: apiPopup.buttonColor,
@@ -108,7 +109,6 @@ const mapApiPopupToPopup = (apiPopup: ApiPopup): Popup => ({
   updatedAt: apiPopup.updatedAt,
 });
 
-// Error handler utility
 const handleApiError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message || error.message;
@@ -119,7 +119,6 @@ const handleApiError = (error: unknown) => {
   return 'An unexpected error occurred';
 };
 
-// Create the slice
 const popupSlice = createSlice({
   name: "popups",
   initialState,
@@ -151,7 +150,6 @@ const popupSlice = createSlice({
   },
 });
 
-// Export actions
 export const {
   setPopupData,
   setPopupLoading,
@@ -161,30 +159,22 @@ export const {
   clearSelectedPopup,
 } = popupSlice.actions;
 
-// Fetch popups with filters
-export const fetchPopupsData = () => async (dispatch: AppDispatch, getState: () => { popups: PopupState }) => {
+export const fetchPopupsData = () => async (dispatch: AppDispatch, getState: () => RootState) => {
   dispatch(setPopupLoading());
   try {
     const { filters } = getState().popups;
-    const queryParams = new URLSearchParams();
+    const params: Record<string, string> = {};
 
-    // Add filter parameters if they exist
     if (filters.status && filters.status !== 'all') {
-      queryParams.append('status', filters.status);
+      params.status = filters.status;
     }
     if (filters.name) {
-      queryParams.append('name', filters.name);
+      params.name = filters.name;
     }
 
-    const queryString = queryParams.toString();
-    const url = queryString ?
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/popups?${queryString}` :
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/popups`;
-
-    const response = await axios.get(url);
+    const response = await axios.get(API_BASE_URL, { params });
 
     if (response.data?.success && Array.isArray(response.data.data)) {
-      // Map API response to our Popup interface
       const mappedPopups = response.data.data.map((popup: ApiPopup) => mapApiPopupToPopup(popup));
       dispatch(setPopupData(mappedPopups));
     } else {
@@ -198,11 +188,12 @@ export const fetchPopupsData = () => async (dispatch: AppDispatch, getState: () 
   }
 };
 
-// Fetch active popups
 export const fetchActivePopups = () => async (dispatch: AppDispatch) => {
   dispatch(setPopupLoading());
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/popups/getActivePopups`);
+    const response = await axios.get(API_BASE_URL, {
+      params: { status: "Active" },
+    });
     if (response.data?.success && Array.isArray(response.data.data)) {
       const mappedPopups = response.data.data.map((popup: ApiPopup) => mapApiPopupToPopup(popup));
       dispatch(setPopupData(mappedPopups));
@@ -217,13 +208,10 @@ export const fetchActivePopups = () => async (dispatch: AppDispatch) => {
   }
 };
 
-// Fetch popup by ID
 export const fetchPopupById = (popupId: string) => async (dispatch: AppDispatch) => {
   dispatch(setPopupLoading());
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/popups/getPopupById/${popupId}`
-    );
+    const response = await axios.get(`${API_BASE_URL}/${popupId}`);
     if (response.data?.success) {
       const popup = response.data.data;
       const mappedPopup = mapApiPopupToPopup(popup);
@@ -239,19 +227,14 @@ export const fetchPopupById = (popupId: string) => async (dispatch: AppDispatch)
   }
 };
 
-// Add a new popup
 export const createPopup = (newPopup: FormData) => async (dispatch: AppDispatch) => {
   dispatch(setPopupLoading());
   try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/popups`,
-      newPopup,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+    const response = await axios.post(API_BASE_URL, newPopup, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     if (response.data?.success) {
       dispatch(setPopupLoading());
       return true;
@@ -267,11 +250,10 @@ export const createPopup = (newPopup: FormData) => async (dispatch: AppDispatch)
   }
 };
 
-// Update popup status
 export const updatePopupStatus = (popupId: string) => async (dispatch: AppDispatch) => {
   dispatch(setPopupLoading());
   try {
-    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/popups/updatePopupStatus/${popupId}`);
+    const response = await axios.patch(`${API_BASE_URL}/${popupId}/status`);
     if (response.data?.success) {
       dispatch(setPopupLoading());
     } else {
@@ -283,19 +265,14 @@ export const updatePopupStatus = (popupId: string) => async (dispatch: AppDispat
   }
 }
 
-// Edit a popup
 export const updatePopup = (popupId: string, updatedData: FormData) => async (dispatch: AppDispatch) => {
   dispatch(setPopupLoading());
   try {
-    const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/popups/${popupId}`,
-      updatedData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+    const response = await axios.put(`${API_BASE_URL}/${popupId}`, updatedData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     if (response.data?.success) {
       dispatch(setPopupLoading());
       return true;
@@ -309,13 +286,10 @@ export const updatePopup = (popupId: string, updatedData: FormData) => async (di
   }
 };
 
-// Delete a popup
 export const deletePopup = (popupId: string) => async (dispatch: AppDispatch) => {
   dispatch(setPopupLoading());
   try {
-    const response = await axios.delete(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/popups/${popupId}`
-    );
+    const response = await axios.delete(`${API_BASE_URL}/${popupId}`);
     if (response.data?.success) {
       dispatch(setPopupLoading());
       return true;
@@ -329,12 +303,10 @@ export const deletePopup = (popupId: string) => async (dispatch: AppDispatch) =>
   }
 };
 
-// Selectors
-export const selectPopupsData = (state: { popups: PopupState }) => state.popups.data;
-export const selectPopupsLoading = (state: { popups: PopupState }) => state.popups.isLoading;
-export const selectPopupsError = (state: { popups: PopupState }) => state.popups.error;
-export const selectSelectedPopup = (state: { popups: PopupState }) => state.popups.selectedPopup;
-export const selectPopupsFilters = (state: { popups: PopupState }) => state.popups.filters;
+export const selectPopupsData = (state: RootState) => state.popups.data;
+export const selectPopupsLoading = (state: RootState) => state.popups.isLoading;
+export const selectPopupsError = (state: RootState) => state.popups.error;
+export const selectSelectedPopup = (state: RootState) => state.popups.selectedPopup;
+export const selectPopupsFilters = (state: RootState) => state.popups.filters;
 
-// Export the reducer
 export default popupSlice.reducer;
